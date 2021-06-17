@@ -8,7 +8,7 @@ import { INWCTenantInfo } from './model/INWCTenantInfo';
 import * as endpoints from './endpoints.json' ;
 import { INWCTenantConnectionInfo } from './model/INWCTenantConnectionInfo';
 import { INWCUser } from './model/INWCUser';
-import {ILogging, LogStyle, LogWithStyle} from "ntx-solutions-utils";
+import {ILogging, LogWithStyle} from "ntx-utils";
 import { INWCImportedWorkflowResponse } from './model/INWCImportWorkflowResponse';
 import { INWCWorkflowPublishPayload } from './model/INWCWorkflowPublishPayload';
 import { INWCDataSource } from './model/INWCDatasource';
