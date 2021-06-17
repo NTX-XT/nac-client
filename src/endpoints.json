@@ -1,0 +1,15 @@
+{
+    "ConnectorsEndpointTemplate": "{{apiManagerUrl}}/workflows/v1/connectors",
+    "ImportWorkflowEndpointTemplate": "{{apiManagerUrl}}/workflows/v1/designs/import",
+    "WorkflowsEndpointTemplate": "{{apiManagerUrl}}/workflows/v1/designs?limit=2000",
+    "WorkflowEndpointTemplate": "{{apiManagerUrl}}/workflows/v1/designs/{{workflowId}}",
+    "ExportWorkflowEndpointTemplate": "{{apiManagerUrl}}/workflows/v1/designs/{{workflowId}}/published/export",
+    "CheckWorkflowNameEndpointTemplate": "{{apiManagerUrl}}/designer_/api/workflows/{{workflowName}}/checkname",
+    "PublishWorkflowEndpointTemplate": "{{apiManagerUrl}}/designer_/api/workflows/{{workflowId}}/published",
+    "WorkflowSourceEndpointTemplate": "{{apiManagerUrl}}/designer_/api/workflows/{{workflowId}}",
+    "ConnectionsEndpointTemplate": "{{apiManagerUrl}}/designer_/api/connection/api/connections",
+    "TenantInfoEndpointTemplate": "{{apiManagerUrl}}/designer_/api/uxappconfig/",
+    "AppTokenEndpointTemplate": "{{apiManagerUrl}}/authentication/v1/token",
+    "DatasourcesEndpointTemplate": "{{apiManagerUrl}}/connection/api/datasources",
+    "DatasourceTokenEndpointTemplate": "{{apiManagerUrl}}/designer_/datasources/get-datasource-token"
+}
