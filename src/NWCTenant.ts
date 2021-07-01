@@ -85,7 +85,7 @@ export class NWCTenant implements ILogging {
         this.log.write(`Executing delete to ${endpoint}`);
         try {
             const result = await axios.delete(endpoint, {
-                headers: this.getRequestHeaders(endpoint)
+                headers: this.getRequestHeaders()
             });
             return result.data;
         } catch (error) {
@@ -98,7 +98,7 @@ export class NWCTenant implements ILogging {
         this.log.write(`Executing post to ${endpoint}`);
         try {
             const result = await axios.post(endpoint, payload, {
-                headers: this.getRequestHeaders(endpoint)
+                headers: this.getRequestHeaders()
             });
             return result.data;
         } catch (error) {

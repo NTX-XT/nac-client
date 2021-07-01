@@ -1,6 +1,6 @@
 {
     "name": "nwc-sdk",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "An experimental SDK for the NWC platform",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
