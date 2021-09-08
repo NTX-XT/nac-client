@@ -12,6 +12,9 @@ export interface INWCWorkflowDefinitionSettings {
 	isActive: boolean
 }
 export interface INWCWorkflowDefinitionDataSources {
-	sources: string[]
+	sources: INWCWorkflowDefinitionDataSourceId[]
 	type: string
+}
+export interface INWCWorkflowDefinitionDataSourceId {
+	id: string
 }
