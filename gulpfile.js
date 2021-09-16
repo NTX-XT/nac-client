@@ -22,7 +22,7 @@ gulp.task("build", async() => {
         tsResult.dts
         .pipe(concat('index.d.ts'))
         .pipe(deleteLines({
-             'filters': [/^import.+?[.][/]model[/]/i]
+             'filters': [/^import.+?[.][/]/i]
         }))
         .pipe(gulp.dest('dist')),
         tsResult.js
