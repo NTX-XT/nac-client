@@ -1,6 +1,6 @@
 {
 	"name": "nwc-sdk",
-	"version": "1.1.7",
+	"version": "1.1.8",
 	"description": "An experimental SDK for the NWC platform",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -19,9 +19,11 @@
 	},
 	"dependencies": {
 		"axios": "^0.21.4",
-		"ntx-utils": "^1.1.0"
+		"colorts": "^0.1.63",
+		"fs-extra": "^10.0.0"
 	},
 	"devDependencies": {
+		"@types/fs-extra": "^9.0.13",
 		"@types/node": "^14.17.16",
 		"del": "^6.0.0",
 		"gulp": "^4.0.2",

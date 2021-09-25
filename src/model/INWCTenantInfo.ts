@@ -1,10 +1,8 @@
-import { INWCTenantDetails } from "./INWCTenantDetails";
-
 export interface INWCTenantInfo {
-    id: string;
-    name: string;
-    apiManagerUrl: string;
-    host: string;
-    details: INWCTenantDetails;
+	cloudElementService: boolean
+	serviceRegion: string
+	id: string
+	name: string
+	apiManagerUrl: string
+	host: string
 }
-
