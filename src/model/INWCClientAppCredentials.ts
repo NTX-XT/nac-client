@@ -1,4 +1,4 @@
-export interface INWCClientApp {
+export interface INWCClientAppCredentials {
 	clientId: string
 	clientSecret: string
 	tenantName?: string

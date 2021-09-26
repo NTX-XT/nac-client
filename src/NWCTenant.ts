@@ -2,7 +2,7 @@ import axios from 'axios'
 import { INWCWorkflowSource } from './model/INWCWorkflowSource'
 import { INWCConnectionInfo } from './model/INWCConnectionInfo'
 import { INWCConnectorInfo } from './model/INWCConnectorInfo'
-import { INWCClientApp as INWCClientAppCredentials } from './model/INWCClientAppCredentials'
+import { INWCClientAppCredentials } from './model/INWCClientAppCredentials'
 import { INWCWorkflowInfo } from './model/INWCWorkflowInfo'
 import { INWCTenantInfo } from './model/INWCTenantInfo'
 import * as endpoints from './endpoints.json'
@@ -124,7 +124,7 @@ export class NWCTenant {
 	public datasources: INWCDataSource[]
 	public datasourceContracts: INWCDatasourceContract[]
 	public log: NWCSDKLogger
-	public executionContext: ExecutionContext
+	//public executionContext: ExecutionContext
 
 	private constructor(executionContextConfiguration: IExecutionContextConfiguration) {
 		this.tenantInfo = {} as INWCTenantInfo
@@ -136,7 +136,7 @@ export class NWCTenant {
 		this.datasources = [] as INWCDataSource[]
 		this.datasourceContracts = [] as INWCDatasourceContract[]
 		this.log = new NWCSDKLogger(false)
-		this.executionContext = new ExecutionContext(this, executionContextConfiguration)
+		//this.executionContext = new ExecutionContext(this, executionContextConfiguration)
 	}
 
 	public setLogging(logToConsole: boolean) {
