@@ -1,6 +1,6 @@
 {
 	"name": "nwc-sdk",
-	"version": "1.1.10",
+	"version": "1.1.13",
 	"description": "An experimental SDK for the NWC platform",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -25,14 +25,7 @@
 	"devDependencies": {
 		"@types/fs-extra": "^9.0.13",
 		"@types/node": "^14.17.16",
-		"del": "^6.0.0",
-		"gulp": "^4.0.2",
-		"gulp-concat": "^2.6.1",
-		"gulp-delete-lines": "0.0.7",
-		"gulp-sourcemaps": "^3.0.0",
-		"gulp-typescript": "^6.0.0-alpha.1",
-		"gulp-uglify": "^3.0.2",
-		"merge-stream": "^2.0.0",
+		"gulp-ts-build": "^1.0.0",
 		"typescript": "^4.4.3"
 	},
 	"author": "John Pouliezos",

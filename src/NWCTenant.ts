@@ -311,11 +311,36 @@ export class NWCTenant {
 	}
 
 	public async retrieveTenantData() {
-		this.connections = await this.get(endpoints.ConnectionsEndpointTemplate)
-		this.connectors = (await this.get(endpoints.ConnectorsEndpointTemplate)).connectors
-		this.workflows = (await this.get(endpoints.WorkflowsEndpointTemplate)).workflows
-		this.datasources = await this.get(endpoints.DatasourcesEndpointTemplate, undefined, this.dataSourceToken)
+		this.connections = await this.getConnections()
+		this.connectors = await this.getConnectors()
+		this.workflows = await this.getWorkflows()
+		this.datasources = await this.getDataSources()
+		this.datasourceContracts = await this.getDataSourceContracts()
+	}
+
+	public async getDataSourceContracts(): Promise<INWCDatasourceContract[]> {
 		this.datasourceContracts = await this.get(endpoints.ContractsEndpointTemplate, undefined, this.dataSourceToken)
+		return this.datasourceContracts
+	}
+
+	public async getDataSources(): Promise<INWCDataSource[]> {
+		this.datasources = await this.get(endpoints.DatasourcesEndpointTemplate, undefined, this.dataSourceToken)
+		return this.datasources
+	}
+
+	public async getWorkflows(): Promise<INWCWorkflowInfo[]> {
+		this.workflows = await (await this.get(endpoints.WorkflowsEndpointTemplate)).workflows
+		return this.workflows
+	}
+
+	public async getConnectors(): Promise<INWCConnectorInfo[]> {
+		this.connectors = await (await this.get(endpoints.ConnectorsEndpointTemplate)).connectors
+		return this.connectors
+	}
+
+	public async getConnections(): Promise<INWCConnectionInfo[]> {
+		this.connections = await this.get(endpoints.ConnectionsEndpointTemplate)
+		return this.connections
 	}
 
 	public async getWorkflow(workflowId: string): Promise<INWCWorkflowInfo> {
