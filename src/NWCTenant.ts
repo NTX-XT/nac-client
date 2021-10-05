@@ -15,6 +15,7 @@ import color, { echo } from 'colorts'
 import { IExecutionContextConfiguration } from './model/IExecutionContextConfiguration'
 import fs from 'fs-extra'
 import path from 'path'
+import { INWCTag } from './model/INWCTag'
 
 enum LogStyle {
 	Default,
@@ -124,6 +125,7 @@ export class NWCTenant {
 	public datasources: INWCDataSource[]
 	public datasourceContracts: INWCDatasourceContract[]
 	public log: NWCSDKLogger
+	public tags: INWCTag[]
 	//public executionContext: ExecutionContext
 
 	private constructor(executionContextConfiguration: IExecutionContextConfiguration) {
@@ -136,6 +138,7 @@ export class NWCTenant {
 		this.datasources = [] as INWCDataSource[]
 		this.datasourceContracts = [] as INWCDatasourceContract[]
 		this.log = new NWCSDKLogger(false)
+		this.tags = [] as INWCTag[]
 		//this.executionContext = new ExecutionContext(this, executionContextConfiguration)
 	}
 
@@ -316,6 +319,22 @@ export class NWCTenant {
 		this.workflows = await this.getWorkflows()
 		this.datasources = await this.getDataSources()
 		this.datasourceContracts = await this.getDataSourceContracts()
+		this.tags = await this.getTags()
+	}
+
+	public async getTags(): Promise<INWCTag[]> {
+		const result = await this.get(endpoints.TagsEndpoint)
+		console.log(result)
+		console.log(result.resource)
+		for (var item of result.resource)
+			this.tags = result.resource.map(
+				(r: { name: any; count: any }) =>
+					({
+						name: r.name,
+						count: r.count,
+					} as INWCTag)
+			)
+		return this.tags
 	}
 
 	public async getDataSourceContracts(): Promise<INWCDatasourceContract[]> {

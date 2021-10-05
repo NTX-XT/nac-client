@@ -12,5 +12,6 @@
 	"AppTokenEndpointTemplate": "{{apiManagerUrl}}/authentication/v1/token",
 	"DatasourcesEndpointTemplate": "{{apiManagerUrl}}/connection/api/datasources",
 	"DatasourceTokenEndpointTemplate": "{{apiManagerUrl}}/designer_/datasources/get-datasource-token",
-	"ContractsEndpointTemplate": "{{apiManagerUrl}}/connection/api/datasources/contracts?includePublic=true"
+	"ContractsEndpointTemplate": "{{apiManagerUrl}}/connection/api/datasources/contracts?includePublic=true",
+	"TagsEndpoint": "{{apiManagerUrl}}/designer_/api/tags"
 }
