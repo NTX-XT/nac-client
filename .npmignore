@@ -1,6 +1,4 @@
-node_modules/
-src/
-.vscode/
-gulpfile.js
-.gitignore
-tsconfig.json
+.
+!dist/
+!package.json
+!readme.md

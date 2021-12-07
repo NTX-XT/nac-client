@@ -1,0 +1,23 @@
+{
+  "name": "@nwc-sdk/package",
+  "version": "1.0.0",
+  "description": "Experimental packaging and deployment for the Nintex Workflow Cloud platformm",
+  "homepage": "",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "build": "node ../../builder.js run production"
+  },
+  "dependencies": {
+    "@nwc-sdk/sdk": "file:../sdk"
+  }
+}

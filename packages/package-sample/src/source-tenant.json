@@ -1,0 +1,5 @@
+{
+	"clientId": "SOURCE_TENANT_APP_CLIENT_ID",
+	"clientSecret": "SOURCE_TENANT_APP_CLIENT_SECRET",
+	"tenantName": "SOURCE_TENANT_NAME"
+}

@@ -3,20 +3,50 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [
-    
-        {
-            "name": "Debug gulp",
+    "configurations": [{
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
-            "stopOnEntry": false,
-            "args": [],
-            "cwd": "${workspaceRoot}",
+            "name": "Debug Build Script (package)",
+            "runtimeExecutable": "npm",
             "runtimeArgs": [
-                "--nolazy"
+                "run-script",
+                "build",
+                "--preserve-symlinks"
             ],
-            "console": "internalConsole",
+            "port": 9229,
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}\\packages\\package"
+        },
+        {
+            "name": "Run Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/browser"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/packages/browser/dist/**/*.js"
+            ],
+            "preLaunchTask": "build-extension",
+            "cwd": "${workspaceFolder}/packages/browser"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run Package Sample",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "dev",
+                "--preserve-symlinks"
+            ],
+            "port": 9229,
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/package-sample"
         }
     ]
 }

@@ -1,0 +1,141 @@
+{
+  "name": "nwc-browser",
+  "version": "1.0.0",
+  "description": "Experimental Visual Stidio Code extension to browse your Nintex Workflow Cloud tenantsm",
+  "homepage": "",
+  "license": "ISC",
+  "main": "./dist/main.js",
+  "private": true,
+  "directories": {
+    "dist": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
+    "build": "npm run esbuild-base -- --sourcemap",
+    "package": "vsce package --out ./bin/",
+    "publish": "vsce publish"
+  },
+  "engines": {
+    "vscode": "^1.61.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "title": "NWC Explorer",
+          "id": "nwc-explorer",
+          "icon": "resources/nintex.png"
+        }
+      ]
+    },
+    "views": {
+      "nwc-explorer": [
+        {
+          "id": "nwcTenants",
+          "name": "NWC Tenants",
+          "icon": "resources/nintex.png",
+          "contextualTitle": "NWC Explorer"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "nwcTenants.connect",
+        "title": "NWC: Connect to NWC tenant"
+      },
+      {
+        "command": "nwcTenants.refresh",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "nwcTenants.edit",
+        "title": "Edit",
+        "icon": {
+          "light": "resources/light/edit.svg",
+          "dark": "resources/dark/edit.svg"
+        }
+      },
+      {
+        "command": "nwcTenants.viewSource",
+        "title": "View Source"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "nwcTenants.refresh",
+          "when": "view == nwcTenants",
+          "group": "navigation"
+        },
+        {
+          "command": "nwcTenants.edit",
+          "when": "view == nwcTenants",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "nwcTenants.viewSource",
+          "when": "viewItem == Workflow || viewItem == Connection || viewItem == Datasource",
+          "group": "navigation",
+          "icon": {
+            "light": "resources/light/edit.svg",
+            "dark": "resources/dark/edit.svg"
+          }
+        }
+      ]
+    },
+    "configuration": {
+      "title": "NWC Explorer",
+      "type": "object",
+      "properties": {
+        "nwcExplorer.connections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tenantName": {
+                "type": "string",
+                "title": "Tenant Url"
+              },
+              "clientId": {
+                "type": "string",
+                "title": "Client Id"
+              },
+              "clientSecret": {
+                "type": "string",
+                "title": "Client Secret"
+              }
+            }
+          }
+        },
+        "nwcExplorer.packageFilePath": {
+          "type": [
+            "string",
+            null
+          ],
+          "default": null
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@nwc-sdk/sdk": "file:../sdk",
+    "uuid": "^8.3.2"
+  }
+}

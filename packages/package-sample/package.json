@@ -1,0 +1,28 @@
+{
+  "name": "@nwc-sdk/package-sample",
+  "version": "1.0.0",
+  "description": "NWC workflow packaging sample app",
+  "homepage": "",
+  "license": "ISC",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
+  "directories": {
+    "dist": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "dev": "ts-node ./src/index.ts"
+  },
+  "dependencies": {
+    "@nwc-sdk/package": "file:../package",
+    "@nwc-sdk/sdk": "file:../sdk"
+  },
+  "devDependencies": {
+    "ts-node": "^10.4.0"
+  }
+}

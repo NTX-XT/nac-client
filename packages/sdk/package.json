@@ -1,0 +1,30 @@
+{
+  "name": "@nwc-sdk/sdk",
+  "version": "1.0.0",
+  "description": "An experimental SDK for the NWC platform",
+  "homepage": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "build": "node ../../builder.js run production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NTX-XT/nwc-sdk.git"
+  },
+  "dependencies": {
+    "axios": "^0.21.4",
+    "colorts": "^0.1.63",
+    "fs-extra": "^10.0.0"
+  },
+  "author": "John Pouliezos",
+  "license": "MIT"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "{{{scope}}}{{name}}",
+  "version": "{{version}}",
+  "description": "{{description}}",
+  "homepage": "",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
+  "directories": {
+    "dist": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "build": "node ../../builder.js run production"
+  }
+}
