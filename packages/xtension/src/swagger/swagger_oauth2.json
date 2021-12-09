@@ -1,0 +1,40 @@
+{
+	"securityDefinitions": {
+		"oauth2": {
+			"type": "oauth2",
+			"tokenUrl": "https://us.nintex.io/authentication/v1/token",
+			"flow": "application",
+			"scopes": {
+				"execute:instance": "Execute workflow",
+				"read:task": "Read task",
+				"read:workflow": "Read workflow",
+				"read:instance": "Read workflow instance",
+				"manage:instance": "Manage workflow instance",
+				"manage:workflow": "Manage workflow",
+				"manage:task": "Manage task"
+			},
+			"x-ntx-connection-properties": {
+				"type": "object",
+				"properties": {
+					"client_id": {
+						"type": "string",
+						"title": "Client ID",
+						"description": "Generated from the tenant settings page."
+					},
+					"client_secret": {
+						"type": "string",
+						"title": "Client secret",
+						"format": "password",
+						"description": "Generated from the tenant settings page."
+					}
+				},
+				"required": ["client_id", "client_secret"]
+			}
+		}
+	},
+	"security": [
+		{
+			"oauth2": ["execute:instance", "read:task", "read:workflow", "read:instance", "manage:instance", "manage:workflow", "manage:task"]
+		}
+	]
+}

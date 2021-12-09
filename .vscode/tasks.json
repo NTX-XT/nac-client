@@ -9,6 +9,39 @@
 		"problemMatcher": [],
 		"label": "build-extension",
 		"path": "/packages/browser/"
-
+	}, {
+		"type": "func",
+		"command": "host start",
+		"problemMatcher": "$func-node-watch",
+		"isBackground": true,
+		"dependsOn": "npm build (functions)",
+		"options": {
+			"cwd": "${workspaceFolder}/packages/xtension/src"
+		}
+	}, {
+		"type": "shell",
+		"label": "npm build (functions)",
+		"command": "npm run build",
+		"dependsOn": "npm install (functions)",
+		"problemMatcher": "$tsc",
+		"options": {
+			"cwd": "${workspaceFolder}/packages/xtension"
+		}
+	}, {
+		"type": "shell",
+		"label": "npm install (functions)",
+		"command": "npm install",
+		"options": {
+			"cwd": "${workspaceFolder}/packages/xtension"
+		}
+	}, {
+		"type": "shell",
+		"label": "npm prune (functions)",
+		"command": "npm prune --production",
+		"dependsOn": "npm build (functions)",
+		"problemMatcher": [],
+		"options": {
+			"cwd": "${workspaceFolder}/packages/xtension"
+		}
 	}]
 }

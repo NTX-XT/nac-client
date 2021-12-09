@@ -1,0 +1,516 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"title": "nwcsdk",
+		"description": "An API wrapper for the NWD SDK",
+		"version": "0.0.4"
+	},
+	"host": "nwcsdk.azurewebsites.net",
+	"basePath": "/api",
+	"schemes": ["https"],
+	"produces": ["application/json"],
+	"paths": {
+		"/tenant": {
+			"get": {
+				"summary": "Get tenant info",
+				"description": "Get tenant info",
+				"operationId": "getTenantInfo",
+				"produces": ["application/json"],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/tenantInfo"
+						}
+					}
+				}
+			}
+		},
+		"/tenant/connectors": {
+			"get": {
+				"summary": "Get tenant available connectors",
+				"description": "Get tenant available connectors",
+				"operationId": "getConnectors",
+				"produces": ["application/json"],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "type": "array", "items": { "$ref": "#/definitions/connector" } }
+					}
+				}
+			}
+		},
+		"/tenant/connectors/{Id}/connections": {
+			"get": {
+				"summary": "Get connections of connector",
+				"description": "Get connections of connector",
+				"operationId": "getConnectionsOfConnector",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "Id",
+						"type": "string",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "type": "array", "items": { "$ref": "#/definitions/connection" } }
+					}
+				}
+			}
+		},
+		"/tenant/datasources": {
+			"get": {
+				"summary": "Get datasources",
+				"description": "Get datasources",
+				"operationId": "getDatasources",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "contractId",
+						"type": "string",
+						"required": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "type": "array", "items": { "$ref": "#/definitions/datasource" } }
+					}
+				}
+			}
+		},
+		"/tenant/workflows": {
+			"get": {
+				"summary": "Get tenant workfows",
+				"description": "Get tenant workfows",
+				"operationId": "getTenantWorkflows",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "tag",
+						"type": "string",
+						"x-ntx-summary": "Tag"
+					},
+					{
+						"in": "query",
+						"name": "onlyPublished",
+						"type": "boolean",
+						"x-ntx-summary": "Only published workflows"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "type": "array", "items": { "$ref": "#/definitions/workflow" } }
+					}
+				}
+			}
+		},
+		"/tenant/tags": {
+			"get": {
+				"summary": "Get tenant tags",
+				"description": "Get tenant tags",
+				"operationId": "getTenantTags",
+				"produces": ["application/json"],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "type": "array", "items": { "$ref": "#/definitions/tag" } }
+					}
+				}
+			}
+		},
+		"/package": {
+			"get": {
+				"summary": "Get deployment package",
+				"description": "Get deployment package",
+				"operationId": "getPackage",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "packageUrl",
+						"type": "string",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "$ref": "#/definitions/package" }
+					}
+				}
+			},
+			"post": {
+				"summary": "Create deployment package",
+				"description": "Create deployment package",
+				"operationId": "createPackage",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "tag",
+						"type": "string",
+						"required": true
+					},
+					{
+						"in": "query",
+						"name": "packageName",
+						"type": "string",
+						"required": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "$ref": "#/definitions/operationResult" }
+					}
+				}
+			}
+		},
+		"/package/status": {
+			"get": {
+				"summary": "Get packaging status",
+				"description": "Get packaging status",
+				"operationId": "getPackagingStatus",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "operationId",
+						"type": "string",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "$ref": "#/definitions/packagingStatus" }
+					}
+				}
+			}
+		},
+		"/deployC19VMonitoring": {
+			"post": {
+				"summary": "Deploy the COVID19 Vaccination Monitoring solution",
+				"description": "Deploy the COVID19 Vaccination Monitoring solution",
+				"operationId": "deployC19VMonitoring",
+				"produces": ["application/json"],
+				"consumes": ["application/json"],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "packageUrl",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"packageUrl": {
+									"type": "string",
+									"x-ntx-summary": "Package File URL"
+								},
+								"spOnlineConnectionId": {
+									"type": "string",
+									"x-ntx-summary": "SP Online Connection Id"
+								},
+								"spOnlineDatasourceId": {
+									"type": "string",
+									"x-ntx-summary": "SP Online Datasource Id"
+								},
+								"spSiteUrl": {
+									"type": "string",
+									"x-ntx-summary": "SP Site URL"
+								},
+								"spListName": {
+									"type": "string",
+									"x-ntx-summary": "SP List Name"
+								},
+								"spListId": {
+									"type": "string",
+									"x-ntx-summary": "SP List Id"
+								}
+							}
+						},
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": { "$ref": "#/definitions/operationResult" }
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"operationResult": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "Packaging Operation Result",
+			"properties": {
+				"operationId": {
+					"type": "string",
+					"x-ntx-summary": "Operation Id"
+				}
+			}
+		},
+		"packagingStatus": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "Packaging Status",
+			"properties": {
+				"operationStatus": {
+					"type": "string",
+					"x-ntx-summary": "Operation Status"
+				},
+				"output": {
+					"type": "string",
+					"x-ntx-summary": "Output as string"
+				}
+			}
+		},
+		"tag": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "Workflow Tag",
+			"properties": {
+				"name": {
+					"type": "string",
+					"x-ntx-summary": "Name"
+				},
+				"count": {
+					"type": "number",
+					"x-ntx-summary": "Tagged Workflow Count"
+				}
+			}
+		},
+		"workflow": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "NWC Workflow",
+			"properties": {
+				"id": {
+					"type": "string",
+					"x-ntx-summary": "Workflow Id"
+				},
+				"name": {
+					"type": "string",
+					"x-ntx-summary": "Workflow Name"
+				},
+				"tags": {
+					"type": "array",
+					"x-ntx-summary": "Tags",
+					"items": {
+						"type": "string",
+						"x-ntx-summary": "Tag"
+					}
+				},
+				"isPublished": {
+					"type": "boolean",
+					"x-ntx-summary": "Is Published"
+				}
+			}
+		},
+		"packageWorkflow": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "Packaged Workflow Info",
+			"properties": {
+				"workflowId": {
+					"type": "string",
+					"x-ntx-summary": "Workflow Id"
+				},
+				"workflowName": {
+					"type": "string",
+					"x-ntx-summary": "Workflow Name"
+				},
+				"exportKey": {
+					"type": "string",
+					"x-ntx-summary": "Workflow Export Key"
+				},
+				"order": {
+					"type": "integer",
+					"x-ntx-summary": "Workflow Deployment Order"
+				}
+			}
+		},
+		"packageConnector": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "NWC Package Connector",
+			"properties": {
+				"id": {
+					"type": "string",
+					"x-ntx-summary": "Connector Id"
+				},
+				"name": {
+					"type": "string",
+					"x-ntx-summary": "Connector Name"
+				},
+				"connectionId": {
+					"type": "string",
+					"x-ntx-summary": "Referenced Connection Id"
+				}
+			}
+		},
+		"packageDatasource": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "NWC Package Datasource Contract",
+			"properties": {
+				"id": {
+					"type": "string",
+					"x-ntx-summary": "Datasource Contract Id"
+				},
+				"name": {
+					"type": "string",
+					"x-ntx-summary": "Datasource Contract  Name"
+				},
+				"datasourceId": {
+					"type": "string",
+					"x-ntx-summary": "Referenced Datasource Id"
+				},
+				"datasourceName": {
+					"type": "string",
+					"x-ntx-summary": "Referenced Datasource Name"
+				}
+			}
+		},
+		"package": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "NWC Deployment Package",
+			"properties": {
+				"key": {
+					"type": "string",
+					"x-ntx-summary": "Package Key"
+				},
+				"workflows": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/packageWorkflow" },
+					"x-ntx-summary": "Package Workflows"
+				},
+				"connectors": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/packageConnector" },
+					"x-ntx-summary": "Package Connectors"
+				},
+				"datasources": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/packageDatasource" },
+					"x-ntx-summary": "Package DataSources"
+				}
+			}
+		},
+		"connection": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "Tenant Connection",
+			"properties": {
+				"valid": {
+					"type": "boolean",
+					"x-ntx-summary": "Valid"
+				},
+				"contractName": {
+					"type": "string",
+					"x-ntx-summary": "Connector Name"
+				},
+				"id": {
+					"type": "string",
+					"x-ntx-summary": "Id"
+				},
+				"name": {
+					"type": "string",
+					"x-ntx-summary": "Name"
+				}
+			}
+		},
+		"datasource": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "Tenant Datasource",
+			"properties": {
+				"valid": {
+					"type": "boolean",
+					"x-ntx-summary": "Valid"
+				},
+				"contractName": {
+					"type": "string",
+					"x-ntx-summary": "Contract Name"
+				},
+				"contractId": {
+					"type": "string",
+					"x-ntx-summary": "Contract Id"
+				},
+				"id": {
+					"type": "string",
+					"x-ntx-summary": "Id"
+				},
+				"name": {
+					"type": "string",
+					"x-ntx-summary": "Name"
+				}
+			}
+		},
+		"connector": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "Tenant Connector",
+			"properties": {
+				"active": {
+					"type": "boolean",
+					"x-ntx-summary": "Active"
+				},
+				"enabled": {
+					"type": "boolean",
+					"x-ntx-summary": "Enabled"
+				},
+				"id": {
+					"type": "string",
+					"x-ntx-summary": "Id"
+				},
+				"name": {
+					"type": "string",
+					"x-ntx-summary": "Name"
+				}
+			}
+		},
+		"tenantInfo": {
+			"type": "object",
+			"additionalProperties": false,
+			"x-ntx-summary": "Tenant Information",
+			"properties": {
+				"cloudElementService": {
+					"type": "boolean",
+					"x-ntx-summary": "Uses Cloud Elements"
+				},
+				"serviceRegion": {
+					"type": "string",
+					"x-ntx-summary": "Tenant Service Region"
+				},
+				"id": {
+					"type": "string",
+					"x-ntx-summary": "Tenant Id"
+				},
+				"name": {
+					"type": "string",
+					"x-ntx-summary": "Tenant Name"
+				},
+				"apiManagerUrl": {
+					"type": "string",
+					"x-ntx-summary": "Tenant API Url endpoing"
+				},
+				"host": {
+					"type": "string",
+					"x-ntx-summary": "Tenant Host"
+				}
+			}
+		}
+	}
+}

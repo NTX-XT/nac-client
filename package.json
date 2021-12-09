@@ -7,12 +7,18 @@
     "build:all": "lerna run build",
     "lerna:link": "lerna link",
     "lerna:link-convert": "lerna link convert",
-    "lerna:bootstrap": "lerna bootstrap --hoist --force-local",
+    "lerna:bootstrap": "lerna bootstrap",
+    "lerna:bootstrap-hoist": "lerna bootstrap --hoist --force-local",
     "lerna:create": "lerna-templater"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NTX-XT/nwc-sdk.git"
   },
   "name": "root",
   "private": true,
   "devDependencies": {
+    "@azure/functions": "^3.0.0",
     "@tsconfig/recommended": "^1.0.1",
     "@types/fs-extra": "^9.0.13",
     "@types/glob": "^7.1.4",
@@ -41,13 +47,16 @@
     "lerna": "^4.0.0",
     "lerna-templater": "^1.4.2",
     "prettier": "^2.4.1",
+    "ts-node": "^10.4.0",
     "typeconv": "^1.7.0",
     "typescript": "^4.4.3"
   },
   "dependencies": {
+    "@nwc-sdk/azure-functions-shared": "file:packages\\azure-functions-shared",
     "@nwc-sdk/package": "file:packages\\package",
     "@nwc-sdk/package-sample": "file:packages\\package-sample",
     "@nwc-sdk/sdk": "file:packages\\sdk",
+    "@nwc-sdk/xtension": "file:packages\\xtension",
     "nwc-browser": "file:packages\\browser"
   }
 }

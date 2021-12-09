@@ -1,0 +1,18 @@
+{
+	"parameters": {
+		"clientIdParam": {
+			"in": "header",
+			"name": "client_id",
+			"type": "string",
+			"required": true,
+			"x-ntx-summary": "Tenant App Client Id"
+		},
+		"clientSecretParam": {
+			"in": "header",
+			"name": "client_secret",
+			"type": "string",
+			"required": true,
+			"x-ntx-summary": "Tenant App Client Secret"
+		}
+	}
+}

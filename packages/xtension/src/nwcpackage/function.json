@@ -1,0 +1,23 @@
+{
+	"bindings": [
+		{
+			"authLevel": "anonymous",
+			"type": "httpTrigger",
+			"direction": "in",
+			"name": "req",
+			"methods": ["get", "post"],
+			"route": "package"
+		},
+		{
+			"type": "http",
+			"direction": "out",
+			"name": "res"
+		},
+		{
+			"name": "starter",
+			"type": "orchestrationClient",
+			"direction": "in"
+		}
+	],
+	"scriptFile": "../dist/nwcpackage/index.js"
+}

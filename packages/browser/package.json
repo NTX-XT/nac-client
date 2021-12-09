@@ -12,6 +12,10 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NTX-XT/nwc-sdk.git"
+  },
   "scripts": {
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "vscode:prepublish": "npm run esbuild-base -- --minify",

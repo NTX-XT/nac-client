@@ -31,8 +31,14 @@
             ],
             "preLaunchTask": "build-extension",
             "cwd": "${workspaceFolder}/packages/browser"
-        },
-        {
+        }, {
+            "name": "Debug Xtension Functions",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "preLaunchTask": "func: host start",
+            "cwd": "${workspaceFolder}/packages/xtension"
+        }, {
             "type": "node",
             "request": "launch",
             "name": "Run Package Sample",
@@ -42,7 +48,6 @@
                 "dev",
                 "--preserve-symlinks"
             ],
-            "port": 9229,
             "skipFiles": [
                 "<node_internals>/**"
             ],
