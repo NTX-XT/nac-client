@@ -1,6 +1,6 @@
 {
   "name": "@nwc-sdk/azure-functions-shared",
-  "version": "1.0.3-alpha.0",
+  "version": "1.0.0",
   "description": "Shared library for Azure Functions hosted NWC SDK Xtensions",
   "homepage": "",
   "license": "ISC",
@@ -25,9 +25,9 @@
     "build": "node ../../builder.js run production"
   },
   "dependencies": {
-    "@nwc-sdk/package": "^1.0.3-alpha.0",
-    "@nwc-sdk/sdk": "^1.0.3-alpha.0",
+    "@nwc-sdk/package": "^1.0.0",
+    "@nwc-sdk/sdk": "^1.0.0",
     "durable-functions": "^1.5.3"
   },
-  "gitHead": "228ea5c7a5bf4f2084b5f8bdf01112c6b1ca3c94"
+  "gitHead": "506be58f707956acb70c3d81f1fd08bee9dab415"
 }
