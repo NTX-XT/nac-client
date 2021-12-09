@@ -6,6 +6,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "directories": {
     "lib": "dist"
   },
@@ -26,5 +29,6 @@
     "fs-extra": "^10.0.0"
   },
   "author": "John Pouliezos",
-  "license": "MIT"
+  "license": "MIT",
+  "gitHead": "228ea5c7a5bf4f2084b5f8bdf01112c6b1ca3c94"
 }

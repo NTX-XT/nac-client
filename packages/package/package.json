@@ -7,6 +7,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "directories": {
     "lib": "dist"
   },
@@ -22,6 +25,7 @@
     "build": "node ../../builder.js run production"
   },
   "dependencies": {
-    "@nwc-sdk/sdk": "file:../sdk"
-  }
+    "@nwc-sdk/sdk": "^1.0.2-alpha.0"
+  },
+  "gitHead": "228ea5c7a5bf4f2084b5f8bdf01112c6b1ca3c94"
 }
