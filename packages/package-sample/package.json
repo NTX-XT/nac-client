@@ -1,6 +1,6 @@
 {
   "name": "@nwc-sdk/package-sample",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "NWC workflow packaging sample app",
   "homepage": "",
   "license": "ISC",

@@ -1,6 +1,6 @@
 {
   "name": "@nwc-sdk/package",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "Experimental packaging and deployment for the Nintex Workflow Cloud platformm",
   "homepage": "",
   "license": "ISC",

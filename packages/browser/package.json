@@ -1,6 +1,6 @@
 {
   "name": "nwc-browser",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "Experimental Visual Stidio Code extension to browse your Nintex Workflow Cloud tenantsm",
   "homepage": "",
   "license": "ISC",
