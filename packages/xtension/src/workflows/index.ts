@@ -6,21 +6,21 @@ const workflows: AzureFunction = async function (context: Context, req: HttpRequ
 	let workflows = await tenant.getWorkflows()
 	if (req.query.tag) {
 		workflows = workflows.filter(workflow => {
-			return workflow.tags.find(tag => tag?.name === req.query.tag) !== undefined
+			return workflow.tags!.find(tag => tag?.name === req.query.tag) !== undefined
 		})
 	}
 	if (req.query.onlyPublished) {
 		workflows = workflows.filter(workflow => {
-			return workflow.published.id !== undefined
+			return workflow.published!.id !== undefined
 		})
 	}
 	const result = workflows.map(workflow => ({
 		id: workflow.id,
 		name: workflow.name,
-		tags: workflow.tags.map(tag => {
+		tags: workflow.tags!.map(tag => {
 			return tag.name
 		}),
-		isPublished: workflow.published.id !== undefined,
+		isPublished: workflow.published!.id !== undefined,
 	}))
 	context.res = {
 		status: 200,

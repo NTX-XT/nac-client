@@ -6,7 +6,7 @@ const connections: AzureFunction = async function (context: Context, req: HttpRe
 	await tenant.getConnectors()
 	await tenant.getConnections()
 	const connector = tenant.connectors.find(con => con.id === req.params.id)
-	const connections = tenant.getConnectionsOfConnector(connector?.name, true)
+	const connections = tenant.getConnectionsOfConnector(connector?.name || "", true)
 	const result = connections.map(con => ({
 		id: con.id,
 		name: con.displayName,

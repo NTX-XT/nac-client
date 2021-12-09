@@ -4,8 +4,16 @@
         "outDir": "./dist"
     },
     "include": [
-        "./**/*",
-        "./**/*.json"
+        "src/**/*.*"
     ],
-    "exclude": ["./*.json", "./dist", "./node_modules"]
+    "lib": [
+        "es2015",
+        "DOM",
+        "es2015.promise"
+    ],
+    "exclude": [
+        "./*.json",
+        "./dist",
+        "./node_modules"
+    ]
 }

@@ -30,5 +30,8 @@
     "axios": "^0.24.0",
     "durable-functions": "^1.5.3",
     "openapi-types": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.12"
   }
 }
