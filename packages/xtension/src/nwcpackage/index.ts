@@ -6,7 +6,7 @@ import * as df from 'durable-functions'
 
 const nwcpackage: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
 	if (req.method === 'GET') {
-		const nwcPackage: INWCPackage = (await axios.get(req.query.packageUrl)).data
+		const nwcPackage: INWCPackage = (await axios.get(req.query.packageUrl!)).data
 		const response = {
 			key: nwcPackage.key,
 			datasources: nwcPackage.datasources,

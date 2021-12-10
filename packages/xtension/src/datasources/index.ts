@@ -3,8 +3,8 @@ import { getTenant, getTenantConnectionDetails } from '@nwc-sdk/azure-functions-
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
 	const tenant = await getTenant(getTenantConnectionDetails(req))
-	var datasources = await tenant.getDataSources()
-	var contracts = await tenant.getDataSourceContracts()
+	let datasources = await tenant.getDataSources()
+	const contracts = await tenant.getDataSourceContracts()
 	if (req.query.contractId) {
 		datasources = datasources.filter(datasource => {
 			return datasource.contractId === req.query.contractId

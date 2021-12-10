@@ -23,7 +23,7 @@
     "dev": "ts-node ./src/index.ts"
   },
   "dependencies": {
-    "@nwc-sdk/package": "file:../package",
-    "@nwc-sdk/sdk": "file:../sdk"
+    "@nwc-sdk/package": "^1.0.2-alpha.0",
+    "@nwc-sdk/sdk": "^1.0.2-alpha.0"
   }
 }

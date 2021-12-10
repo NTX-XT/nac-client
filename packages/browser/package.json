@@ -1,5 +1,5 @@
 {
-  "name": "@nwc-sdk/browser",
+  "name": "nwc-browser",
   "version": "1.0.2-alpha.0",
   "description": "Experimental Visual Stidio Code extension to browse your Nintex Workflow Cloud tenantsm",
   "homepage": "",
@@ -21,11 +21,12 @@
     "vscode:prepublish": "npm run esbuild-base -- --minify",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
     "build": "npm run esbuild-base -- --sourcemap",
-    "package": "vsce package --out ./bin/",
+    "package": "vsce package --no-dependencies --out ./bin/",
+    "postbuild": "npm run package",
     "publish": "vsce publish"
   },
   "engines": {
-    "vscode": "^1.61.0"
+    "vscode": "^1.63.0"
   },
   "categories": [
     "Other"
@@ -139,7 +140,10 @@
     }
   },
   "dependencies": {
-    "@nwc-sdk/sdk": "file:../sdk",
+    "@nwc-sdk/sdk": "^1.0.2-alpha.0",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.63.0"
   }
 }

@@ -6,7 +6,7 @@ packages/*/dist
 .npmrc
 
 # Azure Functions artifacts
-bin
+packages/xtenstions/bin
 obj
 appsettings.json
 local.settings.json
