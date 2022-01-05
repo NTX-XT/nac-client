@@ -10,3 +10,6 @@ packages/xtenstions/bin
 obj
 appsettings.json
 local.settings.json
+
+# refactoring project
+packages/sdk-test/

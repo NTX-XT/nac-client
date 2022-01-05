@@ -1,4 +1,3 @@
-const { check } = require('prettier');
 const { argv } = require('process');
 
 var builder = (function () {
