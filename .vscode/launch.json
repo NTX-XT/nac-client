@@ -52,6 +52,20 @@
                 "<node_internals>/**"
             ],
             "cwd": "${workspaceFolder}/packages/package-sample"
+        }, {
+            "type": "node",
+            "request": "launch",
+            "name": "Run sdk test",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "dev",
+                "--preserve-symlinks"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/sdk-test"
         }
     ]
 }
