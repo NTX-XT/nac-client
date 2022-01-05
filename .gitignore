@@ -3,7 +3,6 @@ lerna-debug.log
 npm-debug.log
 packages/*/lib
 packages/*/dist
-.npmrc
 
 # Azure Functions artifacts
 packages/xtenstions/bin
