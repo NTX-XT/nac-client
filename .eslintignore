@@ -4,6 +4,7 @@ lib
 build
 coverage
 __template__
+packages/validationApp
 
 .eslintrc.js
 husky.config.js

@@ -1,0 +1,1575 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Nintex Workflow Cloud eXtended",
+        "description": "An extended set of Nintex Workflow Cloud APIs, included some non-supported ones",
+        "version": "1.0.0"
+    },
+    "host": "us.nintex.io",
+    "x-ntx-host": "{{region}}.nintex.io",
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/",
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/authentication/v1/token": {
+            "post": {
+                "security": [],
+                "description": "Retrieve authenitcation token",
+                "operationId": "getToken",
+                "x-ntx-summary": "Retrieve authenitcation token",
+                "parameters": [
+                    {
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "client_id",
+                                "client_secret",
+                                "grant_type"
+                            ],
+                            "properties": {
+                                "client_id": {
+                                    "type": "string"
+                                },
+                                "client_secret": {
+                                    "type": "string"
+                                },
+                                "grant_type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "client_credentials"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/tokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed"
+                    }
+                }
+            }
+        },
+        "/designer_/api/uxappconfig/": {
+            "get": {
+                "description": "Get tenant configuration",
+                "operationId": "getTenantConfiguration",
+                "x-ntx-summary": "Get tenant configuration",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/tenantConfiguration"
+                        }
+                    }
+                }
+            }
+        },
+        "/designer_/api/tenant/{tenantId}": {
+            "get": {
+                "description": "Get tenant info",
+                "operationId": "getTenantInfo",
+                "x-ntx-summary": "Get tenant info",
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "The tenant Id",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/tenantInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed"
+                    }
+                }
+            }
+        },
+        "/designer_/api/tags": {
+            "get": {
+                "description": "Get tenant tags",
+                "operationId": "getTenantTags",
+                "x-ntx-summary": "Get tenant tags",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/tagResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed"
+                    }
+                }
+            }
+        },
+        "/workflows/v1/connectors": {
+            "get": {
+                "description": "Get tenant connectors",
+                "operationId": "getTenantConnectors",
+                "x-ntx-summary": "Get tenant connectors",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "connectors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/connector"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/designer_/api/connection/api/connections": {
+            "get": {
+                "description": "Get tenant connections",
+                "operationId": "getTenantConnections",
+                "x-ntx-summary": "Get tenant connections",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/connection"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/designer_/datasources/get-datasource-token": {
+            "get": {
+                "description": "Get datasource token",
+                "operationId": "getDatasourceToken",
+                "x-ntx-summary": "Get datasource token",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/connection/api/datasources": {
+            "get": {
+                "description": "Get tenant datasources",
+                "operationId": "getTenantDatasources",
+                "x-ntx-summary": "Get tenant datasources",
+                "security": [
+                    {
+                        "datasources": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/datasource"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/connection/api/datasources/contracts": {
+            "get": {
+                "description": "Get tenant contracts",
+                "operationId": "getTenantContracts",
+                "x-ntx-summary": "Get tenant contracts",
+                "security": [
+                    {
+                        "datasources": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "includePublic",
+                        "in": "query",
+                        "description": "Include public contracts",
+                        "type": "boolean",
+                        "default": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/contract"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Failed"
+                    }
+                }
+            }
+        },
+        "/workflows/v1/designs": {
+            "get": {
+                "description": "Get workflows",
+                "operationId": "getWorkflows",
+                "x-ntx-summary": "Get workflows",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Total number of workflows to retrieve",
+                        "type": "number",
+                        "default": 2000
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "workflows": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/workflow"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/workflows/v1/designs/{workflowId}": {
+            "get": {
+                "description": "Get workflow design details",
+                "operationId": "getWorkflowDesignDetails",
+                "x-ntx-summary": "Get workflow design details",
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow design",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "workflow": {
+                                    "$ref": "#/definitions/workflowDesign"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/workflows/v1/designs/{workflowId}/published/export": {
+            "post": {
+                "description": "Export workflow",
+                "operationId": "exportWorkflow",
+                "x-ntx-summary": "Export workflow",
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow design",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "isNonExpiring"
+                            ],
+                            "properties": {
+                                "isNonExpiring": {
+                                    "type": "boolean",
+                                    "default": true
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "workflow": {
+                                    "$ref": "#/definitions/exportWorkflowResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/workflows/v1/designs/import": {
+            "post": {
+                "description": "Import workflow",
+                "operationId": "importWorkflow",
+                "x-ntx-summary": "Import workflow",
+                "parameters": [
+                    {
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "key"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "key": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "workflow": {
+                                    "$ref": "#/definitions/importWorkflowResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/designer_/api/workflows/{workflowId}": {
+            "get": {
+                "description": "Get workflow source",
+                "operationId": "getWorkflowSource",
+                "x-ntx-summary": "Get workflow source",
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/workflowSource"
+                        }
+                    }
+                }
+            }
+        },
+        "/designer_/api/workflows/{workflowName}/checkname": {
+            "get": {
+                "description": "Check if workflow exists",
+                "operationId": "checkWorkflowName",
+                "x-ntx-summary": "Check if workflow exists",
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "name": "workflowName",
+                        "in": "path",
+                        "description": "Name of the workflow",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/designer_/api/workflows/{workflowId}/published": {
+            "post": {
+                "description": "Publish workflow",
+                "operationId": "publishWorkflow",
+                "x-ntx-summary": "Publish workflow",
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "key"
+                            ],
+                            "properties": {
+                                "workflowName": {
+                                    "type": "string"
+                                },
+                                "workflowDescription": {
+                                    "type": "string"
+                                },
+                                "workflowType": {
+                                    "type": "string"
+                                },
+                                "workflowDefinition": {
+                                    "type": "string"
+                                },
+                                "startEvents": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/workflowStartEvent"
+                                    }
+                                },
+                                "datasources": {
+                                    "type": "string"
+                                },
+                                "permissions": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/workflowPermission"
+                                    }
+                                },
+                                "workflowVersionComments": {
+                                    "type": "string"
+                                },
+                                "workflowDesignParentVersion": {
+                                    "type": "string"
+                                },
+                                "tags": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/tag"
+                                    }
+                                },
+                                "version": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                },
+                                "engineName": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/workflowSource"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "parameters": {
+        "datasourceToken": {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Datasource authentication bearer token",
+            "type": "string",
+            "required": true
+        }
+    },
+    "definitions": {
+        "user": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tenantId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string",
+                    "format": "nullable"
+                },
+                "lastName": {
+                    "type": "string",
+                    "format": "nullable"
+                },
+                "email": {
+                    "type": "string",
+                    "format": "nullable"
+                },
+                "nintexTenantId": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string",
+                    "format": "nullable"
+                }
+            }
+        },
+        "tenantConfiguration": {
+            "type": "object",
+            "properties": {
+                "apiManagerUrl": {
+                    "type": "string"
+                },
+                "zincUrl": {
+                    "type": "string"
+                },
+                "pdfFormConverterUrl": {
+                    "type": "string"
+                },
+                "webTaggerUrl": {
+                    "type": "string"
+                },
+                "launchDarklyKey": {
+                    "type": "string"
+                },
+                "whiteListedConnections": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "gaTrackingCode": {
+                    "type": "string"
+                },
+                "designerUrl": {
+                    "type": "string"
+                },
+                "embedFormsUrl": {
+                    "type": "string"
+                },
+                "connectionsXcomponentUrl": {
+                    "type": "string"
+                },
+                "userManagementXcomponent": {
+                    "type": "object",
+                    "properties": {
+                        "redirectUri": {
+                            "type": "string"
+                        },
+                        "documentationUrl": {
+                            "type": "string"
+                        },
+                        "url": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "devTokenManagementXcomponent": {
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string"
+                        },
+                        "redirectUri": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "domainManagementXComponent": {
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string"
+                        },
+                        "redirectUri": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "appInsights": {
+                    "type": "object",
+                    "properties": {
+                        "instrumentationKey": {
+                            "type": "string"
+                        },
+                        "connectionString": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "feedbackFormEndpoint": {
+                    "type": "string"
+                },
+                "createTicketFormEndpoint": {
+                    "type": "string"
+                },
+                "appInsightsInstrumentationKey": {
+                    "type": "string"
+                },
+                "cloudElementService": {
+                    "type": "boolean"
+                },
+                "serviceRegion": {
+                    "type": "string"
+                },
+                "boxAppUrl": {
+                    "type": "string"
+                },
+                "allowedHawkeyeDomains": {
+                    "type": "string"
+                },
+                "readmeIOUrl": {
+                    "type": "string"
+                },
+                "devPortalUrls": {
+                    "type": "object",
+                    "properties": {
+                        "queryJson": {
+                            "type": "string"
+                        },
+                        "regex": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "oidc": {
+                    "type": "object",
+                    "properties": {
+                        "domain": {
+                            "type": "string"
+                        },
+                        "clientId": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "user": {
+                    "$ref": "#/definitions/user"
+                }
+            }
+        },
+        "tenantInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "string"
+                },
+                "tenancy_url": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "license": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string"
+                        },
+                        "start": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "end": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "contract_id": {
+                            "type": "string",
+                            "format": "nullable"
+                        },
+                        "entitlement": {
+                            "type": "string",
+                            "format": "nullable"
+                        }
+                    }
+                },
+                "region": {
+                    "type": "string"
+                },
+                "region_name": {
+                    "type": "string"
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "owner": {
+                    "type": "object",
+                    "properties": {
+                        "email": {
+                            "type": "string"
+                        },
+                        "first_name": {
+                            "type": "string"
+                        },
+                        "last_name": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "source": {
+                    "type": "string"
+                },
+                "contract_id": {
+                    "type": "string",
+                    "format": "nullable"
+                }
+            }
+        },
+        "tokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "expires_at": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "token_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "tagResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                },
+                "resource": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tag"
+                    }
+                }
+            }
+        },
+        "tag": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "colorIndex": {
+                    "type": "number"
+                },
+                "count": {
+                    "type": "number"
+                },
+                "kind": {
+                    "type": "string"
+                }
+            }
+        },
+        "actionDefinition": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "connector": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/actionDefinition"
+                    }
+                },
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/actionDefinition"
+                    }
+                }
+            }
+        },
+        "connection": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "isInvalid": {
+                    "type": "boolean"
+                },
+                "createdDate": {
+                    "type": "string"
+                },
+                "contractName": {
+                    "type": "string"
+                },
+                "contractId": {
+                    "type": "string"
+                },
+                "createdByUserId": {
+                    "type": "string"
+                },
+                "ownership": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "datasource": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "contractId": {
+                    "type": "string"
+                },
+                "operationId": {
+                    "type": "string"
+                },
+                "connectionId": {
+                    "type": "string"
+                },
+                "createdByUserId": {
+                    "type": "string"
+                },
+                "createdDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "modifiedByUserId": {
+                    "type": "string"
+                },
+                "modifiedDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "isInvalid": {
+                    "type": "boolean"
+                },
+                "isEditable": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "contract": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "appId": {
+                    "type": "string"
+                },
+                "createdByUserId": {
+                    "type": "string"
+                },
+                "timeStamp": {
+                    "type": "string"
+                },
+                "createdDate": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "operations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "operationId": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string"
+                            },
+                            "apps": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "allowedHosts": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "latestVersion": {
+                    "type": "string"
+                },
+                "latestScheme": {
+                    "type": "string"
+                }
+            }
+        },
+        "eventType": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "eventConfiguration": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "urls": {
+            "type": "object",
+            "properties": {
+                "designerUrl": {
+                    "type": "string"
+                },
+                "formUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "workflowDetails": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "author": {
+                    "$ref": "#/definitions/user"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "eventType": {
+                    "$ref": "#/definitions/eventType"
+                },
+                "eventConfiguration": {
+                    "$ref": "#/definitions/eventConfiguration"
+                },
+                "urls": {
+                    "$ref": "#/definitions/urls"
+                }
+            }
+        },
+        "draftWorkflowDetails": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/workflowDetails"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "lastModified": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        },
+        "publishedWorkflowDetails": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/workflowDetails"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "publishedType": {
+                            "type": "string",
+                            "enum": [
+                                "Production",
+                                "Development"
+                            ]
+                        },
+                        "isActive": {
+                            "type": "boolean"
+                        },
+                        "lastPublished": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        },
+        "businessOwner": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "workflow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "draft": {
+                    "$ref": "#/definitions/draftWorkflowDetails"
+                },
+                "published": {
+                    "$ref": "#/definitions/publishedWorkflowDetails"
+                },
+                "lastModified": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "businessOwners": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/businessOwner"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {}
+                },
+                "engine": {
+                    "type": "string"
+                },
+                "publishRequestedBy": {
+                    "type": "string",
+                    "format": "nullable"
+                }
+            }
+        },
+        "startData": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "variable": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "workflowDesign": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "lastModified": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "author": {
+                    "$ref": "#/definitions/user"
+                },
+                "creator": {
+                    "$ref": "#/definitions/user"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "startData": {
+                    "$ref": "#/definitions/startData"
+                }
+            }
+        },
+        "exportWorkflowResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "expiryDate": {
+                    "type": "string",
+                    "format": "nullable"
+                }
+            }
+        },
+        "importWorkflowResponse": {
+            "type": "object",
+            "properties": {
+                "workflowId": {
+                    "type": "object",
+                    "properties": {
+                        "workflowId": {
+                            "type": "string"
+                        },
+                        "workflowDesignVersion": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "author": {
+                    "$ref": "#/definitions/user"
+                },
+                "eventType": {
+                    "type": "string"
+                },
+                "isPublished": {
+                    "type": "boolean"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "isDeleted": {
+                    "type": "boolean"
+                },
+                "lastModified": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "workflowDescription": {
+                    "type": "string"
+                },
+                "workflowName": {
+                    "type": "string"
+                },
+                "publishAuthor": {
+                    "$ref": "#/definitions/user"
+                },
+                "publishedId": {
+                    "type": "string"
+                },
+                "lastPublished": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "workflowType": {
+                    "type": "string"
+                },
+                "saveAuthor": {
+                    "$ref": "#/definitions/user"
+                },
+                "lastEdited": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "workflowPermission": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "workflowStartEvent": {
+            "type": "object",
+            "properties": {
+                "eventGroup": {
+                    "type": "string"
+                },
+                "eventType": {
+                    "type": "string"
+                },
+                "eventTypeOption": {
+                    "type": "string"
+                },
+                "eventTypeDisplayName": {
+                    "type": "string"
+                },
+                "configuration": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "nativeEventConfiguration": {
+                    "type": "string",
+                    "format": "nullable"
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "xtensionEventConfiguration": {
+                    "type": "string",
+                    "format": "nullable"
+                },
+                "transformation": {
+                    "type": "string",
+                    "format": "nullable"
+                },
+                "webformDefinition": {
+                    "type": "string",
+                    "format": "nullable"
+                },
+                "webformVersion": {
+                    "type": "string",
+                    "format": "nullable"
+                },
+                "metadataConfiguration": {
+                    "type": "string"
+                },
+                "formMetadata": {
+                    "type": "object",
+                    "properties": {
+                        "publishToUrlOnly": {
+                            "type": "boolean"
+                        },
+                        "publishToAllOrg": {
+                            "type": "boolean"
+                        },
+                        "participantVisible": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "workflowSource": {
+            "type": "object",
+            "properties": {
+                "workflowId": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "author": {
+                    "$ref": "#/definitions/user"
+                },
+                "eventType": {
+                    "type": "string"
+                },
+                "isPublished": {
+                    "type": "boolean"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "creator": {
+                    "$ref": "#/definitions/user"
+                },
+                "datasources": {
+                    "type": "string"
+                },
+                "engineName": {
+                    "type": "string"
+                },
+                "eventConfiguration": {
+                    "type": "string"
+                },
+                "hasPermissions": {
+                    "type": "boolean"
+                },
+                "isDeleted": {
+                    "type": "boolean"
+                },
+                "lastEdited": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "lastModified": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "lastPublished": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "latestId": {
+                    "type": "string"
+                },
+                "publishedId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "workflowDescription": {
+                    "type": "string"
+                },
+                "workflowName": {
+                    "type": "string"
+                },
+                "workflowVersionComments": {
+                    "type": "string"
+                },
+                "publishAuthor": {
+                    "$ref": "#/definitions/user"
+                },
+                "workflowType": {
+                    "type": "string"
+                },
+                "workflowDefinition": {
+                    "type": "string"
+                },
+                "startEvents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/workflowStartEvent"
+                    }
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/workflowPermission"
+                    }
+                },
+                "workflowDesignVersion": {
+                    "type": "string"
+                },
+                "isLatest": {
+                    "type": "boolean"
+                },
+                "publishRequestedBy": {
+                    "$ref": "#/definitions/user"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tag"
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "oauth2": {
+            "type": "oauth2",
+            "tokenUrl": "https://us.nintex.io/authentication/v1/token",
+            "flow": "application",
+            "scopes": {
+                "execute:instance": "Execute workflow",
+                "read:task": "Read task",
+                "read:workflow": "Read workflow",
+                "read:instance": "Read workflow instance",
+                "manage:instance": "Manage workflow instance",
+                "manage:workflow": "Manage workflow",
+                "manage:task": "Manage task"
+            },
+            "x-ntx-connection-properties": {
+                "type": "object",
+                "properties": {
+                    "client_id": {
+                        "type": "string",
+                        "title": "Client ID",
+                        "description": "Generated from the tenant settings page."
+                    },
+                    "client_secret": {
+                        "type": "string",
+                        "title": "Client secret",
+                        "format": "password",
+                        "description": "Generated from the tenant settings page."
+                    },
+                    "region": {
+                        "type": "string",
+                        "title": "Region",
+                        "format": "string",
+                        "description": "Your tenant's region. us=North America, eu=Europe, au=Australia"
+                    },
+                    "required": [
+                        "client_id",
+                        "client_secret",
+                        "region"
+                    ]
+                }
+            }
+        },
+        "datasources": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization"
+        }
+    },
+    "security": [
+        {
+            "oauth2": [
+                "execute:instance",
+                "read:task",
+                "read:workflow",
+                "read:instance",
+                "manage:instance",
+                "manage:workflow",
+                "manage:task"
+            ]
+        }
+    ]
+}

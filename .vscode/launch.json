@@ -18,6 +18,19 @@
                 "<node_internals>/**"
             ],
             "cwd": "${workspaceFolder}\\packages\\package"
+        }, {
+            "name": "Launch validation app",
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "start"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node",
+            "cwd": "${workspaceFolder}/packages/validationApp"
         },
         {
             "name": "Run Extension",

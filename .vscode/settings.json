@@ -5,5 +5,10 @@
   "azureFunctions.projectRuntime": "~4",
   "debug.internalConsoleOptions": "neverOpen",
   "azureFunctions.preDeployTask": "npm prune (functions)",
-  "azureFunctions.projectSubpath": "node_modules\\@nwc-sdk\\xtension"
+  "azureFunctions.projectSubpath": "node_modules\\@nwc-sdk\\xtension",
+  "appService.deploySubpath": "packages\\validationApp",
+  "appService.zipIgnorePattern": [
+    "node_modules{,/**}",
+    ".vscode{,/**}"
+  ]
 }
