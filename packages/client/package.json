@@ -15,8 +15,8 @@
     "dist"
   ],
   "scripts": {
-    "prebuild": "openapi --input './../../validationApp/public/NintexWorkflowCloudeXtended.swagger.json --output ./src --client axios --postfix NWC",
-    "build": "node ../../builder.js run production",
+    "prebuild": "ts-node ./src/generate.ts",
+    "build": "node ../../build.js run production",
     "build:dev": "tsc"
   },
   "repository": {
@@ -30,11 +30,15 @@
   },
   "homepage": "https://github.com/NTX-XT/nwc-sdk#readme",
   "dependencies": {
+    "@type-cacheable/core": "^10.0.3",
+    "@type-cacheable/node-cache-adapter": "^10.0.3",
     "axios": "^0.24.0",
     "cross-blob": "^2.0.1",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.0",
+    "ts-morph": "^13.0.2"
   },
   "devDependencies": {
-    "openapi-typescript-codegen": "^0.12.5"
+    "openapi-typescript-codegen": "^0.13.0",
+    "ts-node": "^10.4.0"
   }
 }
