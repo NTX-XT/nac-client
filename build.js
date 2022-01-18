@@ -65,11 +65,11 @@ var builder = (function () {
                     filePath: paths.sourceFile,
                     outFile: paths.outputDeclarationFile,
                     output: {
-                        noBanner: true
+                        noBanner: true,
                     }
                 }], {
                     followSymlinks: false,
-                    exportReferencedTypes: false
+                    exportReferencedTypes: false,
                 })
                 fs.writeFileSync(paths.outputDeclarationFile, dtsBundle[0])
             }

@@ -22,7 +22,7 @@
   },
   "scripts": {
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "build": "node ../../builder.js run production"
+    "build": "node ../../build.js run production"
   },
   "dependencies": {
     "@nwc-sdk/package": "^1.0.2-alpha.0",

@@ -11,6 +11,4 @@ husky.config.js
 jest.config.js
 jest.config.base.js
 lint-staged.config.js
-builder.js
 build.js
-b2.js

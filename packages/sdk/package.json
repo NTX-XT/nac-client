@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "build": "node ../../builder.js run production"
+    "build": "node ../../build.js run production"
   },
   "repository": {
     "type": "git",
