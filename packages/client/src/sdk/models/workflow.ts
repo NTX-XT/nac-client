@@ -11,7 +11,7 @@ export interface UsedConnection extends Connection {
     actions?: ConnectionAction[]
 }
 
-export interface UsedConnector extends Connector {
+export interface UsedXtension extends Connector {
     connections?: { [key: string]: UsedConnection }
 }
 
@@ -27,6 +27,6 @@ export interface Workflow extends WorkflowInfo {
     type?: string;
     designVersion?: string;
     actions: { [key: string]: ActionInfo }
-    connections?: { [key: string]: UsedConnector }
+    usedXtensions?: { [key: string]: UsedXtension }
 }
 

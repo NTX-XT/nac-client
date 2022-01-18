@@ -29,17 +29,7 @@ export class TreeNode extends vscode.TreeItem {
 				this.id = `${parent!.id}_${type}`;
 				break;
 			case TreeNodeType.workflow:
-				if (data) {
-					const d = data as WorkflowInfo
-					if (d) {
-						this.id = (data as WorkflowInfo).id;
-						console.log(d.name)
-					} else {
-						console.log("undefined")
-					}
-				} else {
-					console.log("undefined")
-				}
+				this.id = (data as WorkflowInfo).id;
 				break;
 			case TreeNodeType.datasource:
 				this.id = (data as Datasource).id;

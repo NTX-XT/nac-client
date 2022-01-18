@@ -4,7 +4,7 @@ import { OpenAPIV2 } from 'openapi-types'
 import { Connector } from "./models/connector"
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
-import { UsedConnection, UsedConnector, Workflow } from './models/workflow'
+import { UsedConnection, UsedXtension, Workflow } from './models/workflow'
 import { action, parameter, workflowDefinition } from './models/workflowDefinition'
 import { Contract } from './models/contract'
 import { WorkflowInfo } from './models/WorkflowInfo'
@@ -126,8 +126,8 @@ export class Sdk {
         }
 
         const usedConnectors = Sdk.arrayToDictionary(
-            await Promise.all<UsedConnector>(
-                Object.keys(definition.inUseXtensions).map<Promise<UsedConnector>>(
+            await Promise.all<UsedXtension>(
+                Object.keys(definition.inUseXtensions).map<Promise<UsedXtension>>(
                     async (connectorId) => (
                         (await this.getConnectors()).find((cn) => (
                             cn.id === connectorId)
@@ -162,7 +162,7 @@ export class Sdk {
                 }
             }
         }
-        workflow.connections = usedConnectors
+        workflow.usedXtensions = usedConnectors
 
         // 
         // const connections = (await Promise.all(Object.keys(definition.inUseXtensions).map<Promise<(Connection | undefined)[]>>(async (connectorId) => {
@@ -201,8 +201,10 @@ export class Sdk {
     }
 
     private getActionXtnesionConnectionId(parameter: parameter | undefined): string | undefined {
-        return Object.keys(this.getActionXtensionParameterValue(parameter)).find(
-            (key) => (key.endsWith('NTX_CONNECTION_ID')))
+        const parameterValue = this.getActionXtensionParameterValue(parameter)
+
+        const key = Object.keys(parameterValue).find((key) => (key.endsWith('NTX_CONNECTION_ID')))
+        return key ? parameterValue[key].data.id : undefined
     }
 
     private async getActionConnection(action: action): Promise<UsedConnection | undefined> {

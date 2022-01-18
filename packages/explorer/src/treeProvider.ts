@@ -1,4 +1,4 @@
-import { Sdk, Tenant, Workflow, WorkflowInfo } from "@nwc-sdk/client"
+import { Sdk, Tenant, UsedConnector, Workflow, WorkflowInfo } from "@nwc-sdk/client"
 import * as vscode from 'vscode'
 import { TreeNodeType } from './enums'
 import { IConfiguration } from './settings'
@@ -31,8 +31,10 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 					return this.populateTenantDatasourcesNode(element)
 				case TreeNodeType.connections:
 					return this.populateTenantConnectionsNode(element)
-				case TreeNodeType.workflowConnections:
-					return this.populateWorkflowConnectionsNode(element)
+				case TreeNodeType.workflowXtensions:
+					return this.populateWorkflowXtensionsNode(element)
+				case TreeNodeType.workflowXtension:
+					return this.populateWorkflowXtensionNode(element)
 				default:
 					break
 			}
@@ -42,12 +44,23 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		return Promise.resolve([])
 	}
 
-	private async populateWorkflowConnectionsNode(element: TreeNode): Promise<TreeNode[]> {
+	private async populateWorkflowXtensionNode(element: TreeNode): Promise<TreeNode[]> {
+		const connector: UsedConnector = element.data
+		const nodes: TreeNode[] = []
+		if (connector.connections) {
+			for (const cn of Object.keys(connector.connections)) {
+				nodes.push(new TreeNode(connector.connections[cn].name, vscode.TreeItemCollapsibleState.None, TreeNodeType.workflowConnection, element, connector.connections[cn]))
+			}
+		}
+		return Promise.resolve(nodes)
+	}
+
+	private async populateWorkflowXtensionsNode(element: TreeNode): Promise<TreeNode[]> {
 		const workflow: Workflow = element.parent!.additionalData
 		const nodes: TreeNode[] = []
-		if (workflow.connections) {
-			for (const cn of Object.keys(workflow.connections)) {
-				nodes.push(new TreeNode(workflow.connections[cn].name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowConnection, element, workflow.connections[cn]))
+		if (workflow.usedXtensions) {
+			for (const cn of Object.keys(workflow.usedXtensions)) {
+				nodes.push(new TreeNode(workflow.usedXtensions[cn].name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowXtension, element, workflow.usedXtensions[cn]))
 			}
 		}
 		return Promise.resolve(nodes)
@@ -62,9 +75,9 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 
 		return Promise.resolve([
 			new TreeNode(
-				TreeNodeType.workflowConnections.split(' ')[1],
+				TreeNodeType.workflowXtensions.split(' ')[1],
 				vscode.TreeItemCollapsibleState.Collapsed,
-				TreeNodeType.workflowConnections,
+				TreeNodeType.workflowXtensions,
 				element
 			),
 			new TreeNode(
@@ -100,7 +113,7 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		const service: Sdk = this.getService(element)
 		const datasources = await service.getDatasources()
 		return Promise.resolve(
-			datasources.map(ds => new TreeNode(ds.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.datasource, element, ds))
+			datasources.map(ds => new TreeNode(ds.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, ds))
 		)
 	}
 
@@ -108,7 +121,7 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		const service: Sdk = element.parent!.data
 		const connections = await service.getConnections()
 		return Promise.resolve(
-			connections.map(cn => new TreeNode(cn.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.datasource, element, cn))
+			connections.map(cn => new TreeNode(cn.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, cn))
 		)
 	}
 
@@ -117,12 +130,6 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		const workflows = await service.getWorkflowInfos()
 		return Promise.resolve(Promise.all(workflows.map(wfl => {
 			return new TreeNode(wfl.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflow, element.parent, wfl)
-			// try {
-			// 	return this.createWorkflowNode(service, wfl, element)
-			// } catch (error: any) {
-			// 	console.log("ERROR : " + wfl.name)
-			// 	return new TreeNode("ERROR", vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflow, element.parent, wfl)
-			// }
 		}
 		)))
 	}
@@ -144,13 +151,13 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		const nodes: TreeNode[] = []
 		const configuration = vscode.workspace.getConfiguration().get<IConfiguration>('nwcExplorer')
 		if (configuration) {
-			for (const cred of configuration.connections) {
-				const service = await Sdk.connect(cred)
-				nodes.push(
-					new TreeNode(`${service.tenant.name} (${service.tenant.id})`, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.nwcTenant, undefined, service)
-				)
-			}
+			return Promise.resolve(Promise.all(configuration.connections.map(cred => {
+				return Sdk.connect(cred).then((service) => {
+					return new TreeNode(`${service.tenant.name} (${service.tenant.id})`, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.nwcTenant, undefined, service)
+				})
+			})))
+		} else {
+			return Promise.resolve([])
 		}
-		return Promise.resolve(nodes)
 	}
 }
