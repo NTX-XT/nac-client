@@ -19,6 +19,21 @@
             ],
             "cwd": "${workspaceFolder}\\packages\\package"
         }, {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug client generation script",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "prebuild",
+                "--preserve-symlinks"
+            ],
+            "port": 9229,
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}\\packages\\client"
+        }, {
             "name": "Launch validation app",
             "request": "launch",
             "runtimeArgs": [
@@ -33,17 +48,17 @@
             "cwd": "${workspaceFolder}/packages/validationApp"
         },
         {
-            "name": "Run Extension",
+            "name": "Debug NWC Explorer",
             "type": "extensionHost",
             "request": "launch",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/packages/browser"
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/explorer"
             ],
             "outFiles": [
-                "${workspaceFolder}/packages/browser/dist/**/*.js"
+                "${workspaceFolder}/packages/explorer/dist/**/*.js"
             ],
             "preLaunchTask": "build-extension",
-            "cwd": "${workspaceFolder}/packages/browser"
+            "cwd": "${workspaceFolder}/packages/explorer"
         }, {
             "name": "Debug Xtension Functions",
             "type": "node",

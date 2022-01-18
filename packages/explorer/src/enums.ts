@@ -10,11 +10,11 @@ export enum SortDirection {
 	descending,
 }
 
-export function getNodeType(nodeType: string): NWCExplorerTreeNodeType {
-	return NWCExplorerTreeNodeType[nodeType as keyof typeof NWCExplorerTreeNodeType]
+export function getNodeType(nodeType: string): TreeNodeType {
+	return TreeNodeType[nodeType as keyof typeof TreeNodeType]
 }
 
-export enum NWCExplorerTreeNodeType {
+export enum TreeNodeType {
 	nwcTenant = 'Tenant',
 	connectors = 'Connectors',
 	connector = 'Connector',

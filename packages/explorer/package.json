@@ -1,5 +1,5 @@
 {
-  "name": "nwc-browser",
+  "name": "nwc-explorer",
   "version": "1.0.2-alpha.0",
   "description": "Experimental Visual Stidio Code extension to browse your Nintex Workflow Cloud tenantsm",
   "homepage": "",
@@ -20,6 +20,7 @@
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "vscode:prepublish": "npm run esbuild-base -- --minify",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
+    "build:dev": "npm run esbuild-base -- --sourcemap",
     "build": "npm run esbuild-base -- --sourcemap",
     "package": "vsce package --no-dependencies --out ./bin/",
     "postbuild": "npm run package",
@@ -47,8 +48,8 @@
     "views": {
       "nwc-explorer": [
         {
-          "id": "nwcTenants",
-          "name": "NWC Tenants",
+          "id": "tenants",
+          "name": "Tenants",
           "icon": "resources/nintex.png",
           "contextualTitle": "NWC Explorer"
         }
@@ -56,11 +57,11 @@
     },
     "commands": [
       {
-        "command": "nwcTenants.connect",
-        "title": "NWC: Connect to NWC tenant"
+        "command": "tenants.connect",
+        "title": "NWC: Connect to tenant"
       },
       {
-        "command": "nwcTenants.refresh",
+        "command": "tenants.refresh",
         "title": "Refresh",
         "icon": {
           "light": "resources/light/refresh.svg",
@@ -68,7 +69,7 @@
         }
       },
       {
-        "command": "nwcTenants.edit",
+        "command": "tenants.edit",
         "title": "Edit",
         "icon": {
           "light": "resources/light/edit.svg",
@@ -76,26 +77,26 @@
         }
       },
       {
-        "command": "nwcTenants.viewSource",
+        "command": "tenants.viewSource",
         "title": "View Source"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "nwcTenants.refresh",
-          "when": "view == nwcTenants",
+          "command": "tenants.refresh",
+          "when": "view == tenants",
           "group": "navigation"
         },
         {
-          "command": "nwcTenants.edit",
-          "when": "view == nwcTenants",
+          "command": "tenants.edit",
+          "when": "view == tenants",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "nwcTenants.viewSource",
+          "command": "tenants.viewSource",
           "when": "viewItem == Workflow || viewItem == Connection || viewItem == Datasource",
           "group": "navigation",
           "icon": {
@@ -114,10 +115,6 @@
           "items": {
             "type": "object",
             "properties": {
-              "tenantName": {
-                "type": "string",
-                "title": "Tenant Url"
-              },
               "clientId": {
                 "type": "string",
                 "title": "Client Id"
@@ -140,7 +137,7 @@
     }
   },
   "dependencies": {
-    "@nwc-sdk/sdk": "^1.0.2-alpha.0",
+    "@nwc-sdk/client": "^1.0.6-alpha.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

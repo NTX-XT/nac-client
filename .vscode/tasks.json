@@ -4,11 +4,13 @@
 	"version": "2.0.0",
 	"tasks": [{
 		"type": "npm",
-		"script": "build",
+		"script": "build:dev",
 		"group": "build",
 		"problemMatcher": [],
 		"label": "build-extension",
-		"path": "/packages/browser/"
+		"options": {
+			"cwd": "${workspaceFolder}/packages/explorer"
+		}
 	}, {
 		"type": "func",
 		"command": "host start",

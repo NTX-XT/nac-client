@@ -8,9 +8,9 @@
             "ES2020"
         ],
         "sourceMap": true,
-        "rootDir": "src",
         "strict": true
     },
+    "exclude": ["node_modules"],
     "include": [
         "src/**/*.*"
     ]
