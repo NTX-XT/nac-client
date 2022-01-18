@@ -5,6 +5,7 @@ build
 coverage
 __template__
 packages/validationApp
+packages/openapi-typescript-codegen
 
 .eslintrc.js
 husky.config.js
