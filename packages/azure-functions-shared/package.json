@@ -25,6 +25,7 @@
     "build": "node ../../build.js run production"
   },
   "dependencies": {
+    "@nwc-sdk/client": "^1.0.6-alpha.0",
     "@nwc-sdk/package": "^1.0.2-alpha.0",
     "@nwc-sdk/sdk": "^1.0.2-alpha.0",
     "durable-functions": "^1.5.3"

@@ -1,6 +1,7 @@
 import { INWCPackage } from '@nwc-sdk/package'
 import { INWCConnectionInfo, INWCDataSource, NWCTenant, INWCClientAppCredentials } from '@nwc-sdk/sdk'
 import { HttpRequest } from '@azure/functions'
+import { Sdk, ClientCredentials } from '@nwc-sdk/client'
 
 export interface INWCTenantConnectionDetails {
     clientId?: string
@@ -50,4 +51,18 @@ export async function getTenant(connectionDetails: INWCTenantConnectionDetails, 
     } else {
         return await NWCTenant.connectWithClientAppCredentials(connectionDetails as INWCClientAppCredentials, undefined, populateTenant, false)
     }
+}
+
+export async function getSdkTenant(connectionDetails: ClientCredentials | string): Promise<Sdk> {
+    const client = await Sdk.connect(connectionDetails)
+    return client!
+}
+
+export function getSdkTenantConnectionDetails(req: HttpRequest): ClientCredentials | string {
+    return req.headers.authorization
+        ? req.headers.authorization.split(' ')[1].trim()
+        : {
+            clientId: req.headers.client_id!,
+            clientSecret: req.headers.client_secret!,
+        }
 }
