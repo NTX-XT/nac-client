@@ -5,7 +5,9 @@
 			"type": "httpTrigger",
 			"direction": "in",
 			"name": "req",
-			"methods": ["get"],
+			"methods": [
+				"get"
+			],
 			"route": "tenant/tags"
 		},
 		{
@@ -14,5 +16,5 @@
 			"name": "res"
 		}
 	],
-	"scriptFile": "../dist/tags/index.js"
+	"scriptFile": "../../dist/tags/index.js"
 }

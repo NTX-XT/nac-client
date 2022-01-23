@@ -1,11 +1,11 @@
 import { AzureFunction, Context, HttpRequest } from '@azure/functions'
-import { getTenant, getTenantConnectionDetails } from '@nwc-sdk/azure-functions-shared'
+import { getSdkTenantConnectionDetails, getSdkTenant } from '@nwc-sdk/azure-functions-shared'
 
 const tenant: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
-	const tenant = await getTenant(getTenantConnectionDetails(req))
+	const sdk = await getSdkTenant(getSdkTenantConnectionDetails(req))
 	context.res = {
 		status: 200,
-		body: tenant.tenantInfo,
+		body: sdk.tenant,
 	}
 }
 

@@ -19,11 +19,13 @@
     "build": "tsc",
     "watch": "tsc -w",
     "prestart": "npm run build",
-    "start": "func start",
+    "start": "func start --verbose",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
     "@azure/storage-blob": "^12.8.0",
+    "@nwc-sdk/azure-functions-shared": "^1.0.2-alpha.0",
+    "@nwc-sdk/client": "^1.0.6-alpha.0",
     "@nwc-sdk/package": "^1.0.2-alpha.0",
     "@nwc-sdk/sdk": "^1.0.2-alpha.0",
     "axios": "^0.24.0",
