@@ -1,4 +1,4 @@
-import { Sdk, Tenant, UsedConnector, Workflow, WorkflowInfo } from "@nwc-sdk/client"
+import { ApiError, Sdk, Tenant, UsedConnector, Workflow, WorkflowInfo } from "@nwc-sdk/client"
 import * as vscode from 'vscode'
 import { TreeNodeType } from './enums'
 import { IConfiguration } from './settings'
@@ -22,29 +22,29 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 			console.log(element.type)
 			switch (element.type) {
 				case TreeNodeType.nwcTenant:
-					return this.populateTenantNode(element)
+					return this.populateTenant(element)
 				case TreeNodeType.workflows:
-					return this.populateTenantWorkflowsNode(element)
+					return this.populateTenantWorkflows(element)
 				case TreeNodeType.workflow:
-					return this.populateTenantWorkflowNode(element)
+					return this.populateTenantWorkflow(element)
 				case TreeNodeType.datasources:
-					return this.populateTenantDatasourcesNode(element)
+					return this.populateTenantDatasources(element)
 				case TreeNodeType.connections:
-					return this.populateTenantConnectionsNode(element)
-				case TreeNodeType.workflowXtensions:
-					return this.populateWorkflowXtensionsNode(element)
-				case TreeNodeType.workflowXtension:
-					return this.populateWorkflowXtensionNode(element)
+					return this.populateTenantConnections(element)
+				case TreeNodeType.workflowConnections:
+					return this.populateWorkflowConnectors(element)
+				case TreeNodeType.workflowConnector:
+					return this.populateUsedConnector(element)
 				default:
 					break
 			}
 		} else {
-			return this.generateTenantNodes()
+			return this.populateTenants()
 		}
 		return Promise.resolve([])
 	}
 
-	private async populateWorkflowXtensionNode(element: TreeNode): Promise<TreeNode[]> {
+	private populateUsedConnector(element: TreeNode): Promise<TreeNode[]> {
 		const connector: UsedConnector = element.data
 		const nodes: TreeNode[] = []
 		if (connector.connections) {
@@ -55,109 +55,60 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		return Promise.resolve(nodes)
 	}
 
-	private async populateWorkflowXtensionsNode(element: TreeNode): Promise<TreeNode[]> {
-		const workflow: Workflow = element.parent!.additionalData
+	private populateWorkflowConnectors(element: TreeNode): Promise<TreeNode[]> {
+		const workflow: Workflow = element.parent!.data
 		const nodes: TreeNode[] = []
-		if (workflow.usedXtensions) {
-			for (const cn of Object.keys(workflow.usedXtensions)) {
-				nodes.push(new TreeNode(workflow.usedXtensions[cn].name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowXtension, element, workflow.usedXtensions[cn]))
+		if (workflow.definition.usedConnectors) {
+			for (const cn of Object.keys(workflow.definition.usedConnectors)) {
+				nodes.push(new TreeNode(workflow.definition.usedConnectors[cn].name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowConnector, element, workflow.definition.usedConnectors[cn]))
 			}
 		}
 		return Promise.resolve(nodes)
 	}
 
-	private async populateTenantWorkflowNode(element: TreeNode): Promise<TreeNode[]> {
-		const workflowInfo: WorkflowInfo = element.data
-		const service: Sdk = this.getService(element)
+	private populateTenantWorkflow = (element: TreeNode): Promise<TreeNode[]> =>
+		this.getClient(element).getWorkflow((element.data as WorkflowInfo).id).then((workflow) => {
+			element.data = workflow
+			return Promise.resolve([
+				new TreeNode(TreeNodeType.workflowConnections.split(' ')[1], vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowConnections, element),
+				// new TreeNode(TreeNodeType.workflowDatasources.split(' ')[1], vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowDatasources, element),
+				// new TreeNode(TreeNodeType.workflowForms.split(' ')[1], vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowForms, element),
+				new TreeNode(TreeNodeType.workflowTags.split(' ')[1], vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowTags, element),
+			])
+		}).catch((error: ApiError) => Promise.reject(error))
 
-		const source = await service.getWorkflow(workflowInfo.id)
-		element.additionalData = source
+	private getClient = (element: TreeNode): Sdk => element.parent === undefined ? element.data as Sdk : this.getClient(element.parent)
 
-		return Promise.resolve([
-			new TreeNode(
-				TreeNodeType.workflowXtensions.split(' ')[1],
-				vscode.TreeItemCollapsibleState.Collapsed,
-				TreeNodeType.workflowXtensions,
-				element
-			),
-			new TreeNode(
-				TreeNodeType.workflowDatasources.split(' ')[1],
-				vscode.TreeItemCollapsibleState.Collapsed,
-				TreeNodeType.workflowDatasources,
-				element
-			),
-			new TreeNode(
-				TreeNodeType.workflowForms.split(' ')[1],
-				vscode.TreeItemCollapsibleState.Collapsed,
-				TreeNodeType.workflowForms,
-				element
-			),
-			new TreeNode(
-				TreeNodeType.workflowTags.split(' ')[1],
-				vscode.TreeItemCollapsibleState.Collapsed,
-				TreeNodeType.workflowTags,
-				element
-			),
-		])
-	}
+	private populateTenantDatasources = (element: TreeNode): Promise<TreeNode[]> =>
+		this.getClient(element).getDatasources()
+			.then((datasources) => Promise.resolve(datasources.map(ds => new TreeNode(ds.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, ds))))
+			.catch((error: ApiError) => Promise.reject(error))
 
-	private getService(element: TreeNode): Sdk {
-		let currentElement = element
-		while (currentElement.parent !== undefined) {
-			currentElement = currentElement.parent
-		}
-		return currentElement.data as Sdk
-	}
+	private populateTenantConnections = (element: TreeNode): Promise<TreeNode[]> =>
+		this.getClient(element).getConnections()
+			.then((connections) => Promise.resolve(connections.map(cn => new TreeNode(cn.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, cn))))
+			.catch((error: ApiError) => Promise.reject(error))
 
-	private async populateTenantDatasourcesNode(element: TreeNode): Promise<TreeNode[]> {
-		const service: Sdk = this.getService(element)
-		const datasources = await service.getDatasources()
-		return Promise.resolve(
-			datasources.map(ds => new TreeNode(ds.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, ds))
-		)
-	}
+	private populateTenantWorkflows = (element: TreeNode): Promise<TreeNode[]> =>
+		this.getClient(element).getWorkflowInfos()
+			.then((workflows) => Promise.resolve(workflows.map(wfl => new TreeNode(wfl.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflow, element.parent, wfl))))
+			.catch((error: ApiError) => Promise.reject(error))
 
-	private async populateTenantConnectionsNode(element: TreeNode): Promise<TreeNode[]> {
-		const service: Sdk = element.parent!.data
-		const connections = await service.getConnections()
-		return Promise.resolve(
-			connections.map(cn => new TreeNode(cn.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, cn))
-		)
-	}
-
-	private async populateTenantWorkflowsNode(element: TreeNode): Promise<TreeNode[]> {
-		const service: Sdk = element.parent!.data
-		const workflows = await service.getWorkflowInfos()
-		return Promise.resolve(Promise.all(workflows.map(wfl => {
-			return new TreeNode(wfl.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflow, element.parent, wfl)
-		}
-		)))
-	}
-
-	private async createWorkflowNode(service: Sdk, workflow: WorkflowInfo, parent: TreeNode): Promise<TreeNode> {
-		const source = await service.getWorkflow(workflow.id)
-		return new TreeNode(workflow.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflow, parent, workflow, source)
-	}
-
-	private populateTenantNode(element: TreeNode) {
-		return Promise.resolve([
+	private populateTenant = (element: TreeNode) =>
+		Promise.resolve([
 			new TreeNode(TreeNodeType.workflows, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflows, element),
 			new TreeNode(TreeNodeType.connections, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.connections, element),
 			new TreeNode(TreeNodeType.datasources, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.datasources, element),
 		])
-	}
 
-	private async generateTenantNodes(): Promise<TreeNode[]> {
-		const nodes: TreeNode[] = []
-		const configuration = vscode.workspace.getConfiguration().get<IConfiguration>('nwcExplorer')
-		if (configuration) {
-			return Promise.resolve(Promise.all(configuration.connections.map(cred => {
-				return Sdk.connect(cred).then((service) => {
-					return new TreeNode(`${service.tenant.name} (${service.tenant.id})`, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.nwcTenant, undefined, service)
-				})
-			})))
-		} else {
-			return Promise.resolve([])
-		}
-	}
+	private getConfiguration = (): IConfiguration | undefined => vscode.workspace.getConfiguration().get<IConfiguration>('nwcExplorer')
+
+	private populateTenants = (): Promise<TreeNode[]> =>
+		this.getConfiguration() === undefined
+			? Promise.resolve([])
+			: Promise.all(
+				this.getConfiguration()!.connections.map(cred => Sdk.connectWithClientCredentials(cred)
+					.then((client) => new TreeNode(`${client.tenant.name} (${client.tenant.id})`, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.nwcTenant, undefined, client))
+					.catch((error: ApiError) => Promise.reject(error))))
+
 }
