@@ -39,3 +39,9 @@ export type { workflowStartEvent } from './models/workflowStartEvent';
 export { Service } from './services/Service';
 
 export { Nwc } from './client';
+export type { getTenantConnectorsResponseType } from "./models/additionalTypes";
+export type { getDatasourceTokenResponseType } from "./models/additionalTypes";
+export type { getWorkflowsResponseType } from "./models/additionalTypes";
+export type { getWorkflowDesignDetailsResponseType } from "./models/additionalTypes";
+export type { exportWorkflowResponseType } from "./models/additionalTypes";
+export type { importWorkflowResponseType } from "./models/additionalTypes";

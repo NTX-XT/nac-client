@@ -1,6 +1,7 @@
 import { ActionInfo } from "./ActionInfo";
 import { Connection } from "./connection";
 import { Connector } from "./connector";
+import { ParsedWorkflowDefinition } from "./parsedWorkflowDefinition";
 import { WorkflowInfo } from "./WorkflowInfo";
 
 export interface ConnectionAction extends ActionInfo {
@@ -11,7 +12,7 @@ export interface UsedConnection extends Connection {
     actions?: ConnectionAction[]
 }
 
-export interface UsedXtension extends Connector {
+export interface UsedConnector extends Connector {
     connections?: { [key: string]: UsedConnection }
 }
 
@@ -26,7 +27,5 @@ export interface Workflow extends WorkflowInfo {
     comments?: string;
     type?: string;
     designVersion?: string;
-    actions: { [key: string]: ActionInfo }
-    usedXtensions?: { [key: string]: UsedXtension }
+    definition: ParsedWorkflowDefinition
 }
-

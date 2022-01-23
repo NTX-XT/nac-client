@@ -20,6 +20,8 @@ import type { workflowStartEvent } from '../models/workflowStartEvent';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "../../cache";
+import { ApiError } from "../core/ApiError";
+import { getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowsResponseType, getWorkflowDesignDetailsResponseType, exportWorkflowResponseType, importWorkflowResponseType } from "../models/additionalTypes";
 
 export class Service {
     private httpRequest: BaseHttpRequest;
@@ -41,6 +43,7 @@ export class Service {
             body: request,
             errors: {
                 400: `Failed`,
+                422: `Invalid credentials`,
             },
         });
     }
@@ -74,9 +77,7 @@ export class Service {
         });
     }
 
-    private getTenantConnectorsCancelable(): CancelablePromise<{
-        connectors?: Array<connector>;
-    }> {
+    private getTenantConnectorsCancelable(): CancelablePromise<getTenantConnectorsResponseType> {
         return this.httpRequest.request({
             method: 'GET',
             path: `/workflows/v1/connectors`,
@@ -90,9 +91,7 @@ export class Service {
         });
     }
 
-    private getDatasourceTokenCancelable(): CancelablePromise<{
-        token?: string;
-    }> {
+    private getDatasourceTokenCancelable(): CancelablePromise<getDatasourceTokenResponseType> {
         return this.httpRequest.request({
             method: 'GET',
             path: `/designer_/datasources/get-datasource-token`,
@@ -123,9 +122,7 @@ export class Service {
 
     private getWorkflowsCancelable(
         limit: number = 2000,
-    ): CancelablePromise<{
-        workflows?: Array<workflow>;
-    }> {
+    ): CancelablePromise<getWorkflowsResponseType> {
         return this.httpRequest.request({
             method: 'GET',
             path: `/workflows/v1/designs`,
@@ -137,9 +134,7 @@ export class Service {
 
     private getWorkflowDesignDetailsCancelable(
         workflowId: string,
-    ): CancelablePromise<{
-        workflow?: workflowDesign;
-    }> {
+    ): CancelablePromise<getWorkflowDesignDetailsResponseType> {
         return this.httpRequest.request({
             method: 'GET',
             path: `/workflows/v1/designs/${workflowId}`,
@@ -151,9 +146,7 @@ export class Service {
         request: {
             isNonExpiring: boolean;
         },
-    ): CancelablePromise<{
-        workflow?: exportWorkflowResponse;
-    }> {
+    ): CancelablePromise<exportWorkflowResponseType> {
         return this.httpRequest.request({
             method: 'POST',
             path: `/workflows/v1/designs/${workflowId}/published/export`,
@@ -166,9 +159,7 @@ export class Service {
             name: string;
             key: string;
         },
-    ): CancelablePromise<{
-        workflow?: importWorkflowResponse;
-    }> {
+    ): CancelablePromise<importWorkflowResponseType> {
         return this.httpRequest.request({
             method: 'POST',
             path: `/workflows/v1/designs/import`,
@@ -230,7 +221,7 @@ export class Service {
             client_secret: string;
             grant_type: 'client_credentials';
         }): Promise<tokenResponse> {
-        return this.getTokenCancelable(request)
+        return this.getTokenCancelable(request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -240,7 +231,7 @@ export class Service {
      */
     @Cacheable()
     public getTenantConfiguration(): Promise<tenantConfiguration> {
-        return this.getTenantConfigurationCancelable()
+        return this.getTenantConfigurationCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -251,7 +242,7 @@ export class Service {
      */
     @Cacheable()
     public getTenantInfo(tenantId: string): Promise<tenantInfo> {
-        return this.getTenantInfoCancelable(tenantId)
+        return this.getTenantInfoCancelable(tenantId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -261,7 +252,7 @@ export class Service {
      */
     @Cacheable()
     public getTenantTags(): Promise<tagResponse> {
-        return this.getTenantTagsCancelable()
+        return this.getTenantTagsCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -270,10 +261,8 @@ export class Service {
      * @throws ApiError
      */
     @Cacheable()
-    public getTenantConnectors(): Promise<{
-                connectors?: Array<connector>;
-            }> {
-        return this.getTenantConnectorsCancelable()
+    public getTenantConnectors(): Promise<getTenantConnectorsResponseType> {
+        return this.getTenantConnectorsCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -283,7 +272,7 @@ export class Service {
      */
     @Cacheable()
     public getTenantConnections(): Promise<Array<connection>> {
-        return this.getTenantConnectionsCancelable()
+        return this.getTenantConnectionsCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -292,10 +281,8 @@ export class Service {
      * @throws ApiError
      */
     @Cacheable()
-    public getDatasourceToken(): Promise<{
-                token?: string;
-            }> {
-        return this.getDatasourceTokenCancelable()
+    public getDatasourceToken(): Promise<getDatasourceTokenResponseType> {
+        return this.getDatasourceTokenCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -305,7 +292,7 @@ export class Service {
      */
     @Cacheable()
     public getTenantDatasources(): Promise<Array<datasource>> {
-        return this.getTenantDatasourcesCancelable()
+        return this.getTenantDatasourcesCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -316,7 +303,7 @@ export class Service {
      */
     @Cacheable()
     public getTenantContracts(includePublic: boolean = true): Promise<Array<contract>> {
-        return this.getTenantContractsCancelable(includePublic)
+        return this.getTenantContractsCancelable(includePublic).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -326,10 +313,8 @@ export class Service {
      * @throws ApiError
      */
     @Cacheable()
-    public getWorkflows(limit: number = 2000): Promise<{
-                workflows?: Array<workflow>;
-            }> {
-        return this.getWorkflowsCancelable(limit)
+    public getWorkflows(limit: number = 2000): Promise<getWorkflowsResponseType> {
+        return this.getWorkflowsCancelable(limit).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -339,10 +324,8 @@ export class Service {
      * @throws ApiError
      */
     @Cacheable()
-    public getWorkflowDesignDetails(workflowId: string): Promise<{
-                workflow?: workflowDesign;
-            }> {
-        return this.getWorkflowDesignDetailsCancelable(workflowId)
+    public getWorkflowDesignDetails(workflowId: string): Promise<getWorkflowDesignDetailsResponseType> {
+        return this.getWorkflowDesignDetailsCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -355,10 +338,8 @@ export class Service {
     @Cacheable()
     public exportWorkflow(workflowId: string, request: {
             isNonExpiring: boolean;
-        }): Promise<{
-                    workflow?: exportWorkflowResponse;
-                }> {
-        return this.exportWorkflowCancelable(workflowId, request)
+        }): Promise<exportWorkflowResponseType> {
+        return this.exportWorkflowCancelable(workflowId, request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -371,10 +352,8 @@ export class Service {
     public importWorkflow(request: {
             name: string;
             key: string;
-        }): Promise<{
-                    workflow?: importWorkflowResponse;
-                }> {
-        return this.importWorkflowCancelable(request)
+        }): Promise<importWorkflowResponseType> {
+        return this.importWorkflowCancelable(request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -385,7 +364,7 @@ export class Service {
      */
     @Cacheable()
     public getWorkflowSource(workflowId: string): Promise<workflowSource> {
-        return this.getWorkflowSourceCancelable(workflowId)
+        return this.getWorkflowSourceCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -396,7 +375,7 @@ export class Service {
      */
     @Cacheable()
     public checkWorkflowName(workflowName: string): Promise<string> {
-        return this.checkWorkflowNameCancelable(workflowName)
+        return this.checkWorkflowNameCancelable(workflowName).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -421,6 +400,6 @@ export class Service {
             version?: number;
             engineName?: string;
         }): Promise<workflowSource> {
-        return this.publishWorkflowCancelable(workflowId, payload)
+        return this.publishWorkflowCancelable(workflowId, payload).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 }

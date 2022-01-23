@@ -1,7 +1,8 @@
 import { generate } from 'openapi-typescript-codegen'
 import * as fs from 'fs'
 import * as path from 'path'
-import { Project, StructureKind, ts, createWrappedNode, ClassDeclaration, Program, MethodDeclaration, MethodDeclarationStructure, Scope, ImportDeclaration, ExportAssignment } from "ts-morph";
+import { Project, StructureKind, ts, createWrappedNode, ClassDeclaration, Program, MethodDeclaration, MethodDeclarationStructure, Scope, ImportDeclaration, ExportAssignment, TypeArgumentedNode, TypeAliasDeclarationStructure, OptionalKind, SourceFileCreateOptions, ImportDeclarationStructure, ExportDeclarationStructure } from "ts-morph";
+import { FormatCodeSettings, UserPreferences } from '@ts-morph/common/lib/typescript';
 
 interface ITemplateMethodData {
     declaration: string
@@ -33,48 +34,79 @@ generate({
 function addCachingToNWCClient(project: Project) {
     const serviceClassFile = project.getSourceFileOrThrow(path.join(projectPath, 'services/Service.ts'));
     const serviceClass = serviceClassFile.getClassOrThrow(serviceClassName);
-    serviceClassFile.addImportDeclaration({
+    serviceClassFile.addImportDeclarations([{
         moduleSpecifier: '../../cache',
         namedImports: ["Cacheable"]
-    })
-
-    // serviceClassFile.addImportDeclarations([{
-    //     moduleSpecifier: 'node-cache',
-    //     defaultImport: 'NodeCache'
-    // }, {
-    //     moduleSpecifier: '@type-cacheable/node-cache-adapter',
-    //     namedImports: ['useAdapter']
-    // }, {
-    //     moduleSpecifier: '@type-cacheable/core',
-    //     namedImports: ["Cacheable"]
-    // }]);
-    serviceClass.getChildIndex();
-    // serviceClassFile.insertStatements(serviceClass.getChildIndex(), [
-    //     "const client = new NodeCache({stdTTL:10000})",
-    //     "const clientAdapter = useAdapter(client)"
-    // ]);
-
+    }, {
+        moduleSpecifier: '../core/ApiError',
+        namedImports: ["ApiError"]
+    }])
+    const additionalTypes: OptionalKind<TypeAliasDeclarationStructure>[] = []
     for (const methodDefinition of serviceClass.getMethods()) {
-        const initialStructure = methodDefinition.getStructure();
+        const initialStructure = methodDefinition.getStructure() as MethodDeclarationStructure;
         methodDefinition.setScope(Scope.Private);
         methodDefinition.rename(methodDefinition.getName() + "Cancelable");
-
-        let returnType: string | undefined = initialStructure.returnType?.toString();
+        let returnType: string | undefined = initialStructure.returnType?.toString().trim();
         if (returnType) {
-            returnType = returnType.replace('CancelablePromise', 'Promise');
+            let arg = returnType.substring(0, returnType.length - 1).replace('CancelablePromise<', '').split('\r\n').join('')
+            if (arg.startsWith('{')) {
+                arg = `{${arg.replace('{', '').trim()}`
+                const typeName = `${initialStructure.name}ResponseType`
+                const existingTypeDeclaration = additionalTypes.find((type) => type.name === arg)
+                if (!existingTypeDeclaration) {
+                    additionalTypes.push({
+                        name: typeName,
+                        type: arg,
+                        isExported: true
+                    })
+                }
+                arg = typeName
+                methodDefinition.setReturnType(`CancelablePromise<${arg}>`)
+            }
+
+            returnType = `Promise<${arg}>`
         }
+
         const newMethod = serviceClass
-            .addMethod(initialStructure as MethodDeclarationStructure)
+            .addMethod(initialStructure)
             .removeBody();
         if (returnType) {
             newMethod.setReturnType(returnType);
         }
-        newMethod.setBodyText(`return this.${methodDefinition.getName()}(${methodDefinition.getParameters().map((p) => p.getName()).join(', ').trim()})`);
+
+        newMethod.setBodyText(`return this.${methodDefinition.getName()}(${methodDefinition.getParameters().map((p) => p.getName()).join(', ').trim()}).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))`);
         newMethod.addDecorator({ name: "Cacheable", arguments: [] });
         const docs = methodDefinition.getJsDocs();
         for (const doc of docs) {
             doc.remove();
         }
+    }
+    if (additionalTypes.length > 0) {
+        const additionalTypesFile = project.createSourceFile(path.join(projectPath, 'models/additionalTypes.ts'), undefined, { overwrite: true })
+        additionalTypesFile.addTypeAliases(additionalTypes)
+        additionalTypesFile.fixMissingImports()
+        const foundNamedImports = additionalTypesFile.getImportDeclarations()[0]
+        const typeNames = foundNamedImports.getNamedImports().map((namedImport) => namedImport.getName())
+        const importDeclarations = typeNames.map((typeName) => {
+            return {
+                moduleSpecifier: `./${typeName}`,
+                namedImports: [typeName]
+            } as OptionalKind<ImportDeclarationStructure>
+        })
+        additionalTypesFile.insertImportDeclarations(0, importDeclarations)
+
+        additionalTypesFile.insertStatements(0, ['/* istanbul ignore file */', '/* tslint:disable */', '/* eslint-disable */'])
+        foundNamedImports.remove()
+        serviceClassFile.fixMissingImports()
+        const indexFile = project.getSourceFileOrThrow(path.join(projectPath, 'index.ts'))
+        const exportDeclarations = additionalTypes.map((type) => {
+            return {
+                moduleSpecifier: `./models/additionalTypes`,
+                namedExports: [type.name],
+                isTypeOnly: true,
+            } as OptionalKind<ExportDeclarationStructure>
+        })
+        indexFile.addExportDeclarations(exportDeclarations)
     }
 }
 
