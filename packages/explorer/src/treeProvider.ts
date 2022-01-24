@@ -1,4 +1,4 @@
-import { ApiError, Sdk, Tenant, UsedConnector, Workflow, WorkflowInfo } from "@nwc-sdk/client"
+import { ApiError, Sdk, UsedConnection, UsedConnector, Workflow, WorkflowInfo, ConnectionAction } from "@nwc-sdk/client"
 import * as vscode from 'vscode'
 import { TreeNodeType } from './enums'
 import { IConfiguration } from './settings'
@@ -35,6 +35,10 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 					return this.populateWorkflowConnectors(element)
 				case TreeNodeType.workflowConnector:
 					return this.populateUsedConnector(element)
+				case TreeNodeType.workflowConnection:
+					return this.populateUsedConnection(element)
+				case TreeNodeType.connectionAction:
+					return this.populateConnectionAction(element)
 				default:
 					break
 			}
@@ -44,12 +48,47 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		return Promise.resolve([])
 	}
 
+	private populateConnectionAction(element: TreeNode): Promise<TreeNode[]> {
+		const action: ConnectionAction = element.data
+		const nodes: TreeNode[] = []
+		for (const configItem of action.configuration) {
+			const node = new TreeNode(configItem.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.actionConfiguration, element, configItem)
+			switch (configItem.type) {
+				case "value":
+					node.iconPath = new vscode.ThemeIcon("text-size")
+					break;
+				case "variable":
+					node.iconPath = new vscode.ThemeIcon("symbol-variable")
+					break;
+				case "dictionary":
+					node.iconPath = new vscode.ThemeIcon("symbol-array")
+					break;
+				default:
+					node.iconPath = new vscode.ThemeIcon("warning")
+					break;
+			}
+			nodes.push(node)
+		}
+		return Promise.resolve(nodes)
+	}
+
+	private populateUsedConnection(element: TreeNode): Promise<TreeNode[]> {
+		const connector: UsedConnection = element.data
+		const nodes: TreeNode[] = []
+		if (connector && connector.actions) {
+			for (const usedAction of connector.actions) {
+				nodes.push(new TreeNode(usedAction.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.connectionAction, element, usedAction))
+			}
+		}
+		return Promise.resolve(nodes)
+	}
+
 	private populateUsedConnector(element: TreeNode): Promise<TreeNode[]> {
 		const connector: UsedConnector = element.data
 		const nodes: TreeNode[] = []
 		if (connector.connections) {
 			for (const cn of Object.keys(connector.connections)) {
-				nodes.push(new TreeNode(connector.connections[cn].name, vscode.TreeItemCollapsibleState.None, TreeNodeType.workflowConnection, element, connector.connections[cn]))
+				nodes.push(new TreeNode(connector.connections[cn].name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowConnection, element, connector.connections[cn]))
 			}
 		}
 		return Promise.resolve(nodes)

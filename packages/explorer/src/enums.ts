@@ -30,4 +30,6 @@ export enum TreeNodeType {
 	datasource = 'Datasource',
 	datasources = 'Datasources',
 	connection = 'Connection',
+	connectionAction = 'Connection Action',
+	actionConfiguration = 'Action Configuration'
 }

@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.workspace.openTextDocument(setting)
 	})
 	vscode.commands.registerCommand('tenants.refresh', () => provider.refresh())
-	vscode.commands.registerCommand('tenants.viewSource', async (node: TreeNode) => {
+	vscode.commands.registerCommand('tenants.viewData', async (node: TreeNode) => {
 		const data = node.additionalData ? node.additionalData : node.data
 		const doc = await vscode.workspace.openTextDocument({ content: JSON.stringify(data), language: 'json' })
 		const formatedTexts = (await vscode.commands.executeCommand('vscode.executeFormatDocumentProvider', doc.uri)) as vscode.TextEdit[]
