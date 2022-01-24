@@ -1,5 +1,5 @@
-import { ActionInfo } from "./ActionInfo";
-import { UsedConnector } from "./workflow";
+import { ActionInfo } from "./actionInfo";
+import { UsedConnector } from "./usedConnector";
 import { action } from "./workflowDefinition";
 
 export interface ParsedWorkflowDefinition {

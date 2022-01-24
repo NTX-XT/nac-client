@@ -43,7 +43,6 @@ export class Service {
             body: request,
             errors: {
                 400: `Failed`,
-                422: `Invalid credentials`,
             },
         });
     }

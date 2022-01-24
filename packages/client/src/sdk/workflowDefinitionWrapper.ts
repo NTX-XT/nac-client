@@ -1,8 +1,11 @@
 import { arrayToDictionary } from "../utils";
-import { ActionInfo } from "./models/ActionInfo";
+import { ActionInfo } from "./models/actionInfo";
 import { Connection } from "./models/connection";
 import { Connector } from "./models/connector";
-import { UsedConnection, UsedConnector } from "./models/workflow";
+import { ConnectionActionConfigurationItemValue } from "./models/connectionActionConfigurationItemValue";
+import { ConnectionAction } from "./models/connectionAction";
+import { UsedConnection } from "./models/usedConnection";
+import { UsedConnector } from "./models/usedConnector";
 import { workflowDefinition, action, parameter } from "./models/workflowDefinition";
 import { OpenAPIV2 } from 'openapi-types'
 import { ParsedWorkflowDefinition } from "./models/parsedWorkflowDefinition";
@@ -92,44 +95,96 @@ export class WorkflowDefinitionParser {
         return undefined
     }
 
+    private resolveActionParameterValue(entry: { parameter: OpenAPIV2.Parameter, value: any }): ConnectionActionConfigurationItemValue {
+        if (entry.parameter.type === "string" && entry.value.literal) {
+            return {
+                key: entry.parameter.name,
+                value: entry.value.literal,
+                name: entry.parameter["x-ntx-summary"],
+                type: "value"
+            }
+        } else if (entry.parameter.type === "string" && entry.value.variable) {
+            return {
+                key: entry.parameter.name,
+                value: entry.value.variable.name,
+                name: entry.parameter["x-ntx-summary"],
+                type: "variable"
+            }
+        } else if (entry.parameter.schema && entry.parameter.schema.type === "object" && entry.value.value) {
+            const values = Object.keys(entry.value.value).map<ConnectionActionConfigurationItemValue>((key) => {
+                return {
+                    key: key,
+                    name: entry.value.value[key].schema.title,
+                    value: entry.value.value[key].literal ? entry.value.value[key].literal : (entry.value.value[key].variable ? entry.value.value[key].variable.name : undefined),
+                    type: entry.value.value[key].literal ? "value" : (entry.value.value[key].variable ? "variable" : "unsupported")
+                }
+            })
+            return {
+                key: entry.parameter.name,
+                value: values,
+                name: entry.parameter["x-ntx-summary"],
+                type: "dictionary"
+            }
+        } else {
+            return {
+                key: entry.parameter.name,
+                name: entry.parameter["x-ntx-summary"],
+                type: "unsupported",
+                value: undefined
+            }
+        }
+    }
+
     private resolveConnections() {
         for (const connectorId of Object.keys(this._definition.inUseXtensions)) {
+            const foundConnections: UsedConnection[] = []
             for (const actionId of this._definition.inUseXtensions[connectorId].usedByActionIds) {
                 const connection = this.getActionConnection(this._actionsDictionary[actionId])
-                const operationId = this._actionsDictionary[actionId].configuration.xtension!.operationId
-                const document: OpenAPIV2.Document = this._definition.inUseXtensions[connectorId].xtension
-                const operation: OpenAPIV2.OperationObject = (this.findOperation(document.paths, operationId)!)
-                const values = this.getActionXtensionParameterValue(this.getActionXtensionInputParameter(this._actionsDictionary[actionId]))
-                const valuesDictionary: { [key: string]: { parameter: OpenAPIV2.Parameter, value: any } } = {}
-                for (const p of operation.parameters!) {
-                    const parameter: OpenAPIV2.Parameter = p as OpenAPIV2.Parameter
-                    const key = `${operation.operationId}.${parameter.in}.${parameter.name}`
-                    valuesDictionary[key] = {
-                        parameter: parameter,
-                        value: values[key]
-                    }
-                }
                 if (connection) {
-                    const connectionId = connection.id
+                    let usedConnection = foundConnections.find(uc => uc.id === connection.id)
+                    if (usedConnection === undefined) {
+                        usedConnection = connection
+                        usedConnection.actions = []
+                        foundConnections.push(usedConnection)
+                    }
+                    const operationId = this._actionsDictionary[actionId].configuration.xtension!.operationId
+                    const document: OpenAPIV2.Document = this._definition.inUseXtensions[connectorId].xtension
+                    const operation: OpenAPIV2.OperationObject = (this.findOperation(document.paths, operationId)!)
+                    const values = this.getActionXtensionParameterValue(this.getActionXtensionInputParameter(this._actionsDictionary[actionId]))
+                    const valuesDictionary: { [key: string]: { parameter: OpenAPIV2.Parameter, value: any } } = {}
+                    for (const p of operation.parameters!) {
+                        const parameter: OpenAPIV2.Parameter = p as OpenAPIV2.Parameter
+                        const key = `${operation.operationId}.${parameter.in}.${parameter.name}`
+                        valuesDictionary[key] = {
+                            parameter: parameter,
+                            value: values[key]
+                        }
+                    }
+
+                    const actionInfo: ConnectionAction = {
+                        id: actionId,
+                        name: this._actionsDictionary[actionId].configuration.name,
+                        data: valuesDictionary,
+                        configuration: []
+                    }
+
+                    for (const [key, entry] of Object.entries(valuesDictionary)) {
+                        const v = this.resolveActionParameterValue(entry)
+                        actionInfo.configuration.push({
+                            path: key,
+                            name: v.name,
+                            key: v.key,
+                            value: v.value,
+                            type: v.type
+                        })
+                    }
+                    usedConnection.actions!.push(actionInfo)
                     if (this._usedConnectors[connectorId].connections === undefined) {
                         this._usedConnectors[connectorId].connections = {}
                     }
-                    this._usedConnectors[connectorId].connections![connectionId] = connection
+                    this._usedConnectors[connectorId].connections![connection.id] = usedConnection
                 }
             }
         }
-        // //
-        // // const connections = (await Promise.all(Object.keys(definition.inUseXtensions).map<Promise<(Connection | undefined)[]>>(async (connectorId) => {
-        // //     return await Promise.all(definition.inUseXtensions[connectorId].usedByActionIds.map<Promise<Connection | undefined>>(async (actionId) => {
-        // //         return await this.getActionConnection(actionsDic[actionId])
-        // //     }))
-        // // }))).reduce((accumulator, value) => accumulator.concat(value), [])
-        // // for (const connectorId of Object.keys(definition.inUseXtensions)) {
-        // //     for (const actionId of definition.inUseXtensions[connectorId].usedByActionIds) {
-        // //         const connection = this.getActionConnection(actionsDic[actionId])
-        // //     }
-        // // }
-        // // console.log(connections)
-
     }
 }

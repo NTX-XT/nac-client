@@ -4,11 +4,13 @@ import { OpenAPIV2 } from 'openapi-types'
 import { Connector } from "./models/connector"
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
-import { UsedConnection, UsedConnector, Workflow } from './models/workflow'
+import { Workflow } from './models/workflow'
+import { UsedConnection } from "./models/usedConnection"
+import { UsedConnector } from "./models/usedConnector"
 import { action, parameter, workflowDefinition } from './models/workflowDefinition'
 import { Contract } from './models/contract'
 import { WorkflowInfo } from './models/WorkflowInfo'
-import { ActionInfo } from './models/ActionInfo'
+import { ActionInfo } from './models/actionInfo'
 import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
 import { Cacheable } from '../cache'
