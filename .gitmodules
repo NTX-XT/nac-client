@@ -1,3 +1,0 @@
-[submodule "packages/openapi-typescript-codegen"]
-	path = packages/openapi-typescript-codegen
-	url = https://github.com/jpoul/openapi-typescript-codegen
