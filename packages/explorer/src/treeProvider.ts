@@ -1,4 +1,4 @@
-import { ApiError, Sdk, UsedConnection, UsedConnector, Workflow, WorkflowInfo, ConnectionAction } from "@nwc-sdk/client"
+import { ApiError, Sdk, UsedConnection, UsedConnector, Workflow, WorkflowInfo, ConnectionAction, Connector, invalidId, Contract } from "@nwc-sdk/client"
 import * as vscode from 'vscode'
 import { TreeNodeType } from './enums'
 import { IConfiguration } from './settings'
@@ -27,9 +27,13 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 					return this.populateTenantWorkflows(element)
 				case TreeNodeType.workflow:
 					return this.populateTenantWorkflow(element)
-				case TreeNodeType.datasources:
+				case TreeNodeType.contracts:
+					return this.populateTenantContracts(element)
+				case TreeNodeType.contract:
 					return this.populateTenantDatasources(element)
-				case TreeNodeType.connections:
+				case TreeNodeType.connectors:
+					return this.populateTenantConnectors(element)
+				case TreeNodeType.connector:
 					return this.populateTenantConnections(element)
 				case TreeNodeType.workflowConnections:
 					return this.populateWorkflowConnectors(element)
@@ -37,6 +41,8 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 					return this.populateUsedConnector(element)
 				case TreeNodeType.workflowConnection:
 					return this.populateUsedConnection(element)
+				case TreeNodeType.workflowTags:
+					return this.populateWorkflowTags(element)
 				case TreeNodeType.connectionAction:
 					return this.populateConnectionAction(element)
 				default:
@@ -94,6 +100,9 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		return Promise.resolve(nodes)
 	}
 
+	private populateWorkflowTags = (element: TreeNode): Promise<TreeNode[]> =>
+		Promise.resolve((element.parent!.data as Workflow).tags.map((tag) => new TreeNode(tag, vscode.TreeItemCollapsibleState.None, TreeNodeType.workflowTag, element, tag)))
+
 	private populateWorkflowConnectors(element: TreeNode): Promise<TreeNode[]> {
 		const workflow: Workflow = element.parent!.data
 		const nodes: TreeNode[] = []
@@ -120,12 +129,36 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 
 	private populateTenantDatasources = (element: TreeNode): Promise<TreeNode[]> =>
 		this.getClient(element).getDatasources()
-			.then((datasources) => Promise.resolve(datasources.map(ds => new TreeNode(ds.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, ds))))
+			.then((datasources) => Promise.resolve(
+				datasources.filter((ds) =>
+					(element.data as Contract).id === invalidId
+						? ds.contract === undefined
+						: ds.contract && ds.contract.id === (element.data as Contract).id)
+					.map(ds => new TreeNode(ds.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, ds))))
 			.catch((error: ApiError) => Promise.reject(error))
 
 	private populateTenantConnections = (element: TreeNode): Promise<TreeNode[]> =>
 		this.getClient(element).getConnections()
-			.then((connections) => Promise.resolve(connections.map(cn => new TreeNode(cn.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.datasource, element, cn))))
+			.then((connections) => Promise.resolve(
+				connections.filter((cn) =>
+					(element.data as Connector).id === invalidId
+						? cn.connector === undefined
+						: cn.connector && cn.connector.id === (element.data as Connector).id)
+					.map(cn => new TreeNode(cn.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.connection, element, cn))))
+			.catch((error: ApiError) => Promise.reject(error))
+
+	private populateTenantConnectors = (element: TreeNode): Promise<TreeNode[]> =>
+		this.getClient(element).getConnections()
+			.then((connections) => this.getClient(element).groupConnections(connections)
+				.then((connectors) => Promise.resolve(connectors.map(cn => new TreeNode(cn.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.connector, element, cn))))
+				.catch((error: ApiError) => Promise.reject(error)))
+			.catch((error: ApiError) => Promise.reject(error))
+
+	private populateTenantContracts = (element: TreeNode): Promise<TreeNode[]> =>
+		this.getClient(element).getDatasources()
+			.then((datasources) => this.getClient(element).groupDatasources(datasources)
+				.then((contracts) => Promise.resolve(contracts.map(cn => new TreeNode(cn.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.contract, element, cn))))
+				.catch((error: ApiError) => Promise.reject(error)))
 			.catch((error: ApiError) => Promise.reject(error))
 
 	private populateTenantWorkflows = (element: TreeNode): Promise<TreeNode[]> =>
@@ -136,8 +169,8 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 	private populateTenant = (element: TreeNode) =>
 		Promise.resolve([
 			new TreeNode(TreeNodeType.workflows, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflows, element),
-			new TreeNode(TreeNodeType.connections, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.connections, element),
-			new TreeNode(TreeNodeType.datasources, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.datasources, element),
+			new TreeNode(TreeNodeType.connections, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.connectors, element),
+			new TreeNode(TreeNodeType.datasources, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.contracts, element),
 		])
 
 	private getConfiguration = (): IConfiguration | undefined => vscode.workspace.getConfiguration().get<IConfiguration>('nwcExplorer')
@@ -147,7 +180,7 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 			? Promise.resolve([])
 			: Promise.all(
 				this.getConfiguration()!.connections.map(cred => Sdk.connectWithClientCredentials(cred)
-					.then((client) => new TreeNode(`${client.tenant.name} (${client.tenant.id})`, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.nwcTenant, undefined, client))
+					.then((client) => new TreeNode(client.tenant.name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.nwcTenant, undefined, client))
 					.catch((error: ApiError) => Promise.reject(error))))
 
 }

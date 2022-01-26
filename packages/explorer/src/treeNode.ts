@@ -1,7 +1,6 @@
-import { ConnectionAction, ConnectionInfo, Datasource, Sdk, UsedConnection, UsedConnector, WorkflowInfo } from "@nwc-sdk/client";
+import { Sdk } from "@nwc-sdk/client";
 import * as vscode from 'vscode';
 import { TreeNodeType } from './enums';
-
 
 export class TreeNode extends vscode.TreeItem {
 	constructor(
@@ -14,53 +13,27 @@ export class TreeNode extends vscode.TreeItem {
 	) {
 		super(label, collapsibleState);
 		this.contextValue = type;
+		this.id = type === TreeNodeType.nwcTenant ? (data as Sdk).tenant.id : this.treeNodeId(this)
+		this.iconPath = this.getNodeIcon(type)
+	}
+
+	private treeNodeId = (node: TreeNode): string =>
+		`${node.parent ? node.parent.id : ''}${node.parent ? '_' : ''}${node.data === undefined ? node.type : (node.data.id ? node.data.id : node.data.key)}`
+
+	private getNodeIcon = (type: TreeNodeType): vscode.ThemeIcon | undefined => {
 		switch (type) {
 			case TreeNodeType.nwcTenant:
-				this.id = (data as Sdk).tenant.id;
-				this.iconPath = new vscode.ThemeIcon("globe")
-				break;
-			case (TreeNodeType.workflows):
-				this.id = `${parent!.id}_${type}`;
-				this.iconPath = new vscode.ThemeIcon("type-hierarchy-sub")
-				break;
-			case (TreeNodeType.datasources):
-				this.id = `${parent!.id}_${type}`;
-				this.iconPath = new vscode.ThemeIcon("debug-disconnect")
-				break;
-			case (TreeNodeType.connections):
-				this.id = `${parent!.id}_${type}`;
-				this.iconPath = new vscode.ThemeIcon("debug-disconnect")
-				break;
+				return new vscode.ThemeIcon("globe")
 			case TreeNodeType.workflow:
-				this.id = (data as WorkflowInfo).id;
-				this.iconPath = new vscode.ThemeIcon("type-hierarchy-sub")
-				break;
+				return new vscode.ThemeIcon("type-hierarchy-sub")
 			case TreeNodeType.datasource:
-				this.id = (data as Datasource).id;
-				this.iconPath = new vscode.ThemeIcon("debug-disconnect")
-				break;
 			case TreeNodeType.connection:
-				this.id = (data as ConnectionInfo).id;
-				this.iconPath = new vscode.ThemeIcon("debug-disconnect")
-				break;
-			case TreeNodeType.workflowConnections:
-				this.id = `${parent!.id}_${type}`;
-				this.iconPath = new vscode.ThemeIcon("debug-disconnect")
-				break;
 			case TreeNodeType.workflowConnection:
-				this.id = `${parent!.id}_${(data as UsedConnection).id}`;
-				this.iconPath = new vscode.ThemeIcon("debug-disconnect")
-				break;
-			case TreeNodeType.workflowConnector:
-				this.id = `${parent!.id}_${(data as UsedConnector).id}`;
-				this.iconPath = new vscode.ThemeIcon("debug-disconnect")
-				break;
+				return new vscode.ThemeIcon("debug-disconnect")
 			case TreeNodeType.connectionAction:
-				this.id = (data as ConnectionAction).id;
-				this.iconPath = new vscode.ThemeIcon("layout")
-				break;
+				return new vscode.ThemeIcon("layout")
 			default:
-				break;
+				return undefined
 		}
 	}
 }
