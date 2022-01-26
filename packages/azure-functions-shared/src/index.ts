@@ -54,7 +54,7 @@ export async function getTenant(connectionDetails: INWCTenantConnectionDetails, 
 }
 
 export async function getSdkTenant(connectionDetails: ClientCredentials | string): Promise<Sdk> {
-    const client = await Sdk.connect(connectionDetails)
+    const client = await (typeof connectionDetails === "string" ? Sdk.connectWithToken(connectionDetails) : Sdk.connectWithClientCredentials(connectionDetails))
     return client!
 }
 
