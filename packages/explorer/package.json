@@ -78,18 +78,13 @@
       },
       {
         "command": "tenants.viewData",
-        "title": "View Source"
+        "title": "View Data"
       }
     ],
     "menus": {
       "view/title": [
         {
           "command": "tenants.refresh",
-          "when": "view == tenants",
-          "group": "navigation"
-        },
-        {
-          "command": "tenants.edit",
           "when": "view == tenants",
           "group": "navigation"
         }
