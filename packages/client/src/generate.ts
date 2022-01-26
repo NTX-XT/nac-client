@@ -1,29 +1,18 @@
-import { generate } from 'openapi-typescript-codegen'
-import * as fs from 'fs'
+import { generate, Indent } from 'openapi-typescript-codegen'
 import * as path from 'path'
-import { Project, StructureKind, ts, createWrappedNode, ClassDeclaration, Program, MethodDeclaration, MethodDeclarationStructure, Scope, ImportDeclaration, ExportAssignment, TypeArgumentedNode, TypeAliasDeclarationStructure, OptionalKind, SourceFileCreateOptions, ImportDeclarationStructure, ExportDeclarationStructure } from "ts-morph";
-import { FormatCodeSettings, UserPreferences } from '@ts-morph/common/lib/typescript';
-
-interface ITemplateMethodData {
-    declaration: string
-}
-
-interface TemplateConfig {
-    methods: ITemplateMethodData[]
-}
+import { Project, MethodDeclarationStructure, Scope, TypeAliasDeclarationStructure, OptionalKind, ImportDeclarationStructure, ExportDeclarationStructure } from "ts-morph";
 
 const generatedClientNameClassName = 'Nwc'
-const postfix = ''
 const projectPath = './src/nwc'
-const serviceClassName = 'Service' + postfix
+const serviceClassName = 'DefaultService'
 
 generate({
     input: './../validationApp/public/NintexWorkflowCloudeXtended.swagger.json',
     output: projectPath,
-    postfix: postfix,
+    //    postfix: postfix,
     httpClient: 'axios',
-    exportClient: true,
-    clientName: generatedClientNameClassName
+    clientName: generatedClientNameClassName,
+    indent: Indent.TAB
 }).then(() => {
     const project = new Project()
     project.addSourceFilesAtPaths(path.join(projectPath, "**/*.ts"));
@@ -32,7 +21,7 @@ generate({
 })
 
 function addCachingToNWCClient(project: Project) {
-    const serviceClassFile = project.getSourceFileOrThrow(path.join(projectPath, 'services/Service.ts'));
+    const serviceClassFile = project.getSourceFileOrThrow(path.join(projectPath, `services/${serviceClassName}.ts`));
     const serviceClass = serviceClassFile.getClassOrThrow(serviceClassName);
     serviceClassFile.addImportDeclarations([{
         moduleSpecifier: '../../cache',

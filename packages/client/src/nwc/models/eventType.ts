@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 export type eventType = {
-    id?: string;
-    name?: string;
-}
+	id?: string;
+	name?: string;
+};

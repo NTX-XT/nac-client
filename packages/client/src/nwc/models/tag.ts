@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 export type tag = {
-    name?: string;
-    colorIndex?: number;
-    count?: number;
-    kind?: string;
-}
+	name?: string;
+	colorIndex?: number;
+	count?: number;
+	kind?: string;
+};

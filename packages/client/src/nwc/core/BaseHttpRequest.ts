@@ -2,17 +2,18 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ApiRequestOptions } from './ApiRequestOptions';
-import type { OpenAPIConfig } from './OpenAPI';
 import type { CancelablePromise } from './CancelablePromise';
+import type { OpenAPIConfig } from './OpenAPI';
 
 export class BaseHttpRequest {
-    readonly openApiConfig: OpenAPIConfig;
 
-    constructor(openApiConfig: OpenAPIConfig) {
-        this.openApiConfig = openApiConfig;
-    }
+	protected readonly config: OpenAPIConfig;
 
-    request<T>(options: ApiRequestOptions): CancelablePromise<T> {
-        throw new Error('Not Implemented');
-    }
+	constructor(config: OpenAPIConfig) {
+		this.config = config;
+	}
+
+	public request<T>(options: ApiRequestOptions): CancelablePromise<T> {
+		throw new Error('Not Implemented');
+	}
 }

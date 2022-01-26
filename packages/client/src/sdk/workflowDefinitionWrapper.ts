@@ -96,7 +96,14 @@ export class WorkflowDefinitionParser {
     }
 
     private resolveActionParameterValue(entry: { parameter: OpenAPIV2.Parameter, value: any }): ConnectionActionConfigurationItemValue {
-        if (entry.parameter.type === "string" && entry.value.literal) {
+        if (entry.value === undefined) {
+            return {
+                key: entry.parameter.name,
+                value: undefined,
+                name: entry.parameter["x-ntx-summary"],
+                type: "value"
+            }
+        } else if (entry.parameter.type === "string" && entry.value.literal) {
             return {
                 key: entry.parameter.name,
                 value: entry.value.literal,
@@ -115,7 +122,7 @@ export class WorkflowDefinitionParser {
                 return {
                     key: key,
                     name: entry.value.value[key].schema.title,
-                    value: entry.value.value[key].literal ? entry.value.value[key].literal : (entry.value.value[key].variable ? entry.value.value[key].variable.name : undefined),
+                    value: entry.value.value[key].literal ? entry.value.value[key].literal : (entry.value.value[key].variable ? entry.value.value[key].variable.name : entry.parameter.name),
                     type: entry.value.value[key].literal ? "value" : (entry.value.value[key].variable ? "variable" : "unsupported")
                 }
             })
@@ -128,7 +135,7 @@ export class WorkflowDefinitionParser {
         } else {
             return {
                 key: entry.parameter.name,
-                name: entry.parameter["x-ntx-summary"],
+                name: entry.parameter["x-ntx-summary"] ?? entry.parameter.name,
                 type: "unsupported",
                 value: undefined
             }

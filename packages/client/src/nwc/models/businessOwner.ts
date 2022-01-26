@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 export type businessOwner = {
-    type?: string;
-    id?: string;
-    name?: string;
-}
+	type?: string;
+	id?: string;
+	name?: string;
+};

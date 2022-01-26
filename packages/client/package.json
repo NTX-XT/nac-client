@@ -39,7 +39,7 @@
     "ts-morph": "^13.0.2"
   },
   "devDependencies": {
-    "openapi-typescript-codegen": "^0.13.0",
+    "openapi-typescript-codegen": "^0.16.2",
     "ts-node": "^10.4.0"
   }
 }

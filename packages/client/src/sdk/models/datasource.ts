@@ -6,4 +6,5 @@ export interface Datasource {
     name: string;
     contract: Contract;
     connection?: Connection;
+    operationId?: string
 }

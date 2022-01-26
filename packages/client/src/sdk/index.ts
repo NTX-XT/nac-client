@@ -1,4 +1,4 @@
-export { Sdk } from './client'
+export { Sdk, invalidId } from './client'
 export type { Connector } from "./models/connector"
 export type { ClientCredentials } from "./models/clientCredentials"
 export type { ConnectionInfo } from './models/connectionInfo'

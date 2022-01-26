@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 export type startData = Array<{
-    name?: string;
-    variable?: string;
-    type?: string;
-    label?: string;
+name?: string;
+variable?: string;
+type?: string;
+label?: string;
 }>;

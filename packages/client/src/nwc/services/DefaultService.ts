@@ -18,195 +18,214 @@ import type { workflowPermission } from '../models/workflowPermission';
 import type { workflowSource } from '../models/workflowSource';
 import type { workflowStartEvent } from '../models/workflowStartEvent';
 import type { CancelablePromise } from '../core/CancelablePromise';
-import { BaseHttpRequest } from '../core/BaseHttpRequest';
+import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "../../cache";
 import { ApiError } from "../core/ApiError";
 import { getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowsResponseType, getWorkflowDesignDetailsResponseType, exportWorkflowResponseType, importWorkflowResponseType } from "../models/additionalTypes";
 
-export class Service {
-    private httpRequest: BaseHttpRequest;
+export class DefaultService {
 
-    constructor(httpRequest: BaseHttpRequest) {
-        this.httpRequest = httpRequest;
-    }
+	private readonly httpRequest: BaseHttpRequest;
 
-    private getTokenCancelable(
-        request: {
-            client_id: string;
-            client_secret: string;
-            grant_type: 'client_credentials';
-        },
-    ): CancelablePromise<tokenResponse> {
-        return this.httpRequest.request({
-            method: 'POST',
-            path: `/authentication/v1/token`,
-            body: request,
-            errors: {
-                400: `Failed`,
-            },
-        });
-    }
+	constructor(httpRequest: BaseHttpRequest) {
+		this.httpRequest = httpRequest;
+	}
 
-    private getTenantConfigurationCancelable(): CancelablePromise<tenantConfiguration> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/designer_/api/uxappconfig/`,
-        });
-    }
+	private getTokenCancelable(
+request: {
+client_id: string;
+client_secret: string;
+grant_type: 'client_credentials';
+},
+): CancelablePromise<tokenResponse> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/authentication/v1/token',
+			body: request,
+			errors: {
+				400: `Failed`,
+			},
+		});
+	}
 
-    private getTenantInfoCancelable(
-        tenantId: string,
-    ): CancelablePromise<tenantInfo> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/designer_/api/tenant/${tenantId}`,
-            errors: {
-                400: `Failed`,
-            },
-        });
-    }
+	private getTenantConfigurationCancelable(): CancelablePromise<tenantConfiguration> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/uxappconfig/',
+		});
+	}
 
-    private getTenantTagsCancelable(): CancelablePromise<tagResponse> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/designer_/api/tags`,
-            errors: {
-                400: `Failed`,
-            },
-        });
-    }
+	private getTenantInfoCancelable(
+tenantId: string,
+): CancelablePromise<tenantInfo> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/tenant/{tenantId}',
+			path: {
+				'tenantId': tenantId,
+			},
+			errors: {
+				400: `Failed`,
+			},
+		});
+	}
 
-    private getTenantConnectorsCancelable(): CancelablePromise<getTenantConnectorsResponseType> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/workflows/v1/connectors`,
-        });
-    }
+	private getTenantTagsCancelable(): CancelablePromise<tagResponse> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/tags',
+			errors: {
+				400: `Failed`,
+			},
+		});
+	}
 
-    private getTenantConnectionsCancelable(): CancelablePromise<Array<connection>> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/designer_/api/connection/api/connections`,
-        });
-    }
+	private getTenantConnectorsCancelable(): CancelablePromise<getTenantConnectorsResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/workflows/v1/connectors',
+		});
+	}
 
-    private getDatasourceTokenCancelable(): CancelablePromise<getDatasourceTokenResponseType> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/designer_/datasources/get-datasource-token`,
-        });
-    }
+	private getTenantConnectionsCancelable(): CancelablePromise<Array<connection>> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/connection/api/connections',
+		});
+	}
 
-    private getTenantDatasourcesCancelable(): CancelablePromise<Array<datasource>> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/connection/api/datasources`,
-        });
-    }
+	private getDatasourceTokenCancelable(): CancelablePromise<getDatasourceTokenResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/datasources/get-datasource-token',
+		});
+	}
 
-    private getTenantContractsCancelable(
-        includePublic: boolean = true,
-    ): CancelablePromise<Array<contract>> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/connection/api/datasources/contracts`,
-            query: {
-                'includePublic': includePublic,
-            },
-            errors: {
-                400: `Failed`,
-            },
-        });
-    }
+	private getTenantDatasourcesCancelable(): CancelablePromise<Array<datasource>> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/connection/api/datasources',
+		});
+	}
 
-    private getWorkflowsCancelable(
-        limit: number = 2000,
-    ): CancelablePromise<getWorkflowsResponseType> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/workflows/v1/designs`,
-            query: {
-                'limit': limit,
-            },
-        });
-    }
+	private getTenantContractsCancelable(
+includePublic: boolean = true,
+): CancelablePromise<Array<contract>> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/connection/api/datasources/contracts',
+			query: {
+				'includePublic': includePublic,
+			},
+			errors: {
+				400: `Failed`,
+			},
+		});
+	}
 
-    private getWorkflowDesignDetailsCancelable(
-        workflowId: string,
-    ): CancelablePromise<getWorkflowDesignDetailsResponseType> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/workflows/v1/designs/${workflowId}`,
-        });
-    }
+	private getWorkflowsCancelable(
+limit: number = 2000,
+): CancelablePromise<getWorkflowsResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/workflows/v1/designs',
+			query: {
+				'limit': limit,
+			},
+		});
+	}
 
-    private exportWorkflowCancelable(
-        workflowId: string,
-        request: {
-            isNonExpiring: boolean;
-        },
-    ): CancelablePromise<exportWorkflowResponseType> {
-        return this.httpRequest.request({
-            method: 'POST',
-            path: `/workflows/v1/designs/${workflowId}/published/export`,
-            body: request,
-        });
-    }
+	private getWorkflowDesignDetailsCancelable(
+workflowId: string,
+): CancelablePromise<getWorkflowDesignDetailsResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/workflows/v1/designs/{workflowId}',
+			path: {
+				'workflowId': workflowId,
+			},
+		});
+	}
 
-    private importWorkflowCancelable(
-        request: {
-            name: string;
-            key: string;
-        },
-    ): CancelablePromise<importWorkflowResponseType> {
-        return this.httpRequest.request({
-            method: 'POST',
-            path: `/workflows/v1/designs/import`,
-            body: request,
-        });
-    }
+	private exportWorkflowCancelable(
+workflowId: string,
+request: {
+isNonExpiring: boolean;
+},
+): CancelablePromise<exportWorkflowResponseType> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/workflows/v1/designs/{workflowId}/published/export',
+			path: {
+				'workflowId': workflowId,
+			},
+			body: request,
+		});
+	}
 
-    private getWorkflowSourceCancelable(
-        workflowId: string,
-    ): CancelablePromise<workflowSource> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/designer_/api/workflows/${workflowId}`,
-        });
-    }
+	private importWorkflowCancelable(
+request: {
+name: string;
+key: string;
+},
+): CancelablePromise<importWorkflowResponseType> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/workflows/v1/designs/import',
+			body: request,
+		});
+	}
 
-    private checkWorkflowNameCancelable(
-        workflowName: string,
-    ): CancelablePromise<string> {
-        return this.httpRequest.request({
-            method: 'GET',
-            path: `/designer_/api/workflows/${workflowName}/checkname`,
-        });
-    }
+	private getWorkflowSourceCancelable(
+workflowId: string,
+): CancelablePromise<workflowSource> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/workflows/{workflowId}',
+			path: {
+				'workflowId': workflowId,
+			},
+		});
+	}
 
-    private publishWorkflowCancelable(
-        workflowId: string,
-        payload: {
-            workflowName?: string;
-            workflowDescription?: string;
-            workflowType?: string;
-            workflowDefinition?: string;
-            startEvents?: Array<workflowStartEvent>;
-            datasources?: string;
-            permissions?: Array<workflowPermission>;
-            workflowVersionComments?: string;
-            workflowDesignParentVersion?: string;
-            tags?: Array<tag>;
-            version?: number;
-            engineName?: string;
-        },
-    ): CancelablePromise<workflowSource> {
-        return this.httpRequest.request({
-            method: 'POST',
-            path: `/designer_/api/workflows/${workflowId}/published`,
-            body: payload,
-        });
-    }
+	private checkWorkflowNameCancelable(
+workflowName: string,
+): CancelablePromise<string> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/workflows/{workflowName}/checkname',
+			path: {
+				'workflowName': workflowName,
+			},
+		});
+	}
+
+	private publishWorkflowCancelable(
+workflowId: string,
+payload: {
+workflowName?: string;
+workflowDescription?: string;
+workflowType?: string;
+workflowDefinition?: string;
+startEvents?: Array<workflowStartEvent>;
+datasources?: string;
+permissions?: Array<workflowPermission>;
+workflowVersionComments?: string;
+workflowDesignParentVersion?: string;
+tags?: Array<tag>;
+version?: number;
+engineName?: string;
+},
+): CancelablePromise<workflowSource> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/designer_/api/workflows/{workflowId}/published',
+			path: {
+				'workflowId': workflowId,
+			},
+			body: payload,
+		});
+	}
 
     /**
      * Retrieve authenitcation token
@@ -216,9 +235,9 @@ export class Service {
      */
     @Cacheable()
     public getToken(request: {
-            client_id: string;
-            client_secret: string;
-            grant_type: 'client_credentials';
+        client_id: string;
+        client_secret: string;
+        grant_type: 'client_credentials';
         }): Promise<tokenResponse> {
         return this.getTokenCancelable(request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
@@ -336,7 +355,7 @@ export class Service {
      */
     @Cacheable()
     public exportWorkflow(workflowId: string, request: {
-            isNonExpiring: boolean;
+        isNonExpiring: boolean;
         }): Promise<exportWorkflowResponseType> {
         return this.exportWorkflowCancelable(workflowId, request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
@@ -349,8 +368,8 @@ export class Service {
      */
     @Cacheable()
     public importWorkflow(request: {
-            name: string;
-            key: string;
+        name: string;
+        key: string;
         }): Promise<importWorkflowResponseType> {
         return this.importWorkflowCancelable(request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
@@ -386,18 +405,18 @@ export class Service {
      */
     @Cacheable()
     public publishWorkflow(workflowId: string, payload: {
-            workflowName?: string;
-            workflowDescription?: string;
-            workflowType?: string;
-            workflowDefinition?: string;
-            startEvents?: Array<workflowStartEvent>;
-            datasources?: string;
-            permissions?: Array<workflowPermission>;
-            workflowVersionComments?: string;
-            workflowDesignParentVersion?: string;
-            tags?: Array<tag>;
-            version?: number;
-            engineName?: string;
+        workflowName?: string;
+        workflowDescription?: string;
+        workflowType?: string;
+        workflowDefinition?: string;
+        startEvents?: Array<workflowStartEvent>;
+        datasources?: string;
+        permissions?: Array<workflowPermission>;
+        workflowVersionComments?: string;
+        workflowDesignParentVersion?: string;
+        tags?: Array<tag>;
+        version?: number;
+        engineName?: string;
         }): Promise<workflowSource> {
         return this.publishWorkflowCancelable(workflowId, payload).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }

@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 export type urls = {
-    designerUrl?: string;
-    formUrl?: string;
-}
+	designerUrl?: string;
+	formUrl?: string;
+};

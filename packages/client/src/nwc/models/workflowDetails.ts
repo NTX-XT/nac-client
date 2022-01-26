@@ -8,11 +8,11 @@ import type { urls } from './urls';
 import type { user } from './user';
 
 export type workflowDetails = {
-    id?: string;
-    author?: user;
-    description?: string;
-    created?: string;
-    eventType?: eventType;
-    eventConfiguration?: eventConfiguration;
-    urls?: urls;
-}
+	id?: string;
+	author?: user;
+	description?: string;
+	created?: string;
+	eventType?: eventType;
+	eventConfiguration?: eventConfiguration;
+	urls?: urls;
+};

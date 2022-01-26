@@ -1,13 +1,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+export { Nwc } from './client';
 export { ApiError } from './core/ApiError';
-export { CancelablePromise, CancelError } from './core/CancelablePromise';
-export type { ApiRequestOptions } from './core/ApiRequestOptions';
-export type { ApiResult } from './core/ApiResult';
-export type { OpenAPIConfig } from './core/OpenAPI';
 export { BaseHttpRequest } from './core/BaseHttpRequest';
-export { AxiosHttpRequest } from './core/AxiosHttpRequest';
+export { CancelablePromise, CancelError } from './core/CancelablePromise';
+export { OpenAPI } from './core/OpenAPI';
+export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { actionDefinition } from './models/actionDefinition';
 export type { businessOwner } from './models/businessOwner';
@@ -36,9 +35,7 @@ export type { workflowPermission } from './models/workflowPermission';
 export type { workflowSource } from './models/workflowSource';
 export type { workflowStartEvent } from './models/workflowStartEvent';
 
-export { Service } from './services/Service';
-
-export { Nwc } from './client';
+export { DefaultService } from './services/DefaultService';
 export type { getTenantConnectorsResponseType } from "./models/additionalTypes";
 export type { getDatasourceTokenResponseType } from "./models/additionalTypes";
 export type { getWorkflowsResponseType } from "./models/additionalTypes";

@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 export type exportWorkflowResponse = {
-    key?: string;
-    expiryDate?: string;
-}
+	key?: string;
+	expiryDate?: string;
+};

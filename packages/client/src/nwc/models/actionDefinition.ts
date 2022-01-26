@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 export type actionDefinition = {
-    type?: string;
-    name?: string;
-    enabled?: boolean;
-}
+	type?: string;
+	name?: string;
+	enabled?: boolean;
+};

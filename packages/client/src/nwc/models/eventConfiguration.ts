@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 export type eventConfiguration = Array<{
-    name?: string;
-    value?: Array<string>;
+name?: string;
+value?: Array<string>;
 }>;
