@@ -1,6 +1,6 @@
 {
   "name": "@nwc-sdk/package",
-  "version": "1.0.2-alpha.0",
+  "version": "1.0.3-alpha.0",
   "description": "Experimental packaging and deployment for the Nintex Workflow Cloud platformm",
   "homepage": "",
   "license": "ISC",
@@ -27,6 +27,6 @@
   },
   "gitHead": "506be58f707956acb70c3d81f1fd08bee9dab415",
   "dependencies": {
-    "@nwc-sdk/sdk": "^1.0.2-alpha.0"
+    "@nwc-sdk/sdk": "^1.0.3-alpha.0"
   }
 }
