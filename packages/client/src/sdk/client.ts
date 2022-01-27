@@ -9,7 +9,7 @@ import { UsedConnection } from "./models/usedConnection"
 import { UsedConnector } from "./models/usedConnector"
 import { action, parameter, workflowDefinition } from './models/workflowDefinition'
 import { Contract } from './models/contract'
-import { WorkflowInfo } from './models/WorkflowInfo'
+import { WorkflowInfo } from './models/workflowInfo'
 import { ActionInfo } from './models/actionInfo'
 import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
@@ -39,6 +39,9 @@ const invalidContract: Contract = {
 export class Sdk {
     private _tenant: Tenant
     private _nwc: Nwc
+    public get nwc(): Nwc {
+        return this._nwc
+    }
 
     public get tenant(): Tenant {
         return this._tenant

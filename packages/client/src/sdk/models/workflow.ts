@@ -1,5 +1,6 @@
+import { ParsedFormDefinition } from "./parsedFormDefinition";
 import { ParsedWorkflowDefinition } from "./parsedWorkflowDefinition";
-import { WorkflowInfo } from "./WorkflowInfo";
+import { WorkflowInfo } from "./workflowInfo";
 export interface Workflow extends WorkflowInfo {
     isActive: boolean;
     eventType?: string;
@@ -12,4 +13,5 @@ export interface Workflow extends WorkflowInfo {
     type?: string;
     designVersion?: string;
     definition: ParsedWorkflowDefinition
+    startForm?: ParsedFormDefinition
 }

@@ -8,3 +8,4 @@ export interface ParsedWorkflowDefinition {
     actionsArray: action[];
     actionsDictionary: { [key: string]: action; };
 }
+
