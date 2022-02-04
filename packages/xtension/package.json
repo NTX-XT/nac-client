@@ -1,35 +1,35 @@
 {
-  "name": "@nwc-sdk/xtension",
-  "version": "1.0.3-alpha.0",
-  "description": "NWC Xtension for the experimental NWC SDK",
-  "homepage": "",
-  "license": "ISC",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
-  "private": true,
-  "directories": {
-    "dist": "dist"
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "build": "tsc",
-    "watch": "tsc -w",
-    "prestart": "npm run build",
-    "start": "func start --verbose",
-    "test": "echo \"No tests yet...\""
-  },
-  "dependencies": {
-    "@azure/storage-blob": "^12.8.0",
-    "@nwc-sdk/azure-functions-shared": "^1.0.3-alpha.0",
-    "@nwc-sdk/client": "^1.0.7-alpha.0",
-    "@nwc-sdk/package": "^1.0.3-alpha.0",
-    "@nwc-sdk/sdk": "^1.0.3-alpha.0",
-    "axios": "^0.24.0",
-    "durable-functions": "^1.5.3",
-    "openapi-types": "^10.0.0"
-  }
+    "name": "@nwc-sdk/xtension",
+    "version": "1.0.3-alpha.0",
+    "description": "NWC Xtension for the experimental NWC SDK",
+    "homepage": "",
+    "license": "ISC",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "typings": "dist/index.d.ts",
+    "private": true,
+    "directories": {
+        "dist": "dist"
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+        "build": "tsc",
+        "watch": "tsc -w",
+        "prestart": "npm run build",
+        "start": "func start --verbose",
+        "test": "echo \"No tests yet...\""
+    },
+    "dependencies": {
+        "@azure/storage-blob": "^12.8.0",
+        "@nwc-sdk/azure-functions-shared": "^1.0.3-alpha.0",
+        "@nwc-sdk/client": "^1.0.7-alpha.0",
+        "nwc-sdk": "^1.1.14",
+        "nwc-package": "^1.1.16",
+        "axios": "^0.24.0",
+        "durable-functions": "^1.5.3",
+        "openapi-types": "^10.0.0"
+    }
 }

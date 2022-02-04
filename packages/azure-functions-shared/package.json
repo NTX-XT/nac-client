@@ -1,35 +1,35 @@
 {
-  "name": "@nwc-sdk/azure-functions-shared",
-  "version": "1.0.3-alpha.0",
-  "description": "Shared library for Azure Functions hosted NWC SDK Xtensions",
-  "homepage": "",
-  "license": "ISC",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
-  "private": "true",
-  "publishConfig": {
-    "access": "public"
-  },
-  "directories": {
-    "dist": "dist"
-  },
-  "files": [
-    "dist"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/NTX-XT/nwc-sdk.git"
-  },
-  "scripts": {
-    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "build": "node ../../build.js run production"
-  },
-  "dependencies": {
-    "@nwc-sdk/client": "^1.0.7-alpha.0",
-    "@nwc-sdk/package": "^1.0.3-alpha.0",
-    "@nwc-sdk/sdk": "^1.0.3-alpha.0",
-    "durable-functions": "^1.5.3"
-  },
-  "gitHead": "506be58f707956acb70c3d81f1fd08bee9dab415"
+    "name": "@nwc-sdk/azure-functions-shared",
+    "version": "1.0.3-alpha.0",
+    "description": "Shared library for Azure Functions hosted NWC SDK Xtensions",
+    "homepage": "",
+    "license": "ISC",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "typings": "dist/index.d.ts",
+    "private": "true",
+    "publishConfig": {
+        "access": "public"
+    },
+    "directories": {
+        "dist": "dist"
+    },
+    "files": [
+        "dist"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/NTX-XT/nwc-sdk.git"
+    },
+    "scripts": {
+        "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+        "build": "node ../../build.js run production"
+    },
+    "dependencies": {
+        "@nwc-sdk/client": "^1.0.7-alpha.0",
+        "nwc-package": "^1.1.16",
+        "nwc-sdk": "^1.1.14",
+        "durable-functions": "^1.5.3"
+    },
+    "gitHead": "506be58f707956acb70c3d81f1fd08bee9dab415"
 }
