@@ -1,22 +1,15 @@
 
-import { Nwc, tokenResponse, ApiError, tenantConfiguration, tenantInfo, getDatasourceTokenResponseType, tagResponse, getWorkflowsResponseType, OpenAPIConfig } from './../nwc'
-import { OpenAPIV2 } from 'openapi-types'
+import { Nwc, ApiError } from './../nwc'
 import { Connector } from "./models/connector"
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
 import { Workflow } from './models/workflow'
-import { UsedConnection } from "./models/usedConnection"
-import { UsedConnector } from "./models/usedConnector"
-import { action, parameter, workflowDefinition } from './models/workflowDefinition'
 import { Contract } from './models/contract'
 import { WorkflowInfo } from './models/workflowInfo'
-import { ActionInfo } from './models/actionInfo'
 import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
 import { Cacheable } from '../cache'
-import { arrayToDictionary } from '../utils'
-import { WorkflowDefinitionParser } from './workflowDefinitionWrapper'
-import { Data } from 'node-cache'
+import { WorkflowDefinitionParser } from './workflowDefinitionParser'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
@@ -172,7 +165,7 @@ export class Sdk {
                     designVersion: source.workflowDesignVersion,
                     type: source.workflowType,
                     comments: source.workflowVersionComments,
-                    definition: WorkflowDefinitionParser.parse(source.workflowDefinition!, responses[2], responses[3])
+                    definition: WorkflowDefinitionParser.parse(source.workflowDefinition!, responses[2], responses[3], responses[0])
                 }
                 return Promise.resolve(workflow)
             }).catch((error) => Promise.reject(error))

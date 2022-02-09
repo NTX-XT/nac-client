@@ -8,7 +8,8 @@ import { UsedConnection } from "./models/usedConnection";
 import { UsedConnector } from "./models/usedConnector";
 import { workflowDefinition, action, parameter } from "./models/workflowDefinition";
 import { OpenAPIV2 } from 'openapi-types'
-import { ParsedWorkflowDefinition } from "./models/parsedWorkflowDefinition";
+import { ParsedWorkflowDefinition, WorkflowDependency } from "./models/parsedWorkflowDefinition";
+import { WorkflowInfo } from "./models/workflowInfo";
 
 export class WorkflowDefinitionParser {
     private _definition: workflowDefinition;
@@ -18,6 +19,8 @@ export class WorkflowDefinitionParser {
     private _actionsDictionary: { [key: string]: action; };
     private _usedConnectors: { [key: string]: UsedConnector; };
     private _connections: Connection[];
+    private _workflowInfos: WorkflowInfo[];
+    private _dependencies: { [key: string]: WorkflowDependency } = {}
     public get definition(): workflowDefinition {
         return this._definition;
     }
@@ -30,20 +33,24 @@ export class WorkflowDefinitionParser {
         this._usedConnectors = value;
     }
 
-    public static parse(definition: string, connectors: Connector[], connections: Connection[]): ParsedWorkflowDefinition {
-        const parser = new WorkflowDefinitionParser(definition, connectors, connections)
+    public static parse(definition: string, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowInfo[]): ParsedWorkflowDefinition {
+        const parser = new WorkflowDefinitionParser(definition, connectors, connections, workflowInfos)
+        parser.resolveConnections()
+        parser.resolveDependencies()
         return {
             actionInfos: parser._actionInfos,
             actionsArray: parser._actionsArray,
             actionsDictionary: parser._actionsDictionary,
-            usedConnectors: parser._usedConnectors
+            usedConnectors: parser._usedConnectors,
+            dependencies: parser._dependencies
         }
     }
 
-    private constructor(definition: string, connectors: Connector[], connections: Connection[]) {
+    private constructor(definition: string, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowInfo[]) {
         this._definition = JSON.parse(definition) as workflowDefinition
         this._connectors = connectors
         this._connections = connections
+        this._workflowInfos = workflowInfos
         this._actionsArray = WorkflowDefinitionParser.actionsToFlatArray(this._definition.actions)
         this._actionsDictionary = arrayToDictionary(this._actionsArray, "id")
         this._usedConnectors = arrayToDictionary(
@@ -51,7 +58,6 @@ export class WorkflowDefinitionParser {
                 (connectorId) => (this._connectors.find((cn) => (cn.id === connectorId))!)
             ), "id")
         this._actionInfos = this._actionsArray.map<ActionInfo>((a) => ({ id: a.id, name: a.configuration.name }))
-        this.resolveConnections()
     }
 
     public static actionsToFlatArray(action: action, allActions?: action[]): action[] {
@@ -94,6 +100,19 @@ export class WorkflowDefinitionParser {
         }
         return undefined
     }
+
+    private getComponentWorkflowId = (action: action): string | undefined =>
+        action.configuration.properties
+            .find(property => {
+                return property.parameters.find(parameter => {
+                    return parameter.name === 'wfId'
+                })
+            })
+            ?.parameters.find(parameter => {
+                return parameter.name === 'wfId'
+            })?.value.primitiveValue?.valueType.data.value
+
+
 
     private resolveActionParameterValue(entry: { parameter: OpenAPIV2.Parameter, value: any }): ConnectionActionConfigurationItemValue {
         if (entry.value === undefined) {
@@ -138,6 +157,28 @@ export class WorkflowDefinitionParser {
                 name: entry.parameter["x-ntx-summary"] ?? entry.parameter.name,
                 type: "unsupported",
                 value: undefined
+            }
+        }
+    }
+
+    private resolveDependencies() {
+        const componentWorkflowActions = this._actionsArray.filter(action => {
+            return action.className === 'engine:startworkflow'
+        })
+        for (const action of componentWorkflowActions) {
+            const referencedWorkflowId = this.getComponentWorkflowId(action)
+            if (referencedWorkflowId) {
+                if (Object.keys(this._dependencies).find(key => key === referencedWorkflowId) === undefined) {
+                    const info = this._workflowInfos.find(info => info.id === referencedWorkflowId)!
+                    this._dependencies[referencedWorkflowId] = {
+                        id: info.id,
+                        name: info.name,
+                        actions: []
+                    }
+                }
+                if (this._dependencies[referencedWorkflowId].actions.find(actionInfo => actionInfo.id === action.id) === undefined) {
+                    this._dependencies[referencedWorkflowId].actions.push({ id: action.id, name: action.configuration.name })
+                }
             }
         }
     }
