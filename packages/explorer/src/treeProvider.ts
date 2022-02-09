@@ -1,4 +1,5 @@
 import { ApiError, Sdk, UsedConnection, UsedConnector, Workflow, WorkflowInfo, ConnectionAction, Connector, invalidId, Contract } from "@nwc-sdk/client"
+import { WorkflowDependency } from "client/dist/sdk/models/parsedWorkflowDefinition"
 import * as vscode from 'vscode'
 import { TreeNodeType } from './enums'
 import { IConfiguration } from './settings'
@@ -43,6 +44,10 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 					return this.populateUsedConnection(element)
 				case TreeNodeType.workflowTags:
 					return this.populateWorkflowTags(element)
+				case TreeNodeType.workflowDependencies:
+					return this.populateWorkflowDependencies(element)
+				case TreeNodeType.workflowDependency:
+					return this.populateDependency(element)
 				case TreeNodeType.connectionAction:
 					return this.populateConnectionAction(element)
 				default:
@@ -89,6 +94,17 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		return Promise.resolve(nodes)
 	}
 
+	private populateDependency(element: TreeNode): Promise<TreeNode[]> {
+		const dependency: WorkflowDependency = element.data
+		const nodes: TreeNode[] = []
+		if (dependency && dependency.actions) {
+			for (const usedAction of dependency.actions) {
+				nodes.push(new TreeNode(usedAction.name, vscode.TreeItemCollapsibleState.None, TreeNodeType.dependencyAction, element, usedAction))
+			}
+		}
+		return Promise.resolve(nodes)
+	}
+
 	private populateUsedConnector(element: TreeNode): Promise<TreeNode[]> {
 		const connector: UsedConnector = element.data
 		const nodes: TreeNode[] = []
@@ -114,6 +130,17 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 		return Promise.resolve(nodes)
 	}
 
+	private populateWorkflowDependencies(element: TreeNode): Promise<TreeNode[]> {
+		const workflow: Workflow = element.parent!.data
+		const nodes: TreeNode[] = []
+		if (workflow.definition.dependencies) {
+			for (const key of Object.keys(workflow.definition.dependencies)) {
+				nodes.push(new TreeNode(workflow.definition.dependencies[key].name, vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowDependency, element, workflow.definition.dependencies[key]))
+			}
+		}
+		return Promise.resolve(nodes)
+	}
+
 	private populateTenantWorkflow = (element: TreeNode): Promise<TreeNode[]> =>
 		this.getClient(element).getWorkflow((element.data as WorkflowInfo).id).then((workflow) => {
 			element.data = workflow
@@ -122,6 +149,7 @@ export class TreeProvider implements vscode.TreeDataProvider<TreeNode> {
 				// new TreeNode(TreeNodeType.workflowDatasources.split(' ')[1], vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowDatasources, element),
 				// new TreeNode(TreeNodeType.workflowForms.split(' ')[1], vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowForms, element),
 				new TreeNode(TreeNodeType.workflowTags.split(' ')[1], vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowTags, element),
+				new TreeNode(TreeNodeType.workflowDependencies.split(' ')[1], vscode.TreeItemCollapsibleState.Collapsed, TreeNodeType.workflowDependencies, element),
 			])
 		}).catch((error: ApiError) => Promise.reject(error))
 

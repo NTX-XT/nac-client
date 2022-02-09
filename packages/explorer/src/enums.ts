@@ -14,6 +14,13 @@ export function getNodeType(nodeType: string): TreeNodeType {
 	return TreeNodeType[nodeType as keyof typeof TreeNodeType]
 }
 
+
+
+
+
+
+
+
 export enum TreeNodeType {
 	nwcTenant = 'Tenant',
 	connectors = 'Connectors',
@@ -34,5 +41,8 @@ export enum TreeNodeType {
 	contract = 'Contract',
 	contracts = 'Contracts',
 	connectionAction = 'Connection Action',
-	actionConfiguration = 'Action Configuration'
+	actionConfiguration = 'Action Configuration',
+	workflowDependencies = "Workflow Dependencies",
+	workflowDependency = "Workflow Dependency",
+	dependencyAction = "Dependency Action"
 }

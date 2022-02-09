@@ -18,7 +18,7 @@ export class TreeNode extends vscode.TreeItem {
 	}
 
 	private treeNodeId = (node: TreeNode): string =>
-		`${node.parent ? node.parent.id : ''}${node.parent ? '_' : ''}${node.data === undefined ? node.type : (node.data.id ? node.data.id : node.data.key)}`
+		`${node.parent ? node.parent.id : ''}${node.parent ? '_' : ''}${node.data === undefined ? node.type : (node.data.id ?? (node.data.key ?? node.data))}`
 
 	private getNodeIcon = (type: TreeNodeType): vscode.ThemeIcon | undefined => {
 		switch (type) {
@@ -31,7 +31,10 @@ export class TreeNode extends vscode.TreeItem {
 			case TreeNodeType.workflowConnection:
 				return new vscode.ThemeIcon("debug-disconnect")
 			case TreeNodeType.connectionAction:
+			case TreeNodeType.dependencyAction:
 				return new vscode.ThemeIcon("layout")
+			case TreeNodeType.workflowTag:
+				return new vscode.ThemeIcon("text-size")
 			default:
 				return undefined
 		}
