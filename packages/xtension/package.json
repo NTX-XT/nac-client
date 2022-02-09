@@ -1,6 +1,6 @@
 {
     "name": "@nwc-sdk/xtension",
-    "version": "1.0.3-alpha.0",
+    "version": "1.0.4-alpha.0",
     "description": "NWC Xtension for the experimental NWC SDK",
     "homepage": "",
     "license": "ISC",
@@ -24,12 +24,12 @@
     },
     "dependencies": {
         "@azure/storage-blob": "^12.8.0",
-        "@nwc-sdk/azure-functions-shared": "^1.0.3-alpha.0",
-        "@nwc-sdk/client": "^1.0.7-alpha.0",
-        "nwc-sdk": "^1.1.14",
-        "nwc-package": "^1.1.16",
+        "@nwc-sdk/azure-functions-shared": "^1.0.4-alpha.0",
+        "@nwc-sdk/client": "^1.0.8-alpha.0",
         "axios": "^0.24.0",
         "durable-functions": "^1.5.3",
+        "nwc-package": "^1.1.16",
+        "nwc-sdk": "^1.1.14",
         "openapi-types": "^10.0.0"
     }
 }
