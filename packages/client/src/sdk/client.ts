@@ -18,6 +18,7 @@ export interface WorkflowsQueryOptions {
 }
 
 export const invalidId = "undefined"
+const defaultBaseURL = (isTestTenant: boolean = false) => isTestTenant ? "https://us.nintextest.io" : "https://us.nintex.io"
 
 const invalidConnector: Connector = {
     id: invalidId,
@@ -69,17 +70,19 @@ export class Sdk {
     }
 
     public static connectWithClientCredentials(credentials: ClientCredentials): Promise<Sdk> {
-        return new Nwc().default.getToken({ client_id: credentials.clientId, client_secret: credentials.clientSecret, grant_type: "client_credentials" })
-            .then((response) => Promise.resolve(Sdk.connectWithToken(response.access_token!)))
+        return new Nwc({
+            CREDENTIALS: 'include',
+            BASE: defaultBaseURL(credentials.isTestTenant)
+        }).default.getToken({ client_id: credentials.clientId, client_secret: credentials.clientSecret, grant_type: "client_credentials" })
+            .then((response) => Promise.resolve(Sdk.connectWithToken(response.access_token!, credentials.isTestTenant)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
-
-
-    public static connectWithToken(token: string): Promise<Sdk> {
+    public static connectWithToken(token: string, isTestTenant: boolean = false): Promise<Sdk> {
         let temporaryClient = new Nwc({
             CREDENTIALS: 'include',
-            TOKEN: token
+            TOKEN: token,
+            BASE: defaultBaseURL(isTestTenant)
         })
         return temporaryClient.default.getTenantConfiguration()
             .then((tenantConfigurationRequestResult) => {
