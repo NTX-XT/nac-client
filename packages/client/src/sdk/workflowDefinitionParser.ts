@@ -72,22 +72,26 @@ export class WorkflowDefinitionParser {
         return allActions
     }
 
+
     private getActionXtensionInputParameter = (action: action): parameter | undefined =>
         action.configuration.properties.find(
-            (p) => (p.displayName.startsWith('xtension:')))?.parameters?.find(
-                (parameter) => parameter.name === "['X_NTX_XTENSION_INPUT']")
+            (p) => (p.parameters.some((parameter) => parameter.name === "['X_NTX_XTENSION_INPUT']"))
+        )?.parameters?.find((parameter) => parameter.name === "['X_NTX_XTENSION_INPUT']")
 
     private getActionXtensionParameterValue = (parameter: parameter | undefined): any | undefined => parameter?.value.primitiveValue?.valueType.data.value.value
 
-    private getActionXtnesionConnectionId(parameter: parameter): string | undefined {
-        const parameterValue = this.getActionXtensionParameterValue(parameter)
-        const key = Object.keys(parameterValue).find((key) => (key.endsWith('NTX_CONNECTION_ID')))
-        return key ? parameterValue[key].data.id : undefined
+    private getActionXtensionConnectionId(parameter?: parameter): string | undefined {
+        if (parameter) {
+            const parameterValue = this.getActionXtensionParameterValue(parameter)
+            const key = Object.keys(parameterValue).find((key) => (key.endsWith('NTX_CONNECTION_ID')))
+            return key ? parameterValue[key].data.id : undefined
+        }
+        return undefined
     }
 
     private getActionConnection(action: action): UsedConnection | undefined {
-        const parameter = this.getActionXtensionInputParameter(action)
-        return parameter ? this._connections.find((con) => (con.id === this.getActionXtnesionConnectionId(parameter))) : undefined
+        const connectionId = this.getActionXtensionConnectionId(this.getActionXtensionInputParameter(action))
+        return connectionId ? this._connections.find((con) => (con.id === connectionId)) : undefined
     }
 
     private findOperation(paths: OpenAPIV2.PathsObject, operationId: string): OpenAPIV2.OperationObject | undefined {
