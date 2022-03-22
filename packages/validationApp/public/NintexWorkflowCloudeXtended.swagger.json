@@ -24,35 +24,33 @@
                 "description": "Retrieve authenitcation token",
                 "operationId": "getToken",
                 "x-ntx-summary": "Retrieve authenitcation token",
-                "parameters": [
-                    {
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "required": [
-                                "client_id",
-                                "client_secret",
-                                "grant_type"
-                            ],
-                            "properties": {
-                                "client_id": {
-                                    "type": "string"
-                                },
-                                "client_secret": {
-                                    "type": "string"
-                                },
-                                "grant_type": {
-                                    "type": "string",
-                                    "enum": [
-                                        "client_credentials"
-                                    ]
-                                }
+                "parameters": [{
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "required": [
+                            "client_id",
+                            "client_secret",
+                            "grant_type"
+                        ],
+                        "properties": {
+                            "client_id": {
+                                "type": "string"
+                            },
+                            "client_secret": {
+                                "type": "string"
+                            },
+                            "grant_type": {
+                                "type": "string",
+                                "enum": [
+                                    "client_credentials"
+                                ]
                             }
                         }
                     }
-                ],
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -87,15 +85,13 @@
                 "description": "Get tenant info",
                 "operationId": "getTenantInfo",
                 "x-ntx-summary": "Get tenant info",
-                "parameters": [
-                    {
-                        "name": "tenantId",
-                        "in": "path",
-                        "description": "The tenant Id",
-                        "type": "string",
-                        "required": true
-                    }
-                ],
+                "parameters": [{
+                    "name": "tenantId",
+                    "in": "path",
+                    "description": "The tenant Id",
+                    "type": "string",
+                    "required": true
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -197,11 +193,9 @@
                 "description": "Get tenant datasources",
                 "operationId": "getTenantDatasources",
                 "x-ntx-summary": "Get tenant datasources",
-                "security": [
-                    {
-                        "datasources": []
-                    }
-                ],
+                "security": [{
+                    "datasources": []
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -220,20 +214,16 @@
                 "description": "Get tenant contracts",
                 "operationId": "getTenantContracts",
                 "x-ntx-summary": "Get tenant contracts",
-                "security": [
-                    {
-                        "datasources": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "includePublic",
-                        "in": "query",
-                        "description": "Include public contracts",
-                        "type": "boolean",
-                        "default": true
-                    }
-                ],
+                "security": [{
+                    "datasources": []
+                }],
+                "parameters": [{
+                    "name": "includePublic",
+                    "in": "query",
+                    "description": "Include public contracts",
+                    "type": "boolean",
+                    "default": true
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -255,15 +245,13 @@
                 "description": "Get workflows",
                 "operationId": "getWorkflows",
                 "x-ntx-summary": "Get workflows",
-                "parameters": [
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "description": "Total number of workflows to retrieve",
-                        "type": "number",
-                        "default": 2000
-                    }
-                ],
+                "parameters": [{
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Total number of workflows to retrieve",
+                    "type": "number",
+                    "default": 2000
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -287,15 +275,13 @@
                 "description": "Get workflow design details",
                 "operationId": "getWorkflowDesignDetails",
                 "x-ntx-summary": "Get workflow design details",
-                "parameters": [
-                    {
-                        "name": "workflowId",
-                        "in": "path",
-                        "description": "Id of the workflow design",
-                        "type": "string",
-                        "required": true
-                    }
-                ],
+                "parameters": [{
+                    "name": "workflowId",
+                    "in": "path",
+                    "description": "Id of the workflow design",
+                    "type": "string",
+                    "required": true
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -316,8 +302,7 @@
                 "description": "Export workflow",
                 "operationId": "exportWorkflow",
                 "x-ntx-summary": "Export workflow",
-                "parameters": [
-                    {
+                "parameters": [{
                         "name": "workflowId",
                         "in": "path",
                         "description": "Id of the workflow design",
@@ -346,12 +331,7 @@
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "workflow": {
-                                    "$ref": "#/definitions/exportWorkflowResponse"
-                                }
-                            }
+                            "$ref": "#/definitions/exportWorkflowResponse"
                         }
                     }
                 }
@@ -362,38 +342,35 @@
                 "description": "Import workflow",
                 "operationId": "importWorkflow",
                 "x-ntx-summary": "Import workflow",
-                "parameters": [
-                    {
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "required": [
-                                "name",
-                                "key"
-                            ],
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "key": {
-                                    "type": "string"
-                                }
+                "parameters": [{
+                    "name": "request",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "key"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "key": {
+                                "type": "string"
+                            },
+                            "overwriteExisting": {
+                                "type": "boolean",
+                                "default": false
                             }
                         }
                     }
-                ],
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "type": "object",
-                            "properties": {
-                                "workflow": {
-                                    "$ref": "#/definitions/importWorkflowResponse"
-                                }
-                            }
+                            "$ref": "#/definitions/importWorkflowResponse"
                         }
                     }
                 }
@@ -404,15 +381,13 @@
                 "description": "Get workflow source",
                 "operationId": "getWorkflowSource",
                 "x-ntx-summary": "Get workflow source",
-                "parameters": [
-                    {
-                        "name": "workflowId",
-                        "in": "path",
-                        "description": "Id of the workflow",
-                        "type": "string",
-                        "required": true
-                    }
-                ],
+                "parameters": [{
+                    "name": "workflowId",
+                    "in": "path",
+                    "description": "Id of the workflow",
+                    "type": "string",
+                    "required": true
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -431,15 +406,13 @@
                 "produces": [
                     "text/plain"
                 ],
-                "parameters": [
-                    {
-                        "name": "workflowName",
-                        "in": "path",
-                        "description": "Name of the workflow",
-                        "type": "string",
-                        "required": true
-                    }
-                ],
+                "parameters": [{
+                    "name": "workflowName",
+                    "in": "path",
+                    "description": "Name of the workflow",
+                    "type": "string",
+                    "required": true
+                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -455,8 +428,7 @@
                 "description": "Publish workflow",
                 "operationId": "publishWorkflow",
                 "x-ntx-summary": "Publish workflow",
-                "parameters": [
-                    {
+                "parameters": [{
                         "name": "workflowId",
                         "in": "path",
                         "description": "Id of the workflow",
@@ -1097,8 +1069,7 @@
             }
         },
         "draftWorkflowDetails": {
-            "allOf": [
-                {
+            "allOf": [{
                     "$ref": "#/definitions/workflowDetails"
                 },
                 {
@@ -1112,8 +1083,7 @@
             ]
         },
         "publishedWorkflowDetails": {
-            "allOf": [
-                {
+            "allOf": [{
                     "$ref": "#/definitions/workflowDetails"
                 },
                 {
@@ -1559,17 +1529,15 @@
             "name": "Authorization"
         }
     },
-    "security": [
-        {
-            "oauth2": [
-                "execute:instance",
-                "read:task",
-                "read:workflow",
-                "read:instance",
-                "manage:instance",
-                "manage:workflow",
-                "manage:task"
-            ]
-        }
-    ]
+    "security": [{
+        "oauth2": [
+            "execute:instance",
+            "read:task",
+            "read:workflow",
+            "read:instance",
+            "manage:instance",
+            "manage:workflow",
+            "manage:task"
+        ]
+    }]
 }
