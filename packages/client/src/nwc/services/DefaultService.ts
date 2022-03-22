@@ -21,7 +21,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "../../cache";
 import { ApiError } from "../core/ApiError";
-import { getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowsResponseType, getWorkflowDesignDetailsResponseType, exportWorkflowResponseType, importWorkflowResponseType } from "../models/additionalTypes";
+import { getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowsResponseType, getWorkflowDesignDetailsResponseType } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -152,7 +152,7 @@ workflowId: string,
 request: {
 isNonExpiring: boolean;
 },
-): CancelablePromise<exportWorkflowResponseType> {
+): CancelablePromise<exportWorkflowResponse> {
 		return this.httpRequest.request({
 			method: 'POST',
 			url: '/workflows/v1/designs/{workflowId}/published/export',
@@ -167,8 +167,9 @@ isNonExpiring: boolean;
 request: {
 name: string;
 key: string;
+overwriteExisting?: boolean;
 },
-): CancelablePromise<importWorkflowResponseType> {
+): CancelablePromise<importWorkflowResponse> {
 		return this.httpRequest.request({
 			method: 'POST',
 			url: '/workflows/v1/designs/import',
@@ -350,27 +351,28 @@ engineName?: string;
      * Export workflow
      * @param workflowId Id of the workflow design
      * @param request
-     * @returns any Ok
+     * @returns exportWorkflowResponse Ok
      * @throws ApiError
      */
     @Cacheable()
     public exportWorkflow(workflowId: string, request: {
         isNonExpiring: boolean;
-        }): Promise<exportWorkflowResponseType> {
+        }): Promise<exportWorkflowResponse> {
         return this.exportWorkflowCancelable(workflowId, request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
      * Import workflow
      * @param request
-     * @returns any Ok
+     * @returns importWorkflowResponse Ok
      * @throws ApiError
      */
     @Cacheable()
     public importWorkflow(request: {
         name: string;
         key: string;
-        }): Promise<importWorkflowResponseType> {
+        overwriteExisting?: boolean;
+        }): Promise<importWorkflowResponse> {
         return this.importWorkflowCancelable(request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 

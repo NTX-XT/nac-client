@@ -257,4 +257,17 @@ export class Sdk {
                 return Promise.resolve(resolved)
             }).catch((error: ApiError) => Promise.reject(error))
     }
+
+    public exportWorkflow = (id: string, withNonExpiringKey: boolean = true): Promise<string> =>
+        this._nwc.default.exportWorkflow(id, { isNonExpiring: withNonExpiringKey })
+            .then((response) => response.key!)
+            .catch((error: ApiError) => Promise.reject(error))
+
+    public importWorkflow = (name: string, key: string, overwriteExisting: boolean = false): Promise<Workflow> =>
+        this._nwc.default.importWorkflow({ name: name, key: key, overwriteExisting: overwriteExisting })
+            .then((response) =>
+                this.getWorkflow(response.workflowId!.workflowId!)
+                    .then((workflow) => workflow))
+            .catch((error) => Promise.reject(error))
+            .catch((error: ApiError) => Promise.reject(error))
 }
