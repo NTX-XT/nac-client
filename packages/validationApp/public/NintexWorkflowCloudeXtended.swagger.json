@@ -25,7 +25,7 @@
                 "operationId": "getToken",
                 "x-ntx-summary": "Retrieve authenitcation token",
                 "parameters": [{
-                    "name": "request",
+                    "name": "options",
                     "in": "body",
                     "required": true,
                     "schema": {
@@ -310,7 +310,7 @@
                         "required": true
                     },
                     {
-                        "name": "request",
+                        "name": "options",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -343,7 +343,7 @@
                 "operationId": "importWorkflow",
                 "x-ntx-summary": "Import workflow",
                 "parameters": [{
-                    "name": "request",
+                    "name": "options",
                     "in": "body",
                     "required": true,
                     "schema": {
@@ -446,25 +446,13 @@
                                 "key"
                             ],
                             "properties": {
-                                "workflowName": {
-                                    "type": "string"
-                                },
-                                "workflowDescription": {
-                                    "type": "string"
-                                },
-                                "workflowType": {
-                                    "type": "string"
-                                },
-                                "workflowDefinition": {
-                                    "type": "string"
-                                },
-                                "startEvents": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/workflowStartEvent"
-                                    }
+                                "author": {
+                                    "$ref": "#/definitions/user"
                                 },
                                 "datasources": {
+                                    "type": "string"
+                                },
+                                "engineName": {
                                     "type": "string"
                                 },
                                 "permissions": {
@@ -473,11 +461,11 @@
                                         "$ref": "#/definitions/workflowPermission"
                                     }
                                 },
-                                "workflowVersionComments": {
-                                    "type": "string"
-                                },
-                                "workflowDesignParentVersion": {
-                                    "type": "string"
+                                "startEvents": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/workflowStartEvent"
+                                    }
                                 },
                                 "tags": {
                                     "type": "array",
@@ -489,7 +477,22 @@
                                     "type": "integer",
                                     "format": "int32"
                                 },
-                                "engineName": {
+                                "workflowDefinition": {
+                                    "type": "string"
+                                },
+                                "workflowDescription": {
+                                    "type": "string"
+                                },
+                                "workflowDesignParentVersion": {
+                                    "type": "string"
+                                },
+                                "workflowName": {
+                                    "type": "string"
+                                },
+                                "workflowType": {
+                                    "type": "string"
+                                },
+                                "workflowVersionComments": {
                                     "type": "string"
                                 }
                             }
