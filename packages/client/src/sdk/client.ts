@@ -1,5 +1,5 @@
 
-import { Nwc, ApiError } from './../nwc'
+import { Nwc, ApiError, publishedWorkflowDetails, publishWorkflowPayload } from './../nwc'
 import { Connector } from "./models/connector"
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
@@ -168,7 +168,8 @@ export class Sdk {
                     designVersion: source.workflowDesignVersion,
                     type: source.workflowType,
                     comments: source.workflowVersionComments,
-                    definition: WorkflowDefinitionParser.parse(source.workflowDefinition!, responses[2], responses[3], responses[0])
+                    definition: WorkflowDefinitionParser.parse(source.workflowDefinition!, responses[2], responses[3], responses[0]),
+                    source: source
                 }
                 return Promise.resolve(workflow)
             }).catch((error) => Promise.reject(error))
@@ -269,5 +270,25 @@ export class Sdk {
                 this.getWorkflow(response.workflowId!.workflowId!)
                     .then((workflow) => workflow))
             .catch((error) => Promise.reject(error))
+            .catch((error: ApiError) => Promise.reject(error))
+
+
+    public publishWorkflow = (workflow: Workflow) =>
+        this._nwc.default.publishWorkflow(workflow.id, {
+            author: workflow.source.author,
+            datasources: workflow.source.datasources,
+            engineName: workflow.source.engineName,
+            permissions: workflow.source.permissions,
+            startEvents: workflow.source.startEvents,
+            tags: workflow.source.tags,
+            version: workflow.version,
+            workflowDefinition: workflow.source.workflowDefinition,
+            workflowDescription: workflow.description,
+            workflowDesignParentVersion: workflow.designVersion,
+            workflowName: workflow.name,
+            workflowType: workflow.type,
+            workflowVersionComments: workflow.comments
+        })
+            .then((responce) => responce)
             .catch((error: ApiError) => Promise.reject(error))
 }

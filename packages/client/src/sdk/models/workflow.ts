@@ -1,3 +1,4 @@
+import { workflowSource } from "client/src/nwc";
 import { ParsedFormDefinition } from "./parsedFormDefinition";
 import { ParsedWorkflowDefinition } from "./parsedWorkflowDefinition";
 import { WorkflowInfo } from "./workflowInfo";
@@ -14,4 +15,5 @@ export interface Workflow extends WorkflowInfo {
     designVersion?: string;
     definition: ParsedWorkflowDefinition
     startForm?: ParsedFormDefinition
+    source: workflowSource
 }
