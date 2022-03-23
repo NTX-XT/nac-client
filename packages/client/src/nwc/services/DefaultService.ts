@@ -12,6 +12,7 @@ import type { tagResponse } from '../models/tagResponse';
 import type { tenantConfiguration } from '../models/tenantConfiguration';
 import type { tenantInfo } from '../models/tenantInfo';
 import type { tokenResponse } from '../models/tokenResponse';
+import type { user } from '../models/user';
 import type { workflow } from '../models/workflow';
 import type { workflowDesign } from '../models/workflowDesign';
 import type { workflowPermission } from '../models/workflowPermission';
@@ -21,7 +22,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "../../cache";
 import { ApiError } from "../core/ApiError";
-import { getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowsResponseType, getWorkflowDesignDetailsResponseType } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowsResponseType, getWorkflowDesignDetailsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -32,16 +33,12 @@ export class DefaultService {
 	}
 
 	private getTokenCancelable(
-request: {
-client_id: string;
-client_secret: string;
-grant_type: 'client_credentials';
-},
+options: getTokenOptions,
 ): CancelablePromise<tokenResponse> {
 		return this.httpRequest.request({
 			method: 'POST',
 			url: '/authentication/v1/token',
-			body: request,
+			body: options,
 			errors: {
 				400: `Failed`,
 			},
@@ -149,9 +146,7 @@ workflowId: string,
 
 	private exportWorkflowCancelable(
 workflowId: string,
-request: {
-isNonExpiring: boolean;
-},
+options: exportWorkflowOptions,
 ): CancelablePromise<exportWorkflowResponse> {
 		return this.httpRequest.request({
 			method: 'POST',
@@ -159,21 +154,17 @@ isNonExpiring: boolean;
 			path: {
 				'workflowId': workflowId,
 			},
-			body: request,
+			body: options,
 		});
 	}
 
 	private importWorkflowCancelable(
-request: {
-name: string;
-key: string;
-overwriteExisting?: boolean;
-},
+options: importWorkflowOptions,
 ): CancelablePromise<importWorkflowResponse> {
 		return this.httpRequest.request({
 			method: 'POST',
 			url: '/workflows/v1/designs/import',
-			body: request,
+			body: options,
 		});
 	}
 
@@ -203,20 +194,7 @@ workflowName: string,
 
 	private publishWorkflowCancelable(
 workflowId: string,
-payload: {
-workflowName?: string;
-workflowDescription?: string;
-workflowType?: string;
-workflowDefinition?: string;
-startEvents?: Array<workflowStartEvent>;
-datasources?: string;
-permissions?: Array<workflowPermission>;
-workflowVersionComments?: string;
-workflowDesignParentVersion?: string;
-tags?: Array<tag>;
-version?: number;
-engineName?: string;
-},
+payload: publishWorkflowPayload,
 ): CancelablePromise<workflowSource> {
 		return this.httpRequest.request({
 			method: 'POST',
@@ -230,17 +208,13 @@ engineName?: string;
 
     /**
      * Retrieve authenitcation token
-     * @param request
+     * @param options
      * @returns tokenResponse Ok
      * @throws ApiError
      */
     @Cacheable()
-    public getToken(request: {
-        client_id: string;
-        client_secret: string;
-        grant_type: 'client_credentials';
-        }): Promise<tokenResponse> {
-        return this.getTokenCancelable(request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    public getToken(options: getTokenOptions): Promise<tokenResponse> {
+        return this.getTokenCancelable(options).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -350,30 +324,24 @@ engineName?: string;
     /**
      * Export workflow
      * @param workflowId Id of the workflow design
-     * @param request
+     * @param options
      * @returns exportWorkflowResponse Ok
      * @throws ApiError
      */
     @Cacheable()
-    public exportWorkflow(workflowId: string, request: {
-        isNonExpiring: boolean;
-        }): Promise<exportWorkflowResponse> {
-        return this.exportWorkflowCancelable(workflowId, request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    public exportWorkflow(workflowId: string, options: exportWorkflowOptions): Promise<exportWorkflowResponse> {
+        return this.exportWorkflowCancelable(workflowId, options).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
      * Import workflow
-     * @param request
+     * @param options
      * @returns importWorkflowResponse Ok
      * @throws ApiError
      */
     @Cacheable()
-    public importWorkflow(request: {
-        name: string;
-        key: string;
-        overwriteExisting?: boolean;
-        }): Promise<importWorkflowResponse> {
-        return this.importWorkflowCancelable(request).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    public importWorkflow(options: importWorkflowOptions): Promise<importWorkflowResponse> {
+        return this.importWorkflowCancelable(options).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -406,20 +374,7 @@ engineName?: string;
      * @throws ApiError
      */
     @Cacheable()
-    public publishWorkflow(workflowId: string, payload: {
-        workflowName?: string;
-        workflowDescription?: string;
-        workflowType?: string;
-        workflowDefinition?: string;
-        startEvents?: Array<workflowStartEvent>;
-        datasources?: string;
-        permissions?: Array<workflowPermission>;
-        workflowVersionComments?: string;
-        workflowDesignParentVersion?: string;
-        tags?: Array<tag>;
-        version?: number;
-        engineName?: string;
-        }): Promise<workflowSource> {
+    public publishWorkflow(workflowId: string, payload: publishWorkflowPayload): Promise<workflowSource> {
         return this.publishWorkflowCancelable(workflowId, payload).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 }

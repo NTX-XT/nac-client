@@ -36,7 +36,11 @@ export type { workflowSource } from './models/workflowSource';
 export type { workflowStartEvent } from './models/workflowStartEvent';
 
 export { DefaultService } from './services/DefaultService';
+export type { getTokenOptions } from "./models/additionalTypes";
 export type { getTenantConnectorsResponseType } from "./models/additionalTypes";
 export type { getDatasourceTokenResponseType } from "./models/additionalTypes";
 export type { getWorkflowsResponseType } from "./models/additionalTypes";
 export type { getWorkflowDesignDetailsResponseType } from "./models/additionalTypes";
+export type { exportWorkflowOptions } from "./models/additionalTypes";
+export type { importWorkflowOptions } from "./models/additionalTypes";
+export type { publishWorkflowPayload } from "./models/additionalTypes";
