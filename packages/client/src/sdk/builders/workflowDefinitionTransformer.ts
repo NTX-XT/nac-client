@@ -1,17 +1,17 @@
-import { arrayToDictionary } from "../utils";
-import { ActionInfo } from "./models/actionInfo";
-import { Connection } from "./models/connection";
-import { Connector } from "./models/connector";
-import { ConnectionActionConfigurationItemValue } from "./models/connectionActionConfigurationItemValue";
-import { ConnectionAction } from "./models/connectionAction";
-import { UsedConnection } from "./models/usedConnection";
-import { UsedConnector } from "./models/usedConnector";
-import { workflowDefinition, action, parameter } from "./models/workflowDefinition";
+import { arrayToDictionary } from "../../utils";
+import { ActionInfo } from "../models/actionInfo";
+import { Connection } from "../models/connection";
+import { Connector } from "../models/connector";
+import { ConnectionActionConfigurationItemValue } from "../models/connectionActionConfigurationItemValue";
+import { ConnectionAction } from "../models/connectionAction";
+import { UsedConnection } from "../models/usedConnection";
+import { UsedConnector } from "../models/usedConnector";
+import { workflowDefinition, action, parameter } from "../models/workflowDefinition";
 import { OpenAPIV2 } from 'openapi-types'
-import { ParsedWorkflowDefinition, WorkflowDependency } from "./models/parsedWorkflowDefinition";
-import { WorkflowInfo } from "./models/workflowInfo";
+import { ParsedWorkflowDefinition, WorkflowDependency } from "../models/parsedWorkflowDefinition";
+import { WorkflowInfo } from "../models/workflowInfo";
 
-export class WorkflowDefinitionParser {
+export class WorkflowDefinitionTransformer {
     private _definition: workflowDefinition;
     private _connectors: Connector[];
     private _actionsArray: action[]
@@ -21,6 +21,7 @@ export class WorkflowDefinitionParser {
     private _connections: Connection[];
     private _workflowInfos: WorkflowInfo[];
     private _dependencies: { [key: string]: WorkflowDependency } = {}
+
     public get definition(): workflowDefinition {
         return this._definition;
     }
@@ -34,7 +35,7 @@ export class WorkflowDefinitionParser {
     }
 
     public static parse(definition: string, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowInfo[]): ParsedWorkflowDefinition {
-        const parser = new WorkflowDefinitionParser(definition, connectors, connections, workflowInfos)
+        const parser = new WorkflowDefinitionTransformer(definition, connectors, connections, workflowInfos)
         parser.resolveConnections()
         parser.resolveDependencies()
         return {
@@ -42,7 +43,7 @@ export class WorkflowDefinitionParser {
             actionsArray: parser._actionsArray,
             actionsDictionary: parser._actionsDictionary,
             usedConnectors: parser._usedConnectors,
-            dependencies: parser._dependencies
+            dependencies: parser._dependencies,
         }
     }
 
@@ -51,7 +52,7 @@ export class WorkflowDefinitionParser {
         this._connectors = connectors
         this._connections = connections
         this._workflowInfos = workflowInfos
-        this._actionsArray = WorkflowDefinitionParser.actionsToFlatArray(this._definition.actions)
+        this._actionsArray = WorkflowDefinitionTransformer.actionsToFlatArray(this._definition.actions)
         this._actionsDictionary = arrayToDictionary(this._actionsArray, "id")
         this._usedConnectors = arrayToDictionary(
             Object.keys(this._definition.inUseXtensions).map<UsedConnector>(

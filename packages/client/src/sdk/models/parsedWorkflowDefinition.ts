@@ -1,7 +1,7 @@
 import { WorkflowInfo } from "..";
 import { ActionInfo } from "./actionInfo";
 import { UsedConnector } from "./usedConnector";
-import { action } from "./workflowDefinition";
+import { action, workflowDefinition } from "./workflowDefinition";
 
 export interface WorkflowDependency {
     id: string,

@@ -13,7 +13,7 @@ export interface Workflow extends WorkflowInfo {
     comments?: string;
     type?: string;
     designVersion?: string;
-    definition: ParsedWorkflowDefinition
+    definition?: ParsedWorkflowDefinition
     startForm?: ParsedFormDefinition
     source: workflowSource
 }
