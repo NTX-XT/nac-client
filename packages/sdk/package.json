@@ -25,7 +25,7 @@
     "url": "https://github.com/NTX-XT/nwc-sdk.git"
   },
   "dependencies": {
-    "axios": "^0.21.4",
+    "axios": "0.26.1",
     "colorts": "^0.1.63",
     "fs-extra": "^10.0.0"
   },
@@ -33,7 +33,7 @@
   "license": "MIT",
   "gitHead": "506be58f707956acb70c3d81f1fd08bee9dab415",
   "devDependencies": {
-    "@types/node": "^16.11.12",
+    "@types/node": "^17.0.23",
     "prettier": "^2.5.1"
   }
 }
