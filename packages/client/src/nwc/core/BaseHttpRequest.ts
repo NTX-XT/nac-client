@@ -7,11 +7,7 @@ import type { OpenAPIConfig } from './OpenAPI';
 
 export class BaseHttpRequest {
 
-	protected readonly config: OpenAPIConfig;
-
-	constructor(config: OpenAPIConfig) {
-		this.config = config;
-	}
+	constructor(public readonly config: OpenAPIConfig) {}
 
 	public request<T>(options: ApiRequestOptions): CancelablePromise<T> {
 		throw new Error('Not Implemented');

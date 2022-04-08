@@ -6,7 +6,7 @@ import type { startData } from './startData';
 import type { user } from './user';
 
 export type workflowDesign = {
-	id?: string;
+	id: string;
 	name?: string;
 	description?: string;
 	lastModified?: string;

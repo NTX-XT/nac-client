@@ -1,41 +1,48 @@
 import { tag, workflowSource } from "../../nwc";
+import { Tag } from "../models/tag";
 import { Workflow } from "../models/workflow";
 
 
 export class NwcModelBuilder {
-    public static tag = (tag: string): tag => ({ name: tag });
+    public static tag = (tag: Tag): tag => (
+        {
+            name: tag.name,
+            count: tag.count,
+            colorIndex: tag.colorIndex
+        }
+    );
 
     public static workflowSource = (worklflow: Workflow): workflowSource => ({
-        author: worklflow.source.author,
-        created: worklflow.source.created,
-        creator: worklflow.source.creator,
-        datasources: worklflow.source.datasources,
-        engineName: worklflow.engine,
-        eventConfiguration: worklflow.source.eventConfiguration,
+        author: worklflow.originalSource.author,
+        created: worklflow.originalSource.created,
+        creator: worklflow.originalSource.creator,
+        datasources: worklflow.originalSource.datasources,
+        engineName: worklflow.engine!,
+        eventConfiguration: worklflow.originalSource.eventConfiguration,
         eventType: worklflow.eventType,
-        hasPermissions: worklflow.source.hasPermissions,
+        hasPermissions: worklflow.originalSource.hasPermissions,
         isActive: worklflow.isActive,
-        isDeleted: worklflow.source.isDeleted,
-        isLatest: worklflow.source.isLatest,
+        isDeleted: worklflow.originalSource.isDeleted,
+        isLatest: worklflow.originalSource.isLatest,
         isPublished: worklflow.isPublished,
-        lastEdited: worklflow.source.lastEdited,
-        lastModified: worklflow.source.lastModified,
-        lastPublished: worklflow.source.lastPublished,
-        latestId: worklflow.source.latestId,
-        permissions: worklflow.source.permissions,
-        publishAuthor: worklflow.source.publishAuthor,
-        publishRequestedBy: worklflow.source.publishRequestedBy,
+        lastEdited: worklflow.originalSource.lastEdited,
+        lastModified: worklflow.originalSource.lastModified,
+        lastPublished: worklflow.originalSource.lastPublished,
+        latestId: worklflow.originalSource.latestId,
+        permissions: worklflow.originalSource.permissions,
+        publishAuthor: worklflow.originalSource.publishAuthor,
+        publishRequestedBy: worklflow.originalSource.publishRequestedBy,
         publishedId: worklflow.publishedId,
-        startEvents: worklflow.source.startEvents,
-        status: worklflow.status,
+        startEvents: worklflow.originalSource.startEvents,
+        status: worklflow.status!,
         tags: worklflow.tags.map((tag) => NwcModelBuilder.tag(tag)),
-        version: worklflow.version,
+        version: worklflow.version!,
         workflowDescription: worklflow.description,
         workflowDefinition: "",
         workflowDesignVersion: worklflow.designVersion,
         workflowId: worklflow.id,
         workflowName: worklflow.name,
-        workflowType: worklflow.type,
+        workflowType: worklflow.type!,
         workflowVersionComments: worklflow.comments
     });
 }

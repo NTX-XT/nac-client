@@ -1,6 +1,6 @@
-import { workflowSource } from "client/src/nwc";
-import { ParsedFormDefinition } from "./parsedFormDefinition";
-import { ParsedWorkflowDefinition } from "./parsedWorkflowDefinition";
+import { workflowSource } from "../../nwc";
+import { FormDefinitionDetails } from "./formDefinitionDetails";
+import { WorkflowDefinitionDetails } from "./workflowDefinitionDetails";
 import { WorkflowInfo } from "./workflowInfo";
 export interface Workflow extends WorkflowInfo {
     isActive: boolean;
@@ -13,7 +13,7 @@ export interface Workflow extends WorkflowInfo {
     comments?: string;
     type?: string;
     designVersion?: string;
-    definition?: ParsedWorkflowDefinition
-    startForm?: ParsedFormDefinition
-    source: workflowSource
+    definition: WorkflowDefinitionDetails;
+    originalSource: workflowSource
+    startForm?: FormDefinitionDetails
 }

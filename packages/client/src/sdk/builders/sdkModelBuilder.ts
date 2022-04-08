@@ -6,6 +6,8 @@ import { Datasource } from "../models/datasource";
 import { WorkflowInfo } from "../models/workflowInfo";
 import { Workflow } from "../models/workflow";
 import { Tenant } from "../models/tenant";
+import { Tag } from "../models/tag";
+import { WorkflowDefinitionParser } from "./parsedWorkflowDefinition";
 
 
 export class SdkModelBuilder {
@@ -36,13 +38,18 @@ export class SdkModelBuilder {
         operationId: datasource.operationId
     });
 
-    public static Tag = (tag: tag): string => (tag.name!);
+    public static Tag = (tag: tag): Tag => ({
+        name: tag.name,
+        colorIndex: tag.colorIndex,
+        count: tag.count
+    }
+    );
 
     public static WorkflowInfo = (workflow: workflow): WorkflowInfo => ({
         id: workflow.id!,
         name: workflow.name!,
         engine: workflow.engine,
-        tags: workflow.tags!.map((tag: { name: string; }) => SdkModelBuilder.Tag(tag))
+        tags: workflow.tags!.map((tag) => SdkModelBuilder.Tag(tag))
     });
 
     public static Tenant = (tenantInfo: tenantInfo, tenantConfiguration: tenantConfiguration, token: string, datasourceToken: string): Tenant => ({
@@ -72,7 +79,8 @@ export class SdkModelBuilder {
         designVersion: source.workflowDesignVersion,
         type: source.workflowType,
         comments: source.workflowVersionComments,
-        source: source,
+        originalSource: source,
+        definition: WorkflowDefinitionParser.parse(source.workflowDefinition, connectors, connections, workflowInfos)
     });
 
 }

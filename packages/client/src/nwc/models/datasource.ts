@@ -3,12 +3,12 @@
 /* eslint-disable */
 
 export type datasource = {
-	id?: string;
-	name?: string;
+	id: string;
+	name: string;
 	description?: string;
-	contractId?: string;
+	contractId: string;
 	operationId?: string;
-	connectionId?: string;
+	connectionId: string;
 	createdByUserId?: string;
 	createdDate?: string;
 	modifiedByUserId?: string;

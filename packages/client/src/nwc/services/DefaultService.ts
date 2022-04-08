@@ -18,6 +18,7 @@ import type { workflowDesign } from '../models/workflowDesign';
 import type { workflowPermission } from '../models/workflowPermission';
 import type { workflowSource } from '../models/workflowSource';
 import type { workflowStartEvent } from '../models/workflowStartEvent';
+
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "../../cache";
@@ -26,11 +27,7 @@ import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenRes
 
 export class DefaultService {
 
-	private readonly httpRequest: BaseHttpRequest;
-
-	constructor(httpRequest: BaseHttpRequest) {
-		this.httpRequest = httpRequest;
-	}
+	constructor(public readonly httpRequest: BaseHttpRequest) {}
 
 	private getTokenCancelable(
 options: getTokenOptions,

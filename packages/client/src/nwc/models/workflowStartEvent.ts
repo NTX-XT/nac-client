@@ -4,7 +4,7 @@
 
 export type workflowStartEvent = {
 	eventGroup?: string;
-	eventType?: string;
+	eventType: string;
 	eventTypeOption?: string;
 	eventTypeDisplayName?: string;
 	configuration?: Array<string>;

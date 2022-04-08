@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 export type workflowPermission = {
-	id?: string;
-	name?: string;
-	type?: string;
+	id: string;
+	name: string;
+	type: string;
 };

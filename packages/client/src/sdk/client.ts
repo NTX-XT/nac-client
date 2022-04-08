@@ -120,7 +120,7 @@ export class Sdk {
             let workflowInfos = response.workflows!.map<WorkflowInfo>((wfl) => SdkModelBuilder.WorkflowInfo(wfl))
             if (options.tag) {
                 workflowInfos = workflowInfos.filter((wfl) => {
-                    const matchedTags = wfl.tags!.filter((tag) => (tag === options.tag))
+                    const matchedTags = wfl.tags!.filter((tag) => (tag.name === options.tag))
                     return (matchedTags && matchedTags.length > 0)
                 })
             }
@@ -209,14 +209,14 @@ export class Sdk {
 
     public publishWorkflow = (workflow: Workflow) =>
         this._nwc.default.publishWorkflow(workflow.id, {
-            author: workflow.source.author,
-            datasources: workflow.source.datasources,
-            engineName: workflow.source.engineName,
-            permissions: workflow.source.permissions,
-            startEvents: workflow.source.startEvents,
-            tags: workflow.source.tags,
+            author: workflow.originalSource.author,
+            datasources: workflow.originalSource.datasources,
+            engineName: workflow.originalSource.engineName,
+            permissions: workflow.originalSource.permissions,
+            startEvents: workflow.originalSource.startEvents,
+            tags: workflow.originalSource.tags,
             version: workflow.version,
-            workflowDefinition: workflow.source.workflowDefinition,
+            workflowDefinition: workflow.originalSource.workflowDefinition,
             workflowDescription: workflow.description,
             workflowDesignParentVersion: workflow.designVersion,
             workflowName: workflow.name,

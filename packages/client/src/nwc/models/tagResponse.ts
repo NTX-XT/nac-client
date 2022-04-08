@@ -5,6 +5,6 @@
 import type { tag } from './tag';
 
 export type tagResponse = {
-	success?: boolean;
-	resource?: Array<tag>;
+	success: boolean;
+	resource: Array<tag>;
 };

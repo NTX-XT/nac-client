@@ -5,8 +5,8 @@
 import type { workflowDetails } from './workflowDetails';
 
 export type publishedWorkflowDetails = (workflowDetails & {
-publishedType?: publishedWorkflowDetails.publishedType;
-isActive?: boolean;
+publishedType: publishedWorkflowDetails.publishedType;
+isActive: boolean;
 lastPublished?: string;
 });
 

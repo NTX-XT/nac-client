@@ -1,7 +1,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import { connector, workflow, workflowDesign, user, workflowPermission, workflowStartEvent, tag } from "..";
+import { connector } from "./connector";
+import { tag } from "./tag";
+import { user } from "./user";
+import { workflow } from "./workflow";
+import { workflowDesign } from "./workflowDesign";
+import { workflowPermission } from "./workflowPermission";
+import { workflowStartEvent } from "./workflowStartEvent";
 
 export type getTokenOptions = {
     client_id: string;

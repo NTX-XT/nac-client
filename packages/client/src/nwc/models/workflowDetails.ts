@@ -8,7 +8,7 @@ import type { urls } from './urls';
 import type { user } from './user';
 
 export type workflowDetails = {
-	id?: string;
+	id: string;
 	author?: user;
 	description?: string;
 	created?: string;

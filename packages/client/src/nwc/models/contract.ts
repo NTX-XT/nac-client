@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 export type contract = {
-	id?: string;
-	name?: string;
+	id: string;
+	name: string;
 	description?: string;
 	appId?: string;
 	createdByUserId?: string;

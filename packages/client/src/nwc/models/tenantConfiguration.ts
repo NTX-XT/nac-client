@@ -5,7 +5,7 @@
 import type { user } from './user';
 
 export type tenantConfiguration = {
-	apiManagerUrl?: string;
+	apiManagerUrl: string;
 	zincUrl?: string;
 	pdfFormConverterUrl?: string;
 	webTaggerUrl?: string;
@@ -36,7 +36,7 @@ connectionString?: string;
 	createTicketFormEndpoint?: string;
 	appInsightsInstrumentationKey?: string;
 	cloudElementService?: boolean;
-	serviceRegion?: string;
+	serviceRegion: string;
 	boxAppUrl?: string;
 	allowedHawkeyeDomains?: string;
 	readmeIOUrl?: string;

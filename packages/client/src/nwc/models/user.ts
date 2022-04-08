@@ -3,14 +3,14 @@
 /* eslint-disable */
 
 export type user = {
-	id?: string;
+	id: string;
 	roles?: Array<string>;
 	permissions?: Array<string>;
-	tenantId?: string;
+	tenantId: string;
 	name?: string;
 	firstName?: string;
 	lastName?: string;
 	email?: string;
-	nintexTenantId?: string;
-	displayName?: string;
+	nintexTenantId: string;
+	displayName: string;
 };

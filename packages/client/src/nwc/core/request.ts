@@ -84,22 +84,22 @@ const getQueryString = (params: Record<string, any>): string => {
 };
 
 const getUrl = (config: OpenAPIConfig, options: ApiRequestOptions): string => {
-    const encoder = config.ENCODE_PATH || encodeURI;
+	const encoder = config.ENCODE_PATH || encodeURI;
 
-    const path = options.url
-        .replace('{api-version}', config.VERSION)
-        .replace(/{(.*?)}/g, (substring: string, group: string) => {
-            if (options.path?.hasOwnProperty(group)) {
-                return encoder(String(options.path[group]));
-            }
-            return substring;
-        });
+	const path = options.url
+		.replace('{api-version}', config.VERSION)
+		.replace(/{(.*?)}/g, (substring: string, group: string) => {
+			if (options.path?.hasOwnProperty(group)) {
+				return encoder(String(options.path[group]));
+			}
+			return substring;
+		});
 
-    const url = `${config.BASE}${path}`;
-    if (options.query) {
-        return `${url}${getQueryString(options.query)}`;
-    }
-    return url;
+	const url = `${config.BASE}${path}`;
+	if (options.query) {
+		return `${url}${getQueryString(options.query)}`;
+	}
+	return url;
 };
 
 const getFormData = (options: ApiRequestOptions): FormData | undefined => {
@@ -176,15 +176,15 @@ const getRequestBody = (options: ApiRequestOptions): any => {
 	return;
 };
 
-const sendRequest = async (
+const sendRequest = async <T>(
 	config: OpenAPIConfig,
 	options: ApiRequestOptions,
 	url: string,
-	formData: FormData | undefined,
 	body: any,
+	formData: FormData | undefined,
 	headers: Record<string, string>,
 	onCancel: OnCancel
-): Promise<AxiosResponse<any>> => {
+): Promise<AxiosResponse<T>> => {
 	const source = axios.CancelToken.source();
 
 	const requestConfig: AxiosRequestConfig = {
@@ -226,7 +226,7 @@ const getResponseBody = (response: AxiosResponse<any>): any => {
 	return;
 };
 
-const catchErrors = (options: ApiRequestOptions, result: ApiResult): void => {
+const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): void => {
 	const errors: Record<number, string> = {
 		400: 'Bad Request',
 		401: 'Unauthorized',
@@ -264,7 +264,7 @@ export const request = <T>(config: OpenAPIConfig, options: ApiRequestOptions): C
 			const headers = await getHeaders(config, options, formData);
 
 			if (!onCancel.isCancelled) {
-				const response = await sendRequest(config, options, url, formData, body, headers, onCancel);
+				const response = await sendRequest<T>(config, options, url, body, formData, headers, onCancel);
 				const responseBody = getResponseBody(response);
 				const responseHeader = getResponseHeader(response, options.responseHeader);
 
@@ -276,7 +276,7 @@ export const request = <T>(config: OpenAPIConfig, options: ApiRequestOptions): C
 					body: responseHeader ?? responseBody,
 				};
 
-				catchErrors(options, result);
+				catchErrorCodes(options, result);
 
 				resolve(result.body);
 			}
