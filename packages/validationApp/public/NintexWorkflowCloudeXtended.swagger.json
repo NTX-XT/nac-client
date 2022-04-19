@@ -242,13 +242,13 @@
         },
         "/workflows/v1/designs": {
             "get": {
-                "description": "Get workflows",
-                "operationId": "getWorkflows",
-                "x-ntx-summary": "Get workflows",
+                "description": "Get workflow designs",
+                "operationId": "getWorkflowDesigns",
+                "x-ntx-summary": "Get workflow designs",
                 "parameters": [{
                     "name": "limit",
                     "in": "query",
-                    "description": "Total number of workflows to retrieve",
+                    "description": "Total number of workflow designs to retrieve",
                     "type": "number",
                     "default": 2000
                 }],
@@ -261,35 +261,8 @@
                                 "workflows": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/definitions/workflow"
+                                        "$ref": "#/definitions/workflowDesign"
                                     }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/workflows/v1/designs/{workflowId}": {
-            "get": {
-                "description": "Get workflow design details",
-                "operationId": "getWorkflowDesignDetails",
-                "x-ntx-summary": "Get workflow design details",
-                "parameters": [{
-                    "name": "workflowId",
-                    "in": "path",
-                    "description": "Id of the workflow design",
-                    "type": "string",
-                    "required": true
-                }],
-                "responses": {
-                    "200": {
-                        "description": "Ok",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "workflow": {
-                                    "$ref": "#/definitions/workflowDesign"
                                 }
                             }
                         }
@@ -378,9 +351,9 @@
         },
         "/designer_/api/workflows/{workflowId}": {
             "get": {
-                "description": "Get workflow source",
-                "operationId": "getWorkflowSource",
-                "x-ntx-summary": "Get workflow source",
+                "description": "Get workflow",
+                "operationId": "getWorkflow",
+                "x-ntx-summary": "Get workflow",
                 "parameters": [{
                     "name": "workflowId",
                     "in": "path",
@@ -392,8 +365,25 @@
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "$ref": "#/definitions/workflowSource"
+                            "$ref": "#/definitions/workflow"
                         }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete draft workflow",
+                "operationId": "deleteDraftWorkflow",
+                "x-ntx-summary": "Delete draft Wworkflow",
+                "parameters": [{
+                    "name": "workflowId",
+                    "in": "path",
+                    "description": "Id of the workflow",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok"
                     }
                 }
             }
@@ -503,7 +493,47 @@
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "$ref": "#/definitions/workflowSource"
+                            "$ref": "#/definitions/workflow"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete published workflow",
+                "operationId": "deletePublishedWorkflow",
+                "x-ntx-summary": "Delete published workflow",
+                "parameters": [{
+                    "name": "workflowId",
+                    "in": "path",
+                    "description": "Id of the workflow",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok"
+                    }
+                }
+            }
+        },
+        "/designer_/api/users": {
+            "get": {
+                "description": "Get tenant users",
+                "operationId": "getTenantUsers",
+                "x-ntx-summary": "Get tenant users",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "users": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/tenantUser"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -520,6 +550,45 @@
         }
     },
     "definitions": {
+        "tenantUser": {
+            "type": "object",
+            "required": [
+                "id",
+                "email"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "vibranium_enabled": {
+                    "type": "boolean"
+                },
+                "is_guest": {
+                    "type": "boolean"
+                },
+                "organization_id": {
+                    "type": "string"
+                },
+                "legacy_id": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "user": {
             "type": "object",
             "required": [
@@ -1197,41 +1266,6 @@
             "type": "object",
             "required": [
                 "id",
-                "type"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "lastModified": {
-                    "type": "string",
-                    "format": "date-time"
-                },
-                "author": {
-                    "$ref": "#/definitions/user"
-                },
-                "creator": {
-                    "$ref": "#/definitions/user"
-                },
-                "created": {
-                    "type": "string",
-                    "format": "date-time"
-                },
-                "startData": {
-                    "$ref": "#/definitions/startData"
-                }
-            }
-        },
-        "workflow": {
-            "type": "object",
-            "required": [
-                "id",
                 "name",
                 "engine"
             ],
@@ -1474,7 +1508,7 @@
                 }
             }
         },
-        "workflowSource": {
+        "workflow": {
             "type": "object",
             "required": [
                 "workflowId",

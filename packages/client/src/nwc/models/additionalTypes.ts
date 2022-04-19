@@ -3,8 +3,8 @@
 /* eslint-disable */
 import { connector } from "./connector";
 import { tag } from "./tag";
+import { tenantUser } from "./tenantUser";
 import { user } from "./user";
-import { workflow } from "./workflow";
 import { workflowDesign } from "./workflowDesign";
 import { workflowPermission } from "./workflowPermission";
 import { workflowStartEvent } from "./workflowStartEvent";
@@ -18,9 +18,7 @@ export type getTenantConnectorsResponseType = {connectors?: Array<connector>;
     };
 export type getDatasourceTokenResponseType = {token?: string;
     };
-export type getWorkflowsResponseType = {workflows?: Array<workflow>;
-    };
-export type getWorkflowDesignDetailsResponseType = {workflow?: workflowDesign;
+export type getWorkflowDesignsResponseType = {workflows?: Array<workflowDesign>;
     };
 export type exportWorkflowOptions = {
     isNonExpiring: boolean;
@@ -44,4 +42,6 @@ export type publishWorkflowPayload = {
     workflowName?: string;
     workflowType?: string;
     workflowVersionComments?: string;
+    };
+export type getTenantUsersResponseType = {users?: Array<tenantUser>;
     };

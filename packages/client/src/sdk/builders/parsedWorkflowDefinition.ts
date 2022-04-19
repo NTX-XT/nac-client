@@ -8,14 +8,14 @@ import { UsedConnection } from "../models/usedConnection";
 import { UsedConnector } from "../models/usedConnector";
 import { OpenAPIV2 } from 'openapi-types'
 import { WorkflowDependency } from "../models/workflowDependency";
-import { WorkflowInfo } from "../models/workflowInfo";
+import { WorkflowDesign } from "../models/workflowDesign";
 import { workflowDefinition } from "../../nwc/models/workflowDefinition"
 import { action } from "../../nwc/models/action";
 import { workflow } from "client/src/nwc";
 import { WorkflowDefinitionDetails } from "../models/workflowDefinitionDetails";
 
 export class WorkflowDefinitionParser {
-    public static parse(definition: string, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowInfo[]): WorkflowDefinitionDetails {
+    public static parse(definition: string, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowDesign[]): WorkflowDefinitionDetails {
         const _definition = JSON.parse(definition) as workflowDefinition
         const _actionsArray = ActionUtilities.flatten(_definition.actions)
         const _actionsDictionary = arrayToDictionary(_actionsArray, "id")
@@ -97,7 +97,7 @@ export class WorkflowDefinitionParser {
         }
     }
 
-    private static resolveDependencies(actionsArray: action[], workflowInfos: WorkflowInfo[]): { [key: string]: WorkflowDependency; } {
+    private static resolveDependencies(actionsArray: action[], workflowInfos: WorkflowDesign[]): { [key: string]: WorkflowDependency; } {
         const dependencies: { [key: string]: WorkflowDependency; } = {}
         const componentWorkflowActions = actionsArray.filter(action => {
             return action.className === 'engine:startworkflow'

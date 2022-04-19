@@ -1,6 +1,6 @@
 import { Tag } from "./tag";
 
-export interface WorkflowInfo {
+export interface WorkflowDesign {
     id: string;
     name: string;
     engine?: string;

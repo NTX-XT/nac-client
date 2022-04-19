@@ -1,15 +1,16 @@
 
-import { Nwc, ApiError, publishedWorkflowDetails, publishWorkflowPayload } from './../nwc'
+import { Nwc, ApiError, publishedWorkflowDetails, publishWorkflowPayload, user, tenantUser } from './../nwc'
 import { Connector } from "./models/connector"
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
 import { Workflow } from './models/workflow'
 import { Contract } from './models/contract'
-import { WorkflowInfo } from './models/workflowInfo'
+import { WorkflowDesign } from './models/workflowDesign'
 import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
 import { Cacheable } from '../cache'
 import { SdkModelBuilder } from './builders/sdkModelBuilder'
+import { User } from './models/user'
 export interface WorkflowsQueryOptions {
     tag?: string,
     name?: string,
@@ -115,9 +116,9 @@ export class Sdk {
     }
 
     @Cacheable()
-    public getWorkflowInfos(options: WorkflowsQueryOptions = {}): Promise<WorkflowInfo[]> {
-        return this._nwc.default.getWorkflows(2000).then((response) => {
-            let workflowInfos = response.workflows!.map<WorkflowInfo>((wfl) => SdkModelBuilder.WorkflowInfo(wfl))
+    public getWorkflowDesigns(options: WorkflowsQueryOptions = {}): Promise<WorkflowDesign[]> {
+        return this._nwc.default.getWorkflowDesigns(2000).then((response) => {
+            let workflowInfos = response.workflows!.map<WorkflowDesign>((wfl) => SdkModelBuilder.WorkflowDesign(wfl))
             if (options.tag) {
                 workflowInfos = workflowInfos.filter((wfl) => {
                     const matchedTags = wfl.tags!.filter((tag) => (tag.name === options.tag))
@@ -133,9 +134,23 @@ export class Sdk {
 
     @Cacheable()
     public getWorkflow(workflowId: string): Promise<Workflow> {
-        return Promise.all([this.getWorkflowInfos(), this._nwc.default.getWorkflowSource(workflowId), this.getConnectors(), this.getConnections()])
+        return Promise.all([this.getWorkflowDesigns(), this._nwc.default.getWorkflow(workflowId), this.getConnectors(), this.getConnections()])
             .then((responses) => SdkModelBuilder.Workflow(responses[1], responses[2], responses[3], responses[0]))
             .catch((error) => Promise.reject(error))
+    }
+
+    @Cacheable()
+    public getUsers(): Promise<User[]> {
+        return this._nwc.default.getTenantUsers()
+            .then((response) => response.users!.map<User>((tenantUser) => SdkModelBuilder.User(tenantUser)))
+            .catch((error) => Promise.reject(error))
+    }
+
+    public deleteWorkflow(workflowId: string): void {
+        this._nwc.default.deleteDraftWorkflow(workflowId)
+            .then(() => this._nwc.default.deletePublishedWorkflow(workflowId)
+                .catch((error: ApiError) => Promise.reject(error)))
+            .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable()
@@ -209,14 +224,14 @@ export class Sdk {
 
     public publishWorkflow = (workflow: Workflow) =>
         this._nwc.default.publishWorkflow(workflow.id, {
-            author: workflow.originalSource.author,
-            datasources: workflow.originalSource.datasources,
-            engineName: workflow.originalSource.engineName,
-            permissions: workflow.originalSource.permissions,
-            startEvents: workflow.originalSource.startEvents,
-            tags: workflow.originalSource.tags,
+            author: workflow._nwcObject.author,
+            datasources: workflow._nwcObject.datasources,
+            engineName: workflow._nwcObject.engineName,
+            permissions: workflow._nwcObject.permissions,
+            startEvents: workflow._nwcObject.startEvents,
+            tags: workflow._nwcObject.tags,
             version: workflow.version,
-            workflowDefinition: workflow.originalSource.workflowDefinition,
+            workflowDefinition: workflow._nwcObject.workflowDefinition,
             workflowDescription: workflow.description,
             workflowDesignParentVersion: workflow.designVersion,
             workflowName: workflow.name,

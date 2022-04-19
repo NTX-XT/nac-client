@@ -1,13 +1,14 @@
 import { Connector } from "../models/connector";
-import { connection, connector, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, workflowSource } from "../../nwc";
+import { connection, connector, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, tenantUser, workflowDesign } from "../../nwc";
 import { Connection } from "../models/connection";
 import { Contract } from "../models/contract";
 import { Datasource } from "../models/datasource";
-import { WorkflowInfo } from "../models/workflowInfo";
+import { WorkflowDesign } from "../models/workflowDesign";
 import { Workflow } from "../models/workflow";
 import { Tenant } from "../models/tenant";
 import { Tag } from "../models/tag";
 import { WorkflowDefinitionParser } from "./parsedWorkflowDefinition";
+import { User } from "../models/user";
 
 
 export class SdkModelBuilder {
@@ -45,11 +46,11 @@ export class SdkModelBuilder {
     }
     );
 
-    public static WorkflowInfo = (workflow: workflow): WorkflowInfo => ({
-        id: workflow.id!,
-        name: workflow.name!,
-        engine: workflow.engine,
-        tags: workflow.tags!.map((tag) => SdkModelBuilder.Tag(tag))
+    public static WorkflowDesign = (workflowDesign: workflowDesign): WorkflowDesign => ({
+        id: workflowDesign.id!,
+        name: workflowDesign.name!,
+        engine: workflowDesign.engine,
+        tags: workflowDesign.tags!.map((tag) => SdkModelBuilder.Tag(tag))
     });
 
     public static Tenant = (tenantInfo: tenantInfo, tenantConfiguration: tenantConfiguration, token: string, datasourceToken: string): Tenant => ({
@@ -64,7 +65,7 @@ export class SdkModelBuilder {
         url: tenantInfo.tenancy_url!
     });
 
-    public static Workflow = (source: workflowSource, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowInfo[]): Workflow => ({
+    public static Workflow = (source: workflow, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowDesign[]): Workflow => ({
         id: source.workflowId!,
         name: source.workflowName!,
         tags: source.tags!.map((tag) => SdkModelBuilder.Tag(tag)),
@@ -79,8 +80,15 @@ export class SdkModelBuilder {
         designVersion: source.workflowDesignVersion,
         type: source.workflowType,
         comments: source.workflowVersionComments,
-        originalSource: source,
+        _nwcObject: source,
         definition: WorkflowDefinitionParser.parse(source.workflowDefinition, connectors, connections, workflowInfos)
     });
 
+    public static User = (user: tenantUser): User => ({
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        roles: user.roles
+    })
 }

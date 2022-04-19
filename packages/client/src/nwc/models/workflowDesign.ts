@@ -2,16 +2,18 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { startData } from './startData';
-import type { user } from './user';
+import type { businessOwner } from './businessOwner';
+import type { draftWorkflowDetails } from './draftWorkflowDetails';
+import type { publishedWorkflowDetails } from './publishedWorkflowDetails';
 
 export type workflowDesign = {
 	id: string;
-	name?: string;
-	description?: string;
+	draft?: draftWorkflowDetails;
+	published?: publishedWorkflowDetails;
 	lastModified?: string;
-	author?: user;
-	creator?: user;
-	created?: string;
-	startData?: startData;
+	name: string;
+	businessOwners?: Array<businessOwner>;
+	tags?: Array<any>;
+	engine: string;
+	publishRequestedBy?: string;
 };

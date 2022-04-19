@@ -11,19 +11,19 @@ import type { tag } from '../models/tag';
 import type { tagResponse } from '../models/tagResponse';
 import type { tenantConfiguration } from '../models/tenantConfiguration';
 import type { tenantInfo } from '../models/tenantInfo';
+import type { tenantUser } from '../models/tenantUser';
 import type { tokenResponse } from '../models/tokenResponse';
 import type { user } from '../models/user';
 import type { workflow } from '../models/workflow';
 import type { workflowDesign } from '../models/workflowDesign';
 import type { workflowPermission } from '../models/workflowPermission';
-import type { workflowSource } from '../models/workflowSource';
 import type { workflowStartEvent } from '../models/workflowStartEvent';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "../../cache";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowsResponseType, getWorkflowDesignDetailsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -117,26 +117,14 @@ includePublic: boolean = true,
 		});
 	}
 
-	private getWorkflowsCancelable(
+	private getWorkflowDesignsCancelable(
 limit: number = 2000,
-): CancelablePromise<getWorkflowsResponseType> {
+): CancelablePromise<getWorkflowDesignsResponseType> {
 		return this.httpRequest.request({
 			method: 'GET',
 			url: '/workflows/v1/designs',
 			query: {
 				'limit': limit,
-			},
-		});
-	}
-
-	private getWorkflowDesignDetailsCancelable(
-workflowId: string,
-): CancelablePromise<getWorkflowDesignDetailsResponseType> {
-		return this.httpRequest.request({
-			method: 'GET',
-			url: '/workflows/v1/designs/{workflowId}',
-			path: {
-				'workflowId': workflowId,
 			},
 		});
 	}
@@ -165,11 +153,23 @@ options: importWorkflowOptions,
 		});
 	}
 
-	private getWorkflowSourceCancelable(
+	private getWorkflowCancelable(
 workflowId: string,
-): CancelablePromise<workflowSource> {
+): CancelablePromise<workflow> {
 		return this.httpRequest.request({
 			method: 'GET',
+			url: '/designer_/api/workflows/{workflowId}',
+			path: {
+				'workflowId': workflowId,
+			},
+		});
+	}
+
+	private deleteDraftWorkflowCancelable(
+workflowId: string,
+): CancelablePromise<any> {
+		return this.httpRequest.request({
+			method: 'DELETE',
 			url: '/designer_/api/workflows/{workflowId}',
 			path: {
 				'workflowId': workflowId,
@@ -192,7 +192,7 @@ workflowName: string,
 	private publishWorkflowCancelable(
 workflowId: string,
 payload: publishWorkflowPayload,
-): CancelablePromise<workflowSource> {
+): CancelablePromise<workflow> {
 		return this.httpRequest.request({
 			method: 'POST',
 			url: '/designer_/api/workflows/{workflowId}/published',
@@ -200,6 +200,25 @@ payload: publishWorkflowPayload,
 				'workflowId': workflowId,
 			},
 			body: payload,
+		});
+	}
+
+	private deletePublishedWorkflowCancelable(
+workflowId: string,
+): CancelablePromise<any> {
+		return this.httpRequest.request({
+			method: 'DELETE',
+			url: '/designer_/api/workflows/{workflowId}/published',
+			path: {
+				'workflowId': workflowId,
+			},
+		});
+	}
+
+	private getTenantUsersCancelable(): CancelablePromise<getTenantUsersResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/users',
 		});
 	}
 
@@ -297,25 +316,14 @@ payload: publishWorkflowPayload,
     }
 
     /**
-     * Get workflows
-     * @param limit Total number of workflows to retrieve
+     * Get workflow designs
+     * @param limit Total number of workflow designs to retrieve
      * @returns any Ok
      * @throws ApiError
      */
     @Cacheable()
-    public getWorkflows(limit: number = 2000): Promise<getWorkflowsResponseType> {
-        return this.getWorkflowsCancelable(limit).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
-    }
-
-    /**
-     * Get workflow design details
-     * @param workflowId Id of the workflow design
-     * @returns any Ok
-     * @throws ApiError
-     */
-    @Cacheable()
-    public getWorkflowDesignDetails(workflowId: string): Promise<getWorkflowDesignDetailsResponseType> {
-        return this.getWorkflowDesignDetailsCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    public getWorkflowDesigns(limit: number = 2000): Promise<getWorkflowDesignsResponseType> {
+        return this.getWorkflowDesignsCancelable(limit).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -342,14 +350,25 @@ payload: publishWorkflowPayload,
     }
 
     /**
-     * Get workflow source
+     * Get workflow
      * @param workflowId Id of the workflow
-     * @returns workflowSource Ok
+     * @returns workflow Ok
      * @throws ApiError
      */
     @Cacheable()
-    public getWorkflowSource(workflowId: string): Promise<workflowSource> {
-        return this.getWorkflowSourceCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    public getWorkflow(workflowId: string): Promise<workflow> {
+        return this.getWorkflowCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Delete draft workflow
+     * @param workflowId Id of the workflow
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public deleteDraftWorkflow(workflowId: string): Promise<any> {
+        return this.deleteDraftWorkflowCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
@@ -367,11 +386,32 @@ payload: publishWorkflowPayload,
      * Publish workflow
      * @param workflowId Id of the workflow
      * @param payload
-     * @returns workflowSource Ok
+     * @returns workflow Ok
      * @throws ApiError
      */
     @Cacheable()
-    public publishWorkflow(workflowId: string, payload: publishWorkflowPayload): Promise<workflowSource> {
+    public publishWorkflow(workflowId: string, payload: publishWorkflowPayload): Promise<workflow> {
         return this.publishWorkflowCancelable(workflowId, payload).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Delete published workflow
+     * @param workflowId Id of the workflow
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public deletePublishedWorkflow(workflowId: string): Promise<any> {
+        return this.deletePublishedWorkflowCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Get tenant users
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getTenantUsers(): Promise<getTenantUsersResponseType> {
+        return this.getTenantUsersCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 }

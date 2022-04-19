@@ -1,4 +1,4 @@
-import { tag, workflowSource } from "../../nwc";
+import { tag, workflow } from "../../nwc";
 import { Tag } from "../models/tag";
 import { Workflow } from "../models/workflow";
 
@@ -12,28 +12,28 @@ export class NwcModelBuilder {
         }
     );
 
-    public static workflowSource = (worklflow: Workflow): workflowSource => ({
-        author: worklflow.originalSource.author,
-        created: worklflow.originalSource.created,
-        creator: worklflow.originalSource.creator,
-        datasources: worklflow.originalSource.datasources,
+    public static workflowSource = (worklflow: Workflow): workflow => ({
+        author: worklflow._nwcObject.author,
+        created: worklflow._nwcObject.created,
+        creator: worklflow._nwcObject.creator,
+        datasources: worklflow._nwcObject.datasources,
         engineName: worklflow.engine!,
-        eventConfiguration: worklflow.originalSource.eventConfiguration,
+        eventConfiguration: worklflow._nwcObject.eventConfiguration,
         eventType: worklflow.eventType,
-        hasPermissions: worklflow.originalSource.hasPermissions,
+        hasPermissions: worklflow._nwcObject.hasPermissions,
         isActive: worklflow.isActive,
-        isDeleted: worklflow.originalSource.isDeleted,
-        isLatest: worklflow.originalSource.isLatest,
+        isDeleted: worklflow._nwcObject.isDeleted,
+        isLatest: worklflow._nwcObject.isLatest,
         isPublished: worklflow.isPublished,
-        lastEdited: worklflow.originalSource.lastEdited,
-        lastModified: worklflow.originalSource.lastModified,
-        lastPublished: worklflow.originalSource.lastPublished,
-        latestId: worklflow.originalSource.latestId,
-        permissions: worklflow.originalSource.permissions,
-        publishAuthor: worklflow.originalSource.publishAuthor,
-        publishRequestedBy: worklflow.originalSource.publishRequestedBy,
+        lastEdited: worklflow._nwcObject.lastEdited,
+        lastModified: worklflow._nwcObject.lastModified,
+        lastPublished: worklflow._nwcObject.lastPublished,
+        latestId: worklflow._nwcObject.latestId,
+        permissions: worklflow._nwcObject.permissions,
+        publishAuthor: worklflow._nwcObject.publishAuthor,
+        publishRequestedBy: worklflow._nwcObject.publishRequestedBy,
         publishedId: worklflow.publishedId,
-        startEvents: worklflow.originalSource.startEvents,
+        startEvents: worklflow._nwcObject.startEvents,
         status: worklflow.status!,
         tags: worklflow.tags.map((tag) => NwcModelBuilder.tag(tag)),
         version: worklflow.version!,

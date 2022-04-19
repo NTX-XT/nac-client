@@ -1,8 +1,8 @@
-import { workflowSource } from "../../nwc";
+import { workflow } from "../../nwc";
 import { FormDefinitionDetails } from "./formDefinitionDetails";
 import { WorkflowDefinitionDetails } from "./workflowDefinitionDetails";
-import { WorkflowInfo } from "./workflowInfo";
-export interface Workflow extends WorkflowInfo {
+import { WorkflowDesign } from "./workflowDesign";
+export interface Workflow extends WorkflowDesign {
     isActive: boolean;
     eventType?: string;
     isPublished: boolean;
@@ -14,6 +14,6 @@ export interface Workflow extends WorkflowInfo {
     type?: string;
     designVersion?: string;
     definition: WorkflowDefinitionDetails;
-    originalSource: workflowSource
+    _nwcObject: workflow
     startForm?: FormDefinitionDetails
 }
