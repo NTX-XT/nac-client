@@ -1,16 +1,16 @@
 import { AzureFunction, Context, HttpRequest } from '@azure/functions'
 import { getSdkTenant, getSdkTenantConnectionDetails, getTenant, getTenantConnectionDetails } from '@nwc-sdk/azure-functions-shared'
-import { isNotError, unWrapResponseOrThrow } from '@nwc-sdk/client'
+// import { isNotError, unWrapResponseOrThrow } from '@nwc-sdk/client'
 
 const workflows: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
 	const sdk = await getSdkTenant(getSdkTenantConnectionDetails(req))
 
 
-	const workflows = await sdk.getWorkflowInfos()
-	context.res = {
-		status: 200,
-		body: unWrapResponseOrThrow(workflows),
-	}
+	// const workflows = await sdk.getWorkflowDesigns()
+	// context.res = {
+	// 	status: 200,
+	// 	body: unWrapResponseOrThrow(workflows),
+	// }
 	// if (req.query.tag) {
 	// 	workflows = workflows.filter(workflow => {
 	// 		return workflow.tags!.find(tag => tag?.name === req.query.tag) !== undefined
