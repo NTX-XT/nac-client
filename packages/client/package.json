@@ -30,8 +30,8 @@
     },
     "homepage": "https://github.com/NTX-XT/nwc-sdk#readme",
     "dependencies": {
-        "@type-cacheable/core": "^10.0.3",
-        "@type-cacheable/node-cache-adapter": "^10.0.3",
+        "@type-cacheable/core": "^10.1.0",
+        "@type-cacheable/node-cache-adapter": "^10.0.4",
         "axios": "0.26.1",
         "cross-blob": "^3.0.0",
         "form-data": "^4.0.0",

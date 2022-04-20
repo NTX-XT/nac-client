@@ -13,6 +13,7 @@ import { SdkModelBuilder } from './builders/sdkModelBuilder'
 import { User } from './models/user'
 import { WorkflowPermissions } from './models/workflowPermissions'
 import { NwcModelBuilder } from './builders/nwcModelBuilder'
+import { CacheClear } from '@type-cacheable/core'
 export interface WorkflowsQueryOptions {
     tag?: string,
     name?: string,
@@ -32,6 +33,8 @@ const invalidContract: Contract = {
     id: invalidId,
     name: "(Invalid Contract)"
 }
+
+
 export class Sdk {
     private _tenant: Tenant
     private _nwc: Nwc
@@ -44,6 +47,7 @@ export class Sdk {
     }
 
     private constructor(tenant: Tenant) {
+
         this._tenant = tenant
         this._nwc = new Nwc({
             CREDENTIALS: "include",
@@ -60,6 +64,7 @@ export class Sdk {
     }
 
     private _initialiseCache = (): Promise<void> => {
+        this.clearCache()
         return Promise.all([this.getConnectors(), this.getContracts(), this.getTags()]).then(() =>
             Promise.resolve(this.getConnections()).then(() =>
                 Promise.resolve(this.getDatasources().then(() => Promise.resolve())
@@ -69,6 +74,12 @@ export class Sdk {
             console.log(error)
             Promise.reject(error)
         })
+    }
+
+    @CacheClear({ isPattern: true, cacheKey: '.' })
+    // TODO: Extremelly bad workaround until I find the right way to do it
+    public clearCache(): void {
+        const c = true
     }
 
     public static connectWithClientCredentials(credentials: ClientCredentials): Promise<Sdk> {
