@@ -148,13 +148,12 @@ export class Sdk {
     }
 
     public updateWorkflowPermissions(workflowId: string, permissions: WorkflowPermissions): Promise<void> {
-        return Promise.all([
-            this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.workflowOwners.map<permissionItem>((item) => NwcModelBuilder.permissionItem(item)) }),
-            this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.businessOwners.map<permissionItem>((item) => NwcModelBuilder.permissionItem(item)) })
-        ]).then(() => Promise.resolve())
+        return this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.workflowOwners.map<permissionItem>((item) => NwcModelBuilder.permissionItem(item)) })
+            .then(() => this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.businessOwners.map<permissionItem>((item) => NwcModelBuilder.permissionItem(item)) })
+                .then(() => Promise.resolve())
+                .catch((error) => Promise.reject(error)))
             .catch((error) => Promise.reject(error))
     }
-
 
     @Cacheable()
     public getUsers(): Promise<User[]> {
