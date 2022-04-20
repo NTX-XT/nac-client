@@ -1,6 +1,7 @@
-import { tag, workflow } from "../../nwc";
+import { permissionItem, tag, workflow } from "../../nwc";
 import { Tag } from "../models/tag";
 import { Workflow } from "../models/workflow";
+import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
 
 
 export class NwcModelBuilder {
@@ -11,6 +12,12 @@ export class NwcModelBuilder {
             colorIndex: tag.colorIndex
         }
     );
+
+    public static permissionItem = (permission: WorkflowPermissionItem): permissionItem => ({
+        id: permission.id,
+        name: permission.name,
+        type: permission.type
+    })
 
     public static workflowSource = (worklflow: Workflow): workflow => ({
         author: worklflow._nwcObject.author,

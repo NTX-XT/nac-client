@@ -1,5 +1,5 @@
 
-import { Nwc, ApiError, publishedWorkflowDetails, publishWorkflowPayload, user, tenantUser } from './../nwc'
+import { Nwc, ApiError, publishedWorkflowDetails, publishWorkflowPayload, user, tenantUser, permissionItem } from './../nwc'
 import { Connector } from "./models/connector"
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
@@ -11,6 +11,8 @@ import { Datasource } from './models/datasource';
 import { Cacheable } from '../cache'
 import { SdkModelBuilder } from './builders/sdkModelBuilder'
 import { User } from './models/user'
+import { WorkflowPermissions } from './models/workflowPermissions'
+import { NwcModelBuilder } from './builders/nwcModelBuilder'
 export interface WorkflowsQueryOptions {
     tag?: string,
     name?: string,
@@ -139,6 +141,21 @@ export class Sdk {
             .catch((error) => Promise.reject(error))
     }
 
+    public getWorkflowPermissions(workflowId: string): Promise<WorkflowPermissions> {
+        return Promise.all([this._nwc.default.getWorkflowOwners(workflowId), this._nwc.default.getWorkflowBusinessOwners(workflowId)])
+            .then((responses) => SdkModelBuilder.WorkflowPermissions(responses[0].permissions, responses[1].businessOwners))
+            .catch((error) => Promise.reject(error))
+    }
+
+    public updateWorkflowPermissions(workflowId: string, permissions: WorkflowPermissions): Promise<void> {
+        return Promise.all([
+            this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.workflowOwners.map<permissionItem>((item) => NwcModelBuilder.permissionItem(item)) }),
+            this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.businessOwners.map<permissionItem>((item) => NwcModelBuilder.permissionItem(item)) })
+        ]).then(() => Promise.resolve())
+            .catch((error) => Promise.reject(error))
+    }
+
+
     @Cacheable()
     public getUsers(): Promise<User[]> {
         return this._nwc.default.getTenantUsers()
@@ -146,9 +163,10 @@ export class Sdk {
             .catch((error) => Promise.reject(error))
     }
 
-    public deleteWorkflow(workflowId: string): void {
-        this._nwc.default.deleteDraftWorkflow(workflowId)
+    public deleteWorkflow(workflowId: string): Promise<void> {
+        return this._nwc.default.deleteDraftWorkflow(workflowId)
             .then(() => this._nwc.default.deletePublishedWorkflow(workflowId)
+                .then(() => Promise.resolve())
                 .catch((error: ApiError) => Promise.reject(error)))
             .catch((error: ApiError) => Promise.reject(error))
     }
@@ -238,6 +256,6 @@ export class Sdk {
             workflowType: workflow.type,
             workflowVersionComments: workflow.comments
         })
-            .then((responce) => responce)
+            .then((response) => response)
             .catch((error: ApiError) => Promise.reject(error))
 }

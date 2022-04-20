@@ -135,6 +135,7 @@
                         "description": "Ok",
                         "schema": {
                             "type": "object",
+                            "required": ["connectors"],
                             "properties": {
                                 "connectors": {
                                     "type": "array",
@@ -257,6 +258,7 @@
                         "description": "Ok",
                         "schema": {
                             "type": "object",
+                            "required": ["workflows"],
                             "properties": {
                                 "workflows": {
                                     "type": "array",
@@ -526,6 +528,7 @@
                         "description": "Ok",
                         "schema": {
                             "type": "object",
+                            "required": ["users"],
                             "properties": {
                                 "users": {
                                     "type": "array",
@@ -535,6 +538,136 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/designer_/api/workflows/{workflowId}/permissions": {
+            "get": {
+                "description": "Get workflow owners",
+                "operationId": "getWorkflowOwners",
+                "x-ntx-summary": "Get workflow owners",
+                "parameters": [{
+                    "name": "workflowId",
+                    "in": "path",
+                    "description": "Id of the workflow",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "required": ["permissions"],
+                            "properties": {
+                                "permissions": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/permissionItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Update workflow owners",
+                "operationId": "updateWorkflowOwners",
+                "x-ntx-summary": "Update workflow owners",
+                "parameters": [{
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "permissions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "permissions": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/permissionItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok"
+                    }
+                }
+            }
+        },
+        "/designer_/api/workflows/{workflowId}/owners/business": {
+            "get": {
+                "description": "Get workflow business owners",
+                "operationId": "getWorkflowBusinessOwners",
+                "x-ntx-summary": "Get workflow business owners",
+                "parameters": [{
+                    "name": "workflowId",
+                    "in": "path",
+                    "description": "Id of the workflow",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "required": ["businessOwners"],
+                            "properties": {
+                                "businessOwners": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/permissionItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Update workflow business owners",
+                "operationId": "updateWorkflowBusinessOwners",
+                "x-ntx-summary": "Update workflow business owners",
+                "parameters": [{
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "businessOwners",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "businessOwners": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/permissionItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok"
                     }
                 }
             }
@@ -550,6 +683,28 @@
         }
     },
     "definitions": {
+        "permissionItem": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "type"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "subtext": {
+                    "type": "string"
+                }
+            }
+        },
         "tenantUser": {
             "type": "object",
             "required": [

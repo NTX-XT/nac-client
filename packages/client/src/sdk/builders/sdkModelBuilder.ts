@@ -1,5 +1,5 @@
 import { Connector } from "../models/connector";
-import { connection, connector, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, tenantUser, workflowDesign } from "../../nwc";
+import { connection, connector, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, tenantUser, workflowDesign, permissionItem } from "../../nwc";
 import { Connection } from "../models/connection";
 import { Contract } from "../models/contract";
 import { Datasource } from "../models/datasource";
@@ -9,6 +9,8 @@ import { Tenant } from "../models/tenant";
 import { Tag } from "../models/tag";
 import { WorkflowDefinitionParser } from "./parsedWorkflowDefinition";
 import { User } from "../models/user";
+import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
+import { WorkflowPermissions } from "../models/workflowPermissions";
 
 
 export class SdkModelBuilder {
@@ -64,6 +66,18 @@ export class SdkModelBuilder {
         datasourceToken: datasourceToken,
         url: tenantInfo.tenancy_url!
     });
+
+    public static WorkflowPermissionItem = (item: permissionItem): WorkflowPermissionItem => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        email: item.subtext
+    })
+
+    public static WorkflowPermissions = (workflowOwners: permissionItem[], businessOwners: permissionItem[]): WorkflowPermissions => ({
+        workflowOwners: workflowOwners.map<WorkflowPermissionItem>((item) => SdkModelBuilder.WorkflowPermissionItem(item)),
+        businessOwners: businessOwners.map<WorkflowPermissionItem>((item) => SdkModelBuilder.WorkflowPermissionItem(item))
+    })
 
     public static Workflow = (source: workflow, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowDesign[]): Workflow => ({
         id: source.workflowId!,

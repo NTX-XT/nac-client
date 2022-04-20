@@ -7,6 +7,7 @@ import type { contract } from '../models/contract';
 import type { datasource } from '../models/datasource';
 import type { exportWorkflowResponse } from '../models/exportWorkflowResponse';
 import type { importWorkflowResponse } from '../models/importWorkflowResponse';
+import type { permissionItem } from '../models/permissionItem';
 import type { tag } from '../models/tag';
 import type { tagResponse } from '../models/tagResponse';
 import type { tenantConfiguration } from '../models/tenantConfiguration';
@@ -23,7 +24,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "../../cache";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -222,6 +223,58 @@ workflowId: string,
 		});
 	}
 
+	private getWorkflowOwnersCancelable(
+workflowId: string,
+): CancelablePromise<getWorkflowOwnersResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/workflows/{workflowId}/permissions',
+			path: {
+				'workflowId': workflowId,
+			},
+		});
+	}
+
+	private updateWorkflowOwnersCancelable(
+workflowId: string,
+permissions: updateWorkflowOwnersPermissions,
+): CancelablePromise<any> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/designer_/api/workflows/{workflowId}/permissions',
+			path: {
+				'workflowId': workflowId,
+			},
+			body: permissions,
+		});
+	}
+
+	private getWorkflowBusinessOwnersCancelable(
+workflowId: string,
+): CancelablePromise<getWorkflowBusinessOwnersResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/workflows/{workflowId}/owners/business',
+			path: {
+				'workflowId': workflowId,
+			},
+		});
+	}
+
+	private updateWorkflowBusinessOwnersCancelable(
+workflowId: string,
+businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
+): CancelablePromise<any> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/designer_/api/workflows/{workflowId}/owners/business',
+			path: {
+				'workflowId': workflowId,
+			},
+			body: businessOwners,
+		});
+	}
+
     /**
      * Retrieve authenitcation token
      * @param options
@@ -413,5 +466,51 @@ workflowId: string,
     @Cacheable()
     public getTenantUsers(): Promise<getTenantUsersResponseType> {
         return this.getTenantUsersCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Get workflow owners
+     * @param workflowId Id of the workflow
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getWorkflowOwners(workflowId: string): Promise<getWorkflowOwnersResponseType> {
+        return this.getWorkflowOwnersCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Update workflow owners
+     * @param workflowId Id of the workflow
+     * @param permissions
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public updateWorkflowOwners(workflowId: string, permissions: updateWorkflowOwnersPermissions): Promise<any> {
+        return this.updateWorkflowOwnersCancelable(workflowId, permissions).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Get workflow business owners
+     * @param workflowId Id of the workflow
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getWorkflowBusinessOwners(workflowId: string): Promise<getWorkflowBusinessOwnersResponseType> {
+        return this.getWorkflowBusinessOwnersCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Update workflow business owners
+     * @param workflowId Id of the workflow
+     * @param businessOwners
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public updateWorkflowBusinessOwners(workflowId: string, businessOwners: updateWorkflowBusinessOwnersBusinessOwners): Promise<any> {
+        return this.updateWorkflowBusinessOwnersCancelable(workflowId, businessOwners).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 }
