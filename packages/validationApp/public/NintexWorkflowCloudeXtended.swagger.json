@@ -21,9 +21,9 @@
         "/authentication/v1/token": {
             "post": {
                 "security": [],
-                "description": "Retrieve authenitcation token",
+                "description": "Retrieve authentication token",
                 "operationId": "getToken",
-                "x-ntx-summary": "Retrieve authenitcation token",
+                "x-ntx-summary": "Retrieve authentication token",
                 "parameters": [{
                     "name": "options",
                     "in": "body",
@@ -168,6 +168,28 @@
                 }
             }
         },
+        "/designer_/api/connections/{connectionId}/schema": {
+            "get": {
+                "description": "Get tenant connection schema",
+                "operationId": "getTenantConnectionSchema",
+                "x-ntx-summary": "Get tenant connection schema",
+                "parameters": [{
+                    "name": "connectionId",
+                    "in": "path",
+                    "description": "The connection Id",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/connectionSchema"
+                        }
+                    }
+                }
+            }
+        },
         "/designer_/datasources/get-datasource-token": {
             "get": {
                 "description": "Get datasource token",
@@ -237,6 +259,67 @@
                     },
                     "400": {
                         "description": "Failed"
+                    }
+                }
+            }
+        },
+        "/connection/api/v2/contracts/{contractId}": {
+            "get": {
+                "description": "Get tenant contract schema",
+                "operationId": "getTenantContractSchema",
+                "x-ntx-summary": "Get tenant contract schema",
+                "security": [{
+                    "datasources": []
+                }],
+                "parameters": [{
+                    "name": "contractId",
+                    "in": "path",
+                    "description": "The contracts Id",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Failed"
+                    }
+                }
+            }
+        },
+        "/connection/api/v1/connections": {
+            "post": {
+                "description": "Create connection",
+                "operationId": "createConnection",
+                "x-ntx-summary": "Create connection",
+                "parameters": [{
+                    "name": "appId",
+                    "in": "query",
+                    "description": "The app id of the contract the connection is using",
+                    "type": "string",
+                    "required": true
+                }, {
+                    "name": "properties",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object"
+                        }
                     }
                 }
             }
@@ -680,6 +763,13 @@
             "description": "Datasource authentication bearer token",
             "type": "string",
             "required": true
+        },
+        "connectionsToken": {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Connections authentication bearer token",
+            "type": "string",
+            "required": true
         }
     },
     "definitions": {
@@ -1083,6 +1173,70 @@
                 }
             }
         },
+        "connectionSchemaProperty": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "x-ntx-initial": {
+                    "type": "string"
+                },
+                "x-ntx-emit-undefined": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "string"
+                },
+                "format": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "title",
+                "default",
+                "type"
+            ]
+        },
+        "connectionSchema": {
+            "type": "object",
+            "required": [
+                "title",
+                "type",
+                "properties"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "properties": {
+                    "additionalProperties": {
+                        "$ref": "#/definitions/connectionSchemaProperty"
+                    }
+                },
+                "required": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ownership": {
+                    "type": "boolean"
+                }
+            }
+        },
         "actionDefinition": {
             "type": "object",
             "additionalProperties": true,
@@ -1222,7 +1376,8 @@
             "type": "object",
             "required": [
                 "id",
-                "name"
+                "name",
+                "appId"
             ],
             "properties": {
                 "id": {
