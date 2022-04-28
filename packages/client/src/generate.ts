@@ -25,7 +25,7 @@ function addCachingToNWCClient(project: Project) {
     const serviceClassFile = project.getSourceFileOrThrow(path.join(projectPath, `services/${serviceClassName}.ts`));
     const serviceClass = serviceClassFile.getClassOrThrow(serviceClassName);
     serviceClassFile.addImportDeclarations([{
-        moduleSpecifier: '../../cache',
+        moduleSpecifier: '@type-cacheable/core',
         namedImports: ["Cacheable"]
     }, {
         moduleSpecifier: '../core/ApiError',

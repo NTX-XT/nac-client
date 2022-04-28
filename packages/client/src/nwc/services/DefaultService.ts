@@ -23,7 +23,7 @@ import type { workflowStartEvent } from '../models/workflowStartEvent';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
-import { Cacheable } from "../../cache";
+import { Cacheable } from "@type-cacheable/core";
 import { ApiError } from "../core/ApiError";
 import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
 

@@ -1,5 +1,5 @@
 
-import { Nwc, ApiError, publishedWorkflowDetails, publishWorkflowPayload, user, tenantUser, permissionItem } from './../nwc'
+import { Nwc, ApiError, permissionItem } from './../nwc'
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
 import { Workflow } from './models/workflow'
@@ -7,13 +7,11 @@ import { Contract } from './models/contract'
 import { WorkflowDesign } from './models/workflowDesign'
 import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
-import { Cacheable } from '../cache'
 import { SdkModelBuilder } from './builders/sdkModelBuilder'
 import { User } from './models/user'
 import { WorkflowPermissions } from './models/workflowPermissions'
 import { NwcModelBuilder } from './builders/nwcModelBuilder'
-import { CacheClear } from '@type-cacheable/core'
-import { OpenAPIV2 } from 'openapi-types'
+import { CacheClear, CacheUpdate, Cacheable } from '@type-cacheable/core'
 export interface WorkflowsQueryOptions {
     tag?: string,
     name?: string,
@@ -177,7 +175,7 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
     }
 
-    @Cacheable()
+    @Cacheable({ cacheKey: "connection" })
     public getConnections(): Promise<Connection[]> {
         return Promise.all([this.getContracts(), this._nwc.default.getTenantConnections()])
             .then((results) =>
@@ -254,6 +252,14 @@ export class Sdk {
             .catch((error) => Promise.reject(error))
             .catch((error: ApiError) => Promise.reject(error))
 
+    @CacheUpdate({ cacheKey: "connection" })
+    public createConnection(contract: Contract, properties: Record<string, string>): Promise<Connection> {
+        return this._nwc.default.createConnection(contract.appId, properties).then((response) =>
+            this.getConnections()
+                .then((results) => results.find((cn) => cn.id === response)!)
+                .catch((error) => Promise.reject(error))
+                .catch((error) => Promise.reject(error)))
+    }
 
     public publishWorkflow = (workflow: Workflow) =>
         this._nwc.default.publishWorkflow(workflow.id, {

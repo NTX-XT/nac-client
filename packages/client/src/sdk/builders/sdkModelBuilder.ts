@@ -37,42 +37,14 @@ export class SdkModelBuilder {
         }
     })
 
-    public static Contract = (contract: contract, schema: OpenAPIV2.Document): Contract => {
-        const secDef = schema.securityDefinitions
-
-        if (secDef) {
-            const val = Object.values(schema.securityDefinitions!)[0]
-            if (val) {
-                const props = Object.values(schema.securityDefinitions!)[0]!["x-ntx-connection-properties"]
-                if (props) {
-                    try {
-                        const ss = Object.values(schema.securityDefinitions!)[0]!["x-ntx-connection-properties"].properties
-                    } catch {
-                        console.log(contract.name)
-                        const s = "break"
-                    }
-                } else {
-                    console.log(contract.name)
-                    const s = "break"
-                }
-            } else {
-                console.log(contract.name)
-                const s = "break"
-            }
-        } else {
-            console.log(contract.name)
-            const s = "break"
-        }
-
-        return ({
-            id: contract.id!,
-            name: contract.name!,
-            description: contract.description,
-            appId: contract.appId,
-            schema: schema,
-            connectionProperties: Object.values(schema.securityDefinitions!)[0]?.["x-ntx-connection-properties"]?.properties ?? {}
-        })
-    };
+    public static Contract = (contract: contract, schema: OpenAPIV2.Document): Contract => ({
+        id: contract.id!,
+        name: contract.name!,
+        description: contract.description,
+        appId: contract.appId,
+        schema: schema,
+        connectionProperties: Object.values(schema.securityDefinitions!)[0]?.["x-ntx-connection-properties"]?.properties ?? {}
+    })
 
     public static Datasource = (datasource: datasource, contracts: Contract[], connections: Connection[]): Datasource => ({
         id: datasource.id!,
