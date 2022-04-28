@@ -1,5 +1,4 @@
-import { Connector } from "../models/connector";
-import { connection, connector, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, tenantUser, workflowDesign, permissionItem } from "../../nwc";
+import { connection, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, tenantUser, workflowDesign, permissionItem, connectionSchema, connectionSchemaProperty } from "../../nwc";
 import { Connection } from "../models/connection";
 import { Contract } from "../models/contract";
 import { Datasource } from "../models/datasource";
@@ -11,27 +10,69 @@ import { WorkflowDefinitionParser } from "./parsedWorkflowDefinition";
 import { User } from "../models/user";
 import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
 import { WorkflowPermissions } from "../models/workflowPermissions";
+import { OpenAPIV2 } from 'openapi-types'
+import { ConnectionSchemaProperty } from "../models/connectionSchemaProperty";
 
 
 export class SdkModelBuilder {
-    public static Connector = (connector: connector): Connector => ({
-        id: connector.id!,
-        name: connector.name!,
-        enabled: connector.enabled!
-    });
-
-    public static Connection = (connection: connection, connectors: Connector[]): Connection => ({
+    public static Connection = (connection: connection, schema: connectionSchema, contracts: Contract[]): Connection => ({
         id: connection.id!,
         name: connection.displayName!,
         isValid: !(connection.isInvalid ?? false),
-        connector: connectors.find((connector) => connector.id === connection.contractId!)!
-    });
+        contract: contracts.find((contract) => contract.id === connection.contractId!)!,
+        schema: {
+            title: schema.title,
+            description: schema.description,
+            required: schema.required ?? [],
+            type: schema.type,
+            properties: (Object.assign({}, ...Object.keys(schema.properties).map<{ [key: string]: ConnectionSchemaProperty }>((key) => ({
+                [key]: {
+                    title: (schema.properties[key] as connectionSchemaProperty)!.title,
+                    type: (schema.properties[key] as connectionSchemaProperty)!.type,
+                    decription: (schema.properties[key] as connectionSchemaProperty)!.description,
+                    format: (schema.properties[key] as connectionSchemaProperty)!.format,
+                    value: (schema.properties[key] as connectionSchemaProperty)!.default
+                }
+            }))))
+        }
+    })
 
-    public static Contract = (contract: contract): Contract => ({
-        id: contract.id!,
-        name: contract.name!,
-        description: contract.description
-    });
+    public static Contract = (contract: contract, schema: OpenAPIV2.Document): Contract => {
+        const secDef = schema.securityDefinitions
+
+        if (secDef) {
+            const val = Object.values(schema.securityDefinitions!)[0]
+            if (val) {
+                const props = Object.values(schema.securityDefinitions!)[0]!["x-ntx-connection-properties"]
+                if (props) {
+                    try {
+                        const ss = Object.values(schema.securityDefinitions!)[0]!["x-ntx-connection-properties"].properties
+                    } catch {
+                        console.log(contract.name)
+                        const s = "break"
+                    }
+                } else {
+                    console.log(contract.name)
+                    const s = "break"
+                }
+            } else {
+                console.log(contract.name)
+                const s = "break"
+            }
+        } else {
+            console.log(contract.name)
+            const s = "break"
+        }
+
+        return ({
+            id: contract.id!,
+            name: contract.name!,
+            description: contract.description,
+            appId: contract.appId,
+            schema: schema,
+            connectionProperties: Object.values(schema.securityDefinitions!)[0]?.["x-ntx-connection-properties"]?.properties ?? {}
+        })
+    };
 
     public static Datasource = (datasource: datasource, contracts: Contract[], connections: Connection[]): Datasource => ({
         id: datasource.id!,
@@ -79,7 +120,7 @@ export class SdkModelBuilder {
         businessOwners: businessOwners.map<WorkflowPermissionItem>((item) => SdkModelBuilder.WorkflowPermissionItem(item))
     })
 
-    public static Workflow = (source: workflow, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowDesign[]): Workflow => ({
+    public static Workflow = (source: workflow, contracts: Contract[], connections: Connection[], workflowInfos: WorkflowDesign[]): Workflow => ({
         id: source.workflowId!,
         name: source.workflowName!,
         tags: source.tags!.map((tag) => SdkModelBuilder.Tag(tag)),
@@ -95,7 +136,7 @@ export class SdkModelBuilder {
         type: source.workflowType,
         comments: source.workflowVersionComments,
         _nwcObject: source,
-        definition: WorkflowDefinitionParser.parse(source.workflowDefinition, connectors, connections, workflowInfos)
+        definition: WorkflowDefinitionParser.parse(source.workflowDefinition, contracts, connections, workflowInfos)
     });
 
     public static User = (user: tenantUser): User => ({

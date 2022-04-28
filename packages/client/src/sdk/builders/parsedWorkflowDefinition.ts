@@ -1,11 +1,10 @@
 import { arrayToDictionary, ActionUtilities } from "../../utils";
 import { ActionInfo } from "../models/actionInfo";
 import { Connection } from "../models/connection";
-import { Connector } from "../models/connector";
 import { ConnectionActionConfigurationItemValue } from "../models/connectionActionConfigurationItemValue";
 import { ConnectionAction } from "../models/connectionAction";
 import { UsedConnection } from "../models/usedConnection";
-import { UsedConnector } from "../models/usedConnector";
+import { UsedContract } from "../models/usedContract";
 import { OpenAPIV2 } from 'openapi-types'
 import { WorkflowDependency } from "../models/workflowDependency";
 import { WorkflowDesign } from "../models/workflowDesign";
@@ -13,15 +12,16 @@ import { workflowDefinition } from "../../nwc/models/workflowDefinition"
 import { action } from "../../nwc/models/action";
 import { workflow } from "client/src/nwc";
 import { WorkflowDefinitionDetails } from "../models/workflowDefinitionDetails";
+import { Contract } from "../models/contract";
 
 export class WorkflowDefinitionParser {
-    public static parse(definition: string, connectors: Connector[], connections: Connection[], workflowInfos: WorkflowDesign[]): WorkflowDefinitionDetails {
+    public static parse(definition: string, contracts: Contract[], connections: Connection[], workflowInfos: WorkflowDesign[]): WorkflowDefinitionDetails {
         const _definition = JSON.parse(definition) as workflowDefinition
         const _actionsArray = ActionUtilities.flatten(_definition.actions)
         const _actionsDictionary = arrayToDictionary(_actionsArray, "id")
         const _actionInfos = _actionsArray.map<ActionInfo>((a) => ({ id: a.id, name: a.configuration.name }))
         const _dependencies = WorkflowDefinitionParser.resolveDependencies(_actionsArray, workflowInfos)
-        const _usedConnectors = WorkflowDefinitionParser.resolveConnections(_definition, _actionsDictionary, arrayToDictionary(Object.keys(_definition.inUseXtensions).map<UsedConnector>((connectorId) => (connectors.find((cn) => (cn.id === connectorId))!)), "id"), connections)
+        const _usedContracts = WorkflowDefinitionParser.resolveConnections(_definition, _actionsDictionary, arrayToDictionary(Object.keys(_definition.inUseXtensions).map<UsedContract>((contractId) => (contracts.find((cn) => (cn.id === contractId))!)), "id"), connections)
 
         return {
             definition: _definition,
@@ -29,7 +29,7 @@ export class WorkflowDefinitionParser {
             actionsArray: _actionsArray,
             actionsDictionary: _actionsDictionary,
             dependencies: _dependencies,
-            usedConnectors: _usedConnectors
+            usedContracts: _usedContracts
         }
     }
 
@@ -121,10 +121,10 @@ export class WorkflowDefinitionParser {
         return dependencies
     }
 
-    private static resolveConnections(definition: workflowDefinition, actionsDictionary: { [key: string]: action; }, usedConnectors: { [key: string]: UsedConnector }, connections: Connection[]) {
-        for (const connectorId of Object.keys(definition.inUseXtensions)) {
+    private static resolveConnections(definition: workflowDefinition, actionsDictionary: { [key: string]: action; }, usedContracts: { [key: string]: UsedContract }, connections: Connection[]) {
+        for (const contractId of Object.keys(definition.inUseXtensions)) {
             const foundConnections: UsedConnection[] = []
-            for (const actionId of definition.inUseXtensions[connectorId].usedByActionIds) {
+            for (const actionId of definition.inUseXtensions[contractId].usedByActionIds) {
                 const connection = WorkflowDefinitionParser.getActionConnection(actionsDictionary[actionId], connections)
                 if (connection) {
                     let usedConnection = foundConnections.find(uc => uc.id === connection.id)
@@ -134,7 +134,7 @@ export class WorkflowDefinitionParser {
                         foundConnections.push(usedConnection)
                     }
                     const operationId = actionsDictionary[actionId].configuration.xtension!.operationId
-                    const document: OpenAPIV2.Document = definition.inUseXtensions[connectorId].xtension as OpenAPIV2.Document
+                    const document: OpenAPIV2.Document = definition.inUseXtensions[contractId].xtension as OpenAPIV2.Document
                     const operation: OpenAPIV2.OperationObject = (WorkflowDefinitionParser.findOperation(document.paths, operationId)!)
                     const values = ActionUtilities.getXtensionInputValue(actionsDictionary[actionId])
                     const valuesDictionary: { [key: string]: { parameter: OpenAPIV2.Parameter, value: any } } = {}
@@ -165,13 +165,13 @@ export class WorkflowDefinitionParser {
                         })
                     }
                     usedConnection.actions!.push(actionInfo)
-                    if (usedConnectors[connectorId].connections === undefined) {
-                        usedConnectors[connectorId].connections = {}
+                    if (usedContracts[contractId].connections === undefined) {
+                        usedContracts[contractId].connections = {}
                     }
-                    usedConnectors[connectorId].connections![connection.id] = usedConnection
+                    usedContracts[contractId].connections![connection.id] = usedConnection
                 }
             }
         }
-        return usedConnectors
+        return usedContracts
     }
 }

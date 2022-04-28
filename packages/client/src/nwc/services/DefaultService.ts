@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { connection } from '../models/connection';
+import type { connectionSchema } from '../models/connectionSchema';
 import type { connector } from '../models/connector';
 import type { contract } from '../models/contract';
 import type { datasource } from '../models/datasource';
@@ -24,7 +25,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "../../cache";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -89,6 +90,18 @@ tenantId: string,
 		});
 	}
 
+	private getTenantConnectionSchemaCancelable(
+connectionId: string,
+): CancelablePromise<connectionSchema> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/connections/{connectionId}/schema',
+			path: {
+				'connectionId': connectionId,
+			},
+		});
+	}
+
 	private getDatasourceTokenCancelable(): CancelablePromise<getDatasourceTokenResponseType> {
 		return this.httpRequest.request({
 			method: 'GET',
@@ -115,6 +128,35 @@ includePublic: boolean = true,
 			errors: {
 				400: `Failed`,
 			},
+		});
+	}
+
+	private getTenantContractSchemaCancelable(
+contractId: string,
+): CancelablePromise<any> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/connection/api/v2/contracts/{contractId}',
+			path: {
+				'contractId': contractId,
+			},
+			errors: {
+				400: `Failed`,
+			},
+		});
+	}
+
+	private createConnectionCancelable(
+appId: string,
+properties: createConnectionProperties,
+): CancelablePromise<any> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/connection/api/v1/connections',
+			query: {
+				'appId': appId,
+			},
+			body: properties,
 		});
 	}
 
@@ -276,7 +318,7 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
 	}
 
     /**
-     * Retrieve authenitcation token
+     * Retrieve authentication token
      * @param options
      * @returns tokenResponse Ok
      * @throws ApiError
@@ -338,6 +380,17 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
     }
 
     /**
+     * Get tenant connection schema
+     * @param connectionId The connection Id
+     * @returns connectionSchema Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getTenantConnectionSchema(connectionId: string): Promise<connectionSchema> {
+        return this.getTenantConnectionSchemaCancelable(connectionId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
      * Get datasource token
      * @returns any Ok
      * @throws ApiError
@@ -366,6 +419,29 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
     @Cacheable()
     public getTenantContracts(includePublic: boolean = true): Promise<Array<contract>> {
         return this.getTenantContractsCancelable(includePublic).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Get tenant contract schema
+     * @param contractId The contracts Id
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getTenantContractSchema(contractId: string): Promise<any> {
+        return this.getTenantContractSchemaCancelable(contractId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Create connection
+     * @param appId The app id of the contract the connection is using
+     * @param properties
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public createConnection(appId: string, properties: createConnectionProperties): Promise<any> {
+        return this.createConnectionCancelable(appId, properties).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**

@@ -19,6 +19,7 @@ export type getTenantConnectorsResponseType = {connectors: Array<connector>;
     };
 export type getDatasourceTokenResponseType = {token?: string;
     };
+export type createConnectionProperties = Record<string, string>;
 export type getWorkflowDesignsResponseType = {workflows: Array<workflowDesign>;
     };
 export type exportWorkflowOptions = {

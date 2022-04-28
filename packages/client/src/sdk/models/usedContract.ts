@@ -1,7 +1,7 @@
-import { Connector } from "./connector";
+import { Contract } from "./contract";
 import { UsedConnection } from "./usedConnection";
 
 
-export interface UsedConnector extends Connector {
+export interface UsedContract extends Contract {
     connections?: { [key: string]: UsedConnection; };
 }

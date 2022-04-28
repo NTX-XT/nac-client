@@ -6,7 +6,7 @@ export type contract = {
 	id: string;
 	name: string;
 	description?: string;
-	appId?: string;
+	appId: string;
 	createdByUserId?: string;
 	timeStamp?: string;
 	createdDate?: string;

@@ -1,8 +1,10 @@
 import { ConnectionInfo } from "./connectionInfo";
-import { Connector } from "./connector";
+import { ConnectionSchema } from "./connectionSchema";
+import { Contract } from "./contract";
 
 export interface Connection extends ConnectionInfo {
-    connector: Connector
+    contract: Contract
+    schema: ConnectionSchema
 }
 
 

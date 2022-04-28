@@ -1,6 +1,5 @@
 
 import { Nwc, ApiError, publishedWorkflowDetails, publishWorkflowPayload, user, tenantUser, permissionItem } from './../nwc'
-import { Connector } from "./models/connector"
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
 import { Workflow } from './models/workflow'
@@ -14,6 +13,7 @@ import { User } from './models/user'
 import { WorkflowPermissions } from './models/workflowPermissions'
 import { NwcModelBuilder } from './builders/nwcModelBuilder'
 import { CacheClear } from '@type-cacheable/core'
+import { OpenAPIV2 } from 'openapi-types'
 export interface WorkflowsQueryOptions {
     tag?: string,
     name?: string,
@@ -23,17 +23,13 @@ export interface WorkflowsQueryOptions {
 export const invalidId = "undefined"
 const defaultBaseURL = (isTestTenant: boolean = false) => isTestTenant ? "https://us.nintextest.io" : "https://us.nintex.io"
 
-const invalidConnector: Connector = {
-    id: invalidId,
-    name: "(Invalid Connector)",
-    enabled: false
-}
-
 const invalidContract: Contract = {
     id: invalidId,
-    name: "(Invalid Contract)"
+    name: "(Invalid Contract)",
+    appId: "",
+    schema: { swagger: "2", "info": { title: "Invalid Contract", version: "1" }, paths: {} },
+    connectionProperties: {}
 }
-
 
 export class Sdk {
     private _tenant: Tenant
@@ -58,14 +54,14 @@ export class Sdk {
                 })
             },
             TOKEN: (options) => {
-                return Promise.resolve<string>(options.url.includes('datasources') ? this._tenant.datasourceToken! : this._tenant.token)
+                return Promise.resolve<string>(options.url.startsWith('/connection/api/') ? this._tenant.datasourceToken! : this._tenant.token)
             }
         })
     }
 
     private _initialiseCache = (): Promise<void> => {
         this.clearCache()
-        return Promise.all([this.getConnectors(), this.getContracts(), this.getTags()]).then(() =>
+        return Promise.all([this.getContracts(), this.getTags()]).then(() =>
             Promise.resolve(this.getConnections()).then(() =>
                 Promise.resolve(this.getDatasources().then(() => Promise.resolve())
                 ).catch((error: ApiError) => Promise.reject(error))
@@ -147,7 +143,7 @@ export class Sdk {
 
     @Cacheable()
     public getWorkflow(workflowId: string): Promise<Workflow> {
-        return Promise.all([this.getWorkflowDesigns(), this._nwc.default.getWorkflow(workflowId), this.getConnectors(), this.getConnections()])
+        return Promise.all([this.getWorkflowDesigns(), this._nwc.default.getWorkflow(workflowId), this.getContracts(), this.getConnections()])
             .then((responses) => SdkModelBuilder.Workflow(responses[1], responses[2], responses[3], responses[0]))
             .catch((error) => Promise.reject(error))
     }
@@ -182,25 +178,34 @@ export class Sdk {
     }
 
     @Cacheable()
-    public getConnectors(): Promise<Connector[]> {
-        return this._nwc.default.getTenantConnectors()
-            .then((response) => Promise.resolve(response.connectors!.map<Connector>((cn) => SdkModelBuilder.Connector(cn))))
-            .catch((error: ApiError) => Promise.reject(error))
-    }
-
-    @Cacheable()
     public getConnections(): Promise<Connection[]> {
-        return Promise.all([this.getConnectors(), this._nwc.default.getTenantConnections()]).then((results) =>
-            Promise.resolve(results[1].map<Connection>((cn) => SdkModelBuilder.Connection(cn, results[0]))))
+        return Promise.all([this.getContracts(), this._nwc.default.getTenantConnections()])
+            .then((results) =>
+                Promise.all(results[1].map<Promise<Connection>>((cn) =>
+                    this._nwc.default.getTenantConnectionSchema(cn.id)
+                        .then((schema) => SdkModelBuilder.Connection(cn, schema, results[0]))
+                        .catch((error: ApiError) => Promise.reject(error))
+                )))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable()
     public getContracts(): Promise<Contract[]> {
-        return this._nwc.default.getTenantContracts(true).then((response) =>
-            Promise.resolve(response.map<Contract>((cn) => SdkModelBuilder.Contract(cn))))
+        return this._nwc.default.getTenantContracts(true)
+            .then((response) =>
+                Promise.all(response.map<Promise<Contract>>((cn) =>
+                    this._nwc.default.getTenantContractSchema(cn.id)
+                        .then((schema) => SdkModelBuilder.Contract(cn, schema))
+                        .catch((error: ApiError) => Promise.reject(error))
+                )))
             .catch((error: ApiError) => Promise.reject(error))
     }
+
+    //         response.map<Contract>((cn) => (this._nwc.default.getTenantContractSchema(cn.id)
+    //             .then((schema) => SdkModelBuilder.Contract(cn, schema))
+    //             .catch((error: ApiError) => Promise.reject(error))))))
+    //         .catch((error: ApiError) => Promise.reject(error))
+    // }
 
     @Cacheable()
     public getDatasources(): Promise<Datasource[]> {
@@ -210,14 +215,14 @@ export class Sdk {
             }).catch((error: ApiError) => Promise.reject(error))
     }
 
-    public groupConnections(connections: Connection[]): Promise<Connector[]> {
-        const uniqueConnectorIds = connections.map((cn) => cn.connector?.id).filter((value, index, self) => self.indexOf(value) === index)
-        const invalidConnections = connections.filter((cn) => cn.connector === undefined)
-        return this.getConnectors()
-            .then((connectors) => {
-                const resolved = connectors.filter((cn) => uniqueConnectorIds.includes(cn.id))
+    public groupConnections(connections: Connection[]): Promise<Contract[]> {
+        const uniqueContractIds = connections.map((cn) => cn.contract?.id).filter((value, index, self) => self.indexOf(value) === index)
+        const invalidConnections = connections.filter((cn) => cn.contract === undefined)
+        return this.getContracts()
+            .then((contracts) => {
+                const resolved = contracts.filter((cn) => uniqueContractIds.includes(cn.id))
                 if (invalidConnections && invalidConnections.length > 0) {
-                    resolved.push(invalidConnector)
+                    resolved.push(invalidContract)
                 }
                 return Promise.resolve(resolved)
             }).catch((error: ApiError) => Promise.reject(error))
