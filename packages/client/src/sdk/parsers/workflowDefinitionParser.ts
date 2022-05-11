@@ -14,6 +14,7 @@ import { workflow } from "client/src/nwc";
 import { WorkflowDefinitionDetails } from "../models/workflowDefinitionDetails";
 import { Contract } from "../models/contract";
 
+
 export class WorkflowDefinitionParser {
     public static parse(definition: string, contracts: Contract[], connections: Connection[], workflowInfos: WorkflowDesign[]): WorkflowDefinitionDetails {
         const _definition = JSON.parse(definition) as workflowDefinition

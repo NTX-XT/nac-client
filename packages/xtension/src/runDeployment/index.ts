@@ -11,8 +11,8 @@
 
 import { AzureFunction, Context } from '@azure/functions'
 import { INWCPackageDeploymentOutcome, NWCPackageManager } from '@nwc-sdk/package'
-import { IDeploymentConfiguration, getTenant } from '@nwc-sdk/azure-functions-shared'
-import { INWCConnectionInfo } from 'sdk/dist'
+import { IDeploymentConfiguration, getTenant } from './../shared'
+
 
 const runDeployment: AzureFunction = async function (context: Context, config: IDeploymentConfiguration): Promise<INWCPackageDeploymentOutcome> {
 	const tenant = await getTenant(config.connectionDetails, true)

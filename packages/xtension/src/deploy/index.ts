@@ -1,6 +1,6 @@
 ﻿import * as df from 'durable-functions'
 import { AzureFunction, Context, HttpRequest } from '@azure/functions'
-import { IDeploymentConfiguration, IOrchestrationActivities, getTenant, getTenantConnectionDetails } from '@nwc-sdk/azure-functions-shared'
+import { IDeploymentConfiguration, IOrchestrationActivities, getTenant, getTenantConnectionDetails } from './../shared'
 import axios from 'axios'
 import { INWCPackage } from '@nwc-sdk/package'
 

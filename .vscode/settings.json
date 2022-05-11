@@ -10,5 +10,6 @@
   "appService.zipIgnorePattern": [
     "node_modules{,/**}",
     ".vscode{,/**}"
-  ]
+  ],
+  "appService.defaultWebAppToDeploy": "/subscriptions/f6e7b9c3-8ed4-42e8-9bae-82dae197de44/resourceGroups/leesis/providers/Microsoft.Web/sites/nwc-sdk-app"
 }

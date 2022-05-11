@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from '@azure/functions'
 import axios from 'axios'
 import { INWCPackage, INWCPackageWorkflow, NWCPackageManager } from '@nwc-sdk/package'
-import { getTenantConnectionDetails, IOrchestrationActivities, IPackagingConfiguration } from '@nwc-sdk/azure-functions-shared'
+import { getTenantConnectionDetails, IOrchestrationActivities, IPackagingConfiguration } from './../shared'
 import * as df from 'durable-functions'
 
 const nwcpackage: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {

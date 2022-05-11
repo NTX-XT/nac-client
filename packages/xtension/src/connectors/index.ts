@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from '@azure/functions'
-import { getTenant, getTenantConnectionDetails } from '@nwc-sdk/azure-functions-shared'
+import { getTenant, getTenantConnectionDetails } from './../shared'
 
 const connectors: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
 	const tenant = await getTenant(getTenantConnectionDetails(req))

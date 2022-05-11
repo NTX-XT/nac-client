@@ -1,7 +1,7 @@
-import { INWCPackage } from '@nwc-sdk/package'
-import { INWCConnectionInfo, INWCDataSource, NWCTenant, INWCClientAppCredentials } from '@nwc-sdk/sdk'
+import { INWCPackage } from "nwc-package"
+import { INWCClientAppCredentials, INWCConnectionInfo, INWCDataSource, NWCTenant } from "nwc-sdk"
 import { HttpRequest } from '@azure/functions'
-import { Sdk, ClientCredentials } from '@nwc-sdk/client'
+import { ClientCredentials, Sdk } from '@nwc-sdk/client'
 
 export interface INWCTenantConnectionDetails {
     clientId?: string

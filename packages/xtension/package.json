@@ -24,7 +24,6 @@
     },
     "dependencies": {
         "@azure/storage-blob": "^12.8.0",
-        "@nwc-sdk/azure-functions-shared": "^1.0.8",
         "@nwc-sdk/client": "^1.0.12",
         "axios": "0.26.1",
         "durable-functions": "^1.5.3",

@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from '@azure/functions'
-import { getSdkTenant, getSdkTenantConnectionDetails, getTenant, getTenantConnectionDetails } from '@nwc-sdk/azure-functions-shared'
+import { getSdkTenant, getSdkTenantConnectionDetails, getTenant, getTenantConnectionDetails } from './../shared'
 // import { isNotError, unWrapResponseOrThrow } from '@nwc-sdk/client'
 
 const workflows: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {

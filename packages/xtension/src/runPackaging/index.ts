@@ -12,7 +12,7 @@
 import { AzureFunction, Context } from '@azure/functions'
 import { BlobServiceClient } from '@azure/storage-blob'
 import { NWCPackageManager } from '@nwc-sdk/package'
-import { IPackagingConfiguration, getTenant } from '@nwc-sdk/azure-functions-shared'
+import { IPackagingConfiguration, getTenant } from './../shared'
 
 const runPackaging: AzureFunction = async function (context: Context, config: IPackagingConfiguration): Promise<string> {
 	const tenant = await getTenant(config.connectionDetails, true)

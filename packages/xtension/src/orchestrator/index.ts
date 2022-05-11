@@ -10,7 +10,7 @@
  */
 
 import * as df from 'durable-functions'
-import { IOrchestrationActivities } from '@nwc-sdk/azure-functions-shared'
+import { IOrchestrationActivities } from './../shared'
 
 const orchestrator = df.orchestrator(function* (context) {
 	const outputs: any[] = []

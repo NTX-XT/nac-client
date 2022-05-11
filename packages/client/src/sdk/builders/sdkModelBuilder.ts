@@ -6,7 +6,7 @@ import { WorkflowDesign } from "../models/workflowDesign";
 import { Workflow } from "../models/workflow";
 import { Tenant } from "../models/tenant";
 import { Tag } from "../models/tag";
-import { WorkflowDefinitionParser } from "./parsedWorkflowDefinition";
+import { WorkflowDefinitionParser } from "../parsers/workflowDefinitionParser";
 import { User } from "../models/user";
 import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
 import { WorkflowPermissions } from "../models/workflowPermissions";
