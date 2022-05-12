@@ -13,7 +13,7 @@ export interface Workflow extends WorkflowDesign {
     comments?: string;
     type?: string;
     designVersion?: string;
-    definition: WorkflowDefinitionDetails;
-    _nwcObject: workflow
-    startForm?: FormDefinitionDetails
+    // definition: WorkflowDefinitionDetails;
+    // _nwcObject: workflow
+    // startForm?: FormDefinitionDetails
 }

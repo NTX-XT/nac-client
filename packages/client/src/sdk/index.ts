@@ -1,6 +1,5 @@
 export { Sdk, invalidId } from './client'
 export type { ClientCredentials } from "./models/clientCredentials"
-export type { ConnectionInfo } from './models/connectionInfo'
 export type { Connection } from './models/connection'
 export type { Datasource } from './models/datasource'
 export type { Tenant } from './models/tenant'
@@ -13,4 +12,6 @@ export type { ConnectionActionConfigurationItemValue } from './models/connection
 export type { UsedConnection } from './models/usedConnection'
 export type { UsedContract } from './models/usedContract'
 export type { ConnectionAction } from './models/connectionAction'
+export type { ConnectionSchema } from './models/connectionSchema'
+export type { ConnectionProperty } from './models/connectionProperty'
 

@@ -12,6 +12,10 @@ import { User } from './models/user'
 import { WorkflowPermissions } from './models/workflowPermissions'
 import { NwcModelBuilder } from './builders/nwcModelBuilder'
 import { CacheClear, CacheUpdate, Cacheable } from '@type-cacheable/core'
+import { OpenAPIV2 } from 'openapi-types'
+import { ConnectionSchema } from './models/connectionSchema'
+import { ConnectionProperty } from './models/connectionProperty'
+
 export interface WorkflowsQueryOptions {
     tag?: string,
     name?: string,
@@ -25,8 +29,6 @@ const invalidContract: Contract = {
     id: invalidId,
     name: "(Invalid Contract)",
     appId: "",
-    schema: { swagger: "2", "info": { title: "Invalid Contract", version: "1" }, paths: {} },
-    connectionProperties: {}
 }
 
 export class Sdk {
@@ -106,9 +108,6 @@ export class Sdk {
                         const dataSourceTokenRequestResult = responses[1]
                         const tenant: Tenant = SdkModelBuilder.Tenant(tenantInfoRequestResponse, tenantConfigurationRequestResult, token, dataSourceTokenRequestResult.token!)
                         const client = new Sdk(tenant)
-                        // return service._initialiseCache()
-                        //     .then(() => Promise.resolve(service))
-                        //     .catch((error: ApiError) => Promise.reject(error))
                         return client
                     })
                     .catch((error: ApiError) => Promise.reject(error))
@@ -116,14 +115,14 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
     }
 
-    @Cacheable()
+    @Cacheable({ cacheKey: "tags" })
     public getTags(): Promise<string[]> {
         return this._nwc.default.getTenantTags().then((response) => {
             return Promise.resolve(response.resource!.map<string>((tag) => tag.name!))
         }).catch((error: ApiError) => Promise.reject(error))
     }
 
-    @Cacheable()
+    @Cacheable({ cacheKey: "workflowDesigns" })
     public getWorkflowDesigns(options: WorkflowsQueryOptions = {}): Promise<WorkflowDesign[]> {
         return this._nwc.default.getWorkflowDesigns(2000).then((response) => {
             let workflowInfos = response.workflows!.map<WorkflowDesign>((wfl) => SdkModelBuilder.WorkflowDesign(wfl))
@@ -140,10 +139,10 @@ export class Sdk {
         }).catch((error: ApiError) => Promise.reject(error))
     }
 
-    @Cacheable()
+    @Cacheable({ cacheKey: "workflow" })
     public getWorkflow(workflowId: string): Promise<Workflow> {
-        return Promise.all([this.getWorkflowDesigns(), this._nwc.default.getWorkflow(workflowId), this.getContracts(), this.getConnections()])
-            .then((responses) => SdkModelBuilder.Workflow(responses[1], responses[2], responses[3], responses[0]))
+        return this._nwc.default.getWorkflow(workflowId)
+            .then((workflow) => SdkModelBuilder.Workflow(workflow))
             .catch((error) => Promise.reject(error))
     }
 
@@ -161,7 +160,7 @@ export class Sdk {
             .catch((error) => Promise.reject(error))
     }
 
-    @Cacheable()
+    @Cacheable({ cacheKey: "users" })
     public getUsers(): Promise<User[]> {
         return this._nwc.default.getTenantUsers()
             .then((response) => response.users!.map<User>((tenantUser) => SdkModelBuilder.User(tenantUser)))
@@ -176,69 +175,82 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
     }
 
-    @Cacheable({ cacheKey: "connection" })
+    @Cacheable({ cacheKey: "connections" })
     public getConnections(): Promise<Connection[]> {
-        return Promise.all([this.getContracts(), this._nwc.default.getTenantConnections()])
-            .then((results) =>
-                Promise.all(results[1].map<Promise<Connection>>((cn) =>
-                    this._nwc.default.getTenantConnectionSchema(cn.id)
-                        .then((schema) => SdkModelBuilder.Connection(cn, schema, results[0]))
-                        .catch((error: ApiError) => Promise.reject(error))
-                )))
+        return this._nwc.default.getTenantConnections()
+            .then((connections) => connections.map<Connection>(cn => SdkModelBuilder.Connection(cn)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
-    @Cacheable()
+    @Cacheable({ cacheKey: "connection" })
+    public getConnection(connectionId: string): Promise<Connection> {
+        return this.getConnections()
+            .then((connections) => connections.filter(cn => cn.id === connectionId)[0])
+            .catch((error: ApiError) => Promise.reject(error))
+    }
+
+    @Cacheable({ cacheKey: "connectionSchema" })
+    public getConnectionSchema(connectionId: string): Promise<ConnectionSchema> {
+        return this._nwc.default.getTenantConnectionSchema(connectionId)
+            .then((schema) => SdkModelBuilder.ConnectionSchema(schema))
+            .catch((error: ApiError) => Promise.reject(error))
+    }
+
+    @Cacheable({ cacheKey: "contracts" })
     public getContracts(): Promise<Contract[]> {
         return this._nwc.default.getTenantContracts(true)
-            .then((response) =>
-                Promise.all(response.map<Promise<Contract>>((cn) =>
-                    this._nwc.default.getTenantContractSchema(cn.id)
-                        .then((schema) => SdkModelBuilder.Contract(cn, schema))
-                        .catch((error: ApiError) => Promise.reject(error))
-                )))
+            .then((contracts) => contracts.map<Contract>(cn => SdkModelBuilder.Contract(cn)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
-    //         response.map<Contract>((cn) => (this._nwc.default.getTenantContractSchema(cn.id)
-    //             .then((schema) => SdkModelBuilder.Contract(cn, schema))
-    //             .catch((error: ApiError) => Promise.reject(error))))))
-    //         .catch((error: ApiError) => Promise.reject(error))
+    @Cacheable({ cacheKey: "contractSchema" })
+    public getContractSchema(contractId: string): Promise<OpenAPIV2.Document> {
+        return this._nwc.default.getTenantContractSchema(contractId)
+            .then((response) => JSON.parse(response) as OpenAPIV2.Document)
+            .catch((error: ApiError) => Promise.reject(error))
+    }
+
+    @Cacheable({ cacheKey: "connectionProperties" })
+    public getConnectionProperties(contractId: string): Promise<{ [key: string]: ConnectionProperty }> {
+        return this.getContractSchema(contractId)
+            .then((schema) => Object.values(schema.securityDefinitions!)[0]?.["x-ntx-connection-properties"]?.properties ?? {})
+            .catch((error: ApiError) => Promise.reject(error))
+    }
+
+    @Cacheable({ cacheKey: "datasources" })
+    public getDatasources(): Promise<Datasource[]> {
+        return this._nwc.default.getTenantDatasources()
+            .then((datasources) => datasources.map<Datasource>(datasource => SdkModelBuilder.Datasource(datasource)))
+            .catch((error: ApiError) => Promise.reject(error))
+    }
+
+
+
+    // public groupConnections(connections: Connection[]): Promise<Contract[]> {
+    //     const uniqueContractIds = connections.map((cn) => cn.contract?.id).filter((value, index, self) => self.indexOf(value) === index)
+    //     const invalidConnections = connections.filter((cn) => cn.contract === undefined)
+    //     return this.getContracts()
+    //         .then((contracts) => {
+    //             const resolved = contracts.filter((cn) => uniqueContractIds.includes(cn.id))
+    //             if (invalidConnections && invalidConnections.length > 0) {
+    //                 resolved.push(invalidContract)
+    //             }
+    //             return Promise.resolve(resolved)
+    //         }).catch((error: ApiError) => Promise.reject(error))
     // }
 
-    @Cacheable()
-    public getDatasources(): Promise<Datasource[]> {
-        return Promise.all([this.getConnections(), this.getContracts(), this._nwc.default.getTenantDatasources()])
-            .then((results) => {
-                return Promise.resolve(results[2].map<Datasource>((ds) => SdkModelBuilder.Datasource(ds, results[1], results[0])))
-            }).catch((error: ApiError) => Promise.reject(error))
-    }
-
-    public groupConnections(connections: Connection[]): Promise<Contract[]> {
-        const uniqueContractIds = connections.map((cn) => cn.contract?.id).filter((value, index, self) => self.indexOf(value) === index)
-        const invalidConnections = connections.filter((cn) => cn.contract === undefined)
-        return this.getContracts()
-            .then((contracts) => {
-                const resolved = contracts.filter((cn) => uniqueContractIds.includes(cn.id))
-                if (invalidConnections && invalidConnections.length > 0) {
-                    resolved.push(invalidContract)
-                }
-                return Promise.resolve(resolved)
-            }).catch((error: ApiError) => Promise.reject(error))
-    }
-
-    public groupDatasources(datasources: Datasource[]): Promise<Contract[]> {
-        const uniqueIds = datasources.map((ds) => ds.contract?.id).filter((value, index, self) => self.indexOf(value) === index)
-        const invalids = datasources.filter((ds) => ds.contract === undefined)
-        return this.getContracts()
-            .then((contracts) => {
-                const resolved = contracts.filter((cn) => uniqueIds.includes(cn.id))
-                if (invalids && invalids.length > 0) {
-                    resolved.push(invalidContract)
-                }
-                return Promise.resolve(resolved)
-            }).catch((error: ApiError) => Promise.reject(error))
-    }
+    // public groupDatasources(datasources: Datasource[]): Promise<Contract[]> {
+    //     const uniqueIds = datasources.map((ds) => ds.contract?.id).filter((value, index, self) => self.indexOf(value) === index)
+    //     const invalids = datasources.filter((ds) => ds.contract === undefined)
+    //     return this.getContracts()
+    //         .then((contracts) => {
+    //             const resolved = contracts.filter((cn) => uniqueIds.includes(cn.id))
+    //             if (invalids && invalids.length > 0) {
+    //                 resolved.push(invalidContract)
+    //             }
+    //             return Promise.resolve(resolved)
+    //         }).catch((error: ApiError) => Promise.reject(error))
+    // }
 
     public exportWorkflow = (id: string, withNonExpiringKey: boolean = true): Promise<string> =>
         this._nwc.default.exportWorkflow(id, { isNonExpiring: withNonExpiringKey })
@@ -255,29 +267,29 @@ export class Sdk {
 
     @CacheUpdate({ cacheKey: "connection" })
     public createConnection(contract: Contract, properties: Record<string, string>): Promise<Connection> {
-        return this._nwc.default.createConnection(contract.appId, properties).then((response) =>
-            this.getConnections()
+        return this._nwc.default.createConnection(contract.appId, properties)
+            .then((response) => this.getConnections()
                 .then((results) => results.find((cn) => cn.id === response)!)
                 .catch((error) => Promise.reject(error))
                 .catch((error) => Promise.reject(error)))
     }
 
-    public publishWorkflow = (workflow: Workflow) =>
-        this._nwc.default.publishWorkflow(workflow.id, {
-            author: workflow._nwcObject.author,
-            datasources: workflow._nwcObject.datasources,
-            engineName: workflow._nwcObject.engineName,
-            permissions: workflow._nwcObject.permissions,
-            startEvents: workflow._nwcObject.startEvents,
-            tags: workflow._nwcObject.tags,
-            version: workflow.version,
-            workflowDefinition: workflow._nwcObject.workflowDefinition,
-            workflowDescription: workflow.description,
-            workflowDesignParentVersion: workflow.designVersion,
-            workflowName: workflow.name,
-            workflowType: workflow.type,
-            workflowVersionComments: workflow.comments
-        })
-            .then((response) => response)
-            .catch((error: ApiError) => Promise.reject(error))
+    // public publishWorkflow = (workflow: Workflow) =>
+    //     this._nwc.default.publishWorkflow(workflow.id, {
+    //         author: workflow._nwcObject.author,
+    //         datasources: workflow._nwcObject.datasources,
+    //         engineName: workflow._nwcObject.engineName,
+    //         permissions: workflow._nwcObject.permissions,
+    //         startEvents: workflow._nwcObject.startEvents,
+    //         tags: workflow._nwcObject.tags,
+    //         version: workflow.version,
+    //         workflowDefinition: workflow._nwcObject.workflowDefinition,
+    //         workflowDescription: workflow.description,
+    //         workflowDesignParentVersion: workflow.designVersion,
+    //         workflowName: workflow.name,
+    //         workflowType: workflow.type,
+    //         workflowVersionComments: workflow.comments
+    //     })
+    //         .then((response) => response)
+    //         .catch((error: ApiError) => Promise.reject(error))
 }

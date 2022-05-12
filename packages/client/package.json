@@ -37,6 +37,7 @@
         "form-data": "^4.0.0",
         "json-schema-traverse": "^1.0.0",
         "node-cache": "^5.1.2",
+        "openapi-types": "^11.0.0",
         "ts-morph": "^14.0.0"
     },
     "devDependencies": {

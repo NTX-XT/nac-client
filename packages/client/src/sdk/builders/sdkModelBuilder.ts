@@ -6,53 +6,53 @@ import { WorkflowDesign } from "../models/workflowDesign";
 import { Workflow } from "../models/workflow";
 import { Tenant } from "../models/tenant";
 import { Tag } from "../models/tag";
-import { WorkflowDefinitionParser } from "../parsers/workflowDefinitionParser";
 import { User } from "../models/user";
 import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
 import { WorkflowPermissions } from "../models/workflowPermissions";
 import { OpenAPIV2 } from 'openapi-types'
-import { ConnectionSchemaProperty } from "../models/connectionSchemaProperty";
+import { ConnectionProperty } from "../models/connectionProperty";
+import { ConnectionSchema } from "../models/connectionSchema";
+
 
 
 export class SdkModelBuilder {
-    public static Connection = (connection: connection, schema: connectionSchema, contracts: Contract[]): Connection => ({
-        id: connection.id!,
-        name: connection.displayName!,
+    public static Connection = (connection: connection): Connection => ({
+        id: connection.id,
+        name: connection.displayName,
         isValid: !(connection.isInvalid ?? false),
-        contract: contracts.find((contract) => contract.id === connection.contractId!)!,
-        schema: {
-            title: schema.title,
-            description: schema.description,
-            required: schema.required ?? [],
-            type: schema.type,
-            properties: (Object.assign({}, ...Object.keys(schema.properties).map<{ [key: string]: ConnectionSchemaProperty }>((key) => ({
-                [key]: {
-                    title: (schema.properties[key] as connectionSchemaProperty)!.title,
-                    type: (schema.properties[key] as connectionSchemaProperty)!.type,
-                    decription: (schema.properties[key] as connectionSchemaProperty)!.description,
-                    format: (schema.properties[key] as connectionSchemaProperty)!.format,
-                    value: (schema.properties[key] as connectionSchemaProperty)!.default
-                }
-            }))))
-        }
+        contractId: connection.contractId
     })
 
-    public static Contract = (contract: contract, schema: OpenAPIV2.Document): Contract => ({
+    public static ConnectionSchema = (schema: connectionSchema): ConnectionSchema => ({
+        title: schema.title,
+        description: schema.description,
+        required: schema.required ?? [],
+        type: schema.type,
+        properties: Object.assign({}, ...Object.keys(schema.properties).map<{ [key: string]: ConnectionProperty }>((key) => ({
+            [key]: {
+                title: (schema.properties[key] as connectionSchemaProperty)!.title,
+                type: (schema.properties[key] as connectionSchemaProperty)!.type,
+                decription: (schema.properties[key] as connectionSchemaProperty)!.description,
+                format: (schema.properties[key] as connectionSchemaProperty)!.format,
+                value: (schema.properties[key] as connectionSchemaProperty)!.default
+            }
+        })))
+    })
+
+    public static Contract = (contract: contract): Contract => ({
         id: contract.id!,
         name: contract.name!,
         description: contract.description,
-        appId: contract.appId,
-        schema: schema,
-        connectionProperties: Object.values(schema.securityDefinitions!)[0]?.["x-ntx-connection-properties"]?.properties ?? {}
+        appId: contract.appId
     })
 
-    public static Datasource = (datasource: datasource, contracts: Contract[], connections: Connection[]): Datasource => ({
-        id: datasource.id!,
-        name: datasource.name!,
-        contract: contracts.find((contract) => contract.id === datasource.contractId!)!,
-        connection: (datasource.connectionId === undefined) ? undefined : connections.find((connection) => connection.id === datasource.connectionId!)!,
-        operationId: datasource.operationId
-    });
+    public static Datasource = (datasource: datasource): Datasource => ({
+        id: datasource.id,
+        name: datasource.name,
+        contractId: datasource.contractId,
+        operationId: datasource.operationId,
+        connectionId: datasource.connectionId
+    })
 
     public static Tag = (tag: tag): Tag => ({
         name: tag.name,
@@ -92,7 +92,7 @@ export class SdkModelBuilder {
         businessOwners: businessOwners.map<WorkflowPermissionItem>((item) => SdkModelBuilder.WorkflowPermissionItem(item))
     })
 
-    public static Workflow = (source: workflow, contracts: Contract[], connections: Connection[], workflowInfos: WorkflowDesign[]): Workflow => ({
+    public static Workflow = (source: workflow): Workflow => ({
         id: source.workflowId!,
         name: source.workflowName!,
         tags: source.tags!.map((tag) => SdkModelBuilder.Tag(tag)),
@@ -107,9 +107,10 @@ export class SdkModelBuilder {
         designVersion: source.workflowDesignVersion,
         type: source.workflowType,
         comments: source.workflowVersionComments,
-        _nwcObject: source,
-        definition: WorkflowDefinitionParser.parse(source.workflowDefinition, contracts, connections, workflowInfos)
-    });
+    }
+        // _nwcObject: source,
+        // definition: WorkflowDefinitionParser.parse(source.workflowDefinition, contracts, connections, workflowInfos)
+    );
 
     public static User = (user: tenantUser): User => ({
         id: user.id,

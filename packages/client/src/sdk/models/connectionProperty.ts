@@ -1,5 +1,5 @@
 
-export interface ConnectionSchemaProperty {
+export interface ConnectionProperty {
     title: string;
     value?: string;
     type: string;
