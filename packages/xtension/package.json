@@ -4,16 +4,7 @@
     "description": "NWC Xtension for the experimental NWC SDK",
     "homepage": "",
     "license": "ISC",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "typings": "dist/index.d.ts",
     "private": true,
-    "directories": {
-        "dist": "dist"
-    },
-    "files": [
-        "dist"
-    ],
     "scripts": {
         "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
         "build": "tsc",

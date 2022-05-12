@@ -57,18 +57,18 @@ export class Sdk {
         })
     }
 
-    private _initialiseCache = (): Promise<void> => {
-        this.clearCache()
-        return Promise.all([this.getContracts(), this.getTags()]).then(() =>
-            Promise.resolve(this.getConnections()).then(() =>
-                Promise.resolve(this.getDatasources().then(() => Promise.resolve())
-                ).catch((error: ApiError) => Promise.reject(error))
-            ).catch((error: ApiError) => Promise.reject(error))
-        ).catch((error: ApiError) => {
-            console.log(error)
-            Promise.reject(error)
-        })
-    }
+    // private _initialiseCache = (): Promise<void> => {
+    //     this.clearCache()
+    //     return Promise.all([this.getContracts(), this.getTags()]).then(() =>
+    //         Promise.resolve(this.getConnections()).then(() =>
+    //             Promise.resolve(this.getDatasources().then(() => Promise.resolve())
+    //             ).catch((error: ApiError) => Promise.reject(error))
+    //         ).catch((error: ApiError) => Promise.reject(error))
+    //     ).catch((error: ApiError) => {
+    //         console.log(error)
+    //         Promise.reject(error)
+    //     })
+    // }
 
     @CacheClear({ isPattern: true, cacheKey: '.' })
     // TODO: Extremelly bad workaround until I find the right way to do it
@@ -105,10 +105,11 @@ export class Sdk {
                         const tenantInfoRequestResponse = responses[0]
                         const dataSourceTokenRequestResult = responses[1]
                         const tenant: Tenant = SdkModelBuilder.Tenant(tenantInfoRequestResponse, tenantConfigurationRequestResult, token, dataSourceTokenRequestResult.token!)
-                        const service = new Sdk(tenant)
-                        return service._initialiseCache()
-                            .then(() => Promise.resolve(service))
-                            .catch((error: ApiError) => Promise.reject(error))
+                        const client = new Sdk(tenant)
+                        // return service._initialiseCache()
+                        //     .then(() => Promise.resolve(service))
+                        //     .catch((error: ApiError) => Promise.reject(error))
+                        return client
                     })
                     .catch((error: ApiError) => Promise.reject(error))
             })
