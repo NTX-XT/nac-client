@@ -1,6 +1,6 @@
 {
   "name": "nwc-explorer",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Experimental Visual Stidio Code extension to browse your Nintex Workflow Cloud tenantsm",
   "homepage": "",
   "license": "ISC",
@@ -131,7 +131,7 @@
     }
   },
   "dependencies": {
-    "@nwc-sdk/client": "^1.0.14",
+    "@nwc-sdk/client": "^1.0.15",
     "@vscode/codicons": "^0.0.27",
     "uuid": "^8.3.2"
   },
