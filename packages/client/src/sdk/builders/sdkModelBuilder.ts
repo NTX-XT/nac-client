@@ -107,6 +107,7 @@ export class SdkModelBuilder {
         designVersion: source.workflowDesignVersion,
         type: source.workflowType,
         comments: source.workflowVersionComments,
+        _nwcObject: source
     }
         // _nwcObject: source,
         // definition: WorkflowDefinitionParser.parse(source.workflowDefinition, contracts, connections, workflowInfos)
