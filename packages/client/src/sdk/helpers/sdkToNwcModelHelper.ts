@@ -4,7 +4,7 @@ import { Workflow } from "../models/workflow";
 import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
 
 
-export class NwcModelBuilder {
+export class SdkToNwcModelHelper {
     public static tag = (tag: Tag): tag => (
         {
             name: tag.name,

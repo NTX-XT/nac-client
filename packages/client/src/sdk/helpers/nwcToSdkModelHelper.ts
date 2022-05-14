@@ -13,9 +13,7 @@ import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionProperty } from "../models/connectionProperty";
 import { ConnectionSchema } from "../models/connectionSchema";
 
-
-
-export class SdkModelBuilder {
+export class NwcToSdkModelHelper {
     public static Connection = (connection: connection): Connection => ({
         id: connection.id,
         name: connection.displayName,
@@ -65,7 +63,7 @@ export class SdkModelBuilder {
         id: workflowDesign.id!,
         name: workflowDesign.name!,
         engine: workflowDesign.engine,
-        tags: workflowDesign.tags!.map((tag) => SdkModelBuilder.Tag(tag))
+        tags: workflowDesign.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag))
     });
 
     public static Tenant = (tenantInfo: tenantInfo, tenantConfiguration: tenantConfiguration, token: string, datasourceToken: string): Tenant => ({
@@ -88,14 +86,14 @@ export class SdkModelBuilder {
     })
 
     public static WorkflowPermissions = (workflowOwners: permissionItem[], businessOwners: permissionItem[]): WorkflowPermissions => ({
-        workflowOwners: workflowOwners.map<WorkflowPermissionItem>((item) => SdkModelBuilder.WorkflowPermissionItem(item)),
-        businessOwners: businessOwners.map<WorkflowPermissionItem>((item) => SdkModelBuilder.WorkflowPermissionItem(item))
+        workflowOwners: workflowOwners.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item)),
+        businessOwners: businessOwners.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item))
     })
 
     public static Workflow = (source: workflow): Workflow => ({
         id: source.workflowId!,
         name: source.workflowName!,
-        tags: source.tags!.map((tag) => SdkModelBuilder.Tag(tag)),
+        tags: source.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
         engine: source.engineName,
         eventType: source.eventType,
         isActive: source.isActive === undefined ? false : source.isActive,

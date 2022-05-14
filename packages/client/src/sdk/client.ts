@@ -7,10 +7,10 @@ import { Contract } from './models/contract'
 import { WorkflowDesign } from './models/workflowDesign'
 import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
-import { SdkModelBuilder } from './builders/sdkModelBuilder'
+import { NwcToSdkModelHelper } from './helpers/nwcToSdkModelHelper'
 import { User } from './models/user'
 import { WorkflowPermissions } from './models/workflowPermissions'
-import { NwcModelBuilder } from './builders/nwcModelBuilder'
+import { SdkToNwcModelHelper } from './helpers/sdkToNwcModelHelper'
 import { CacheClear, CacheUpdate, Cacheable } from '@type-cacheable/core'
 import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionSchema } from './models/connectionSchema'
@@ -107,7 +107,7 @@ export class Sdk {
                     .then((responses) => {
                         const tenantInfoRequestResponse = responses[0]
                         const dataSourceTokenRequestResult = responses[1]
-                        const tenant: Tenant = SdkModelBuilder.Tenant(tenantInfoRequestResponse, tenantConfigurationRequestResult, token, dataSourceTokenRequestResult.token!)
+                        const tenant: Tenant = NwcToSdkModelHelper.Tenant(tenantInfoRequestResponse, tenantConfigurationRequestResult, token, dataSourceTokenRequestResult.token!)
                         const client = new Sdk(tenant)
                         return client
                     })
@@ -126,7 +126,7 @@ export class Sdk {
     @Cacheable({ cacheKey: "workflowDesigns" })
     public getWorkflowDesigns(options: WorkflowsQueryOptions = {}): Promise<WorkflowDesign[]> {
         return this._nwc.default.getWorkflowDesigns(2000).then((response) => {
-            let workflowInfos = response.workflows!.map<WorkflowDesign>((wfl) => SdkModelBuilder.WorkflowDesign(wfl))
+            let workflowInfos = response.workflows!.map<WorkflowDesign>((wfl) => NwcToSdkModelHelper.WorkflowDesign(wfl))
             if (options.tag) {
                 workflowInfos = workflowInfos.filter((wfl) => {
                     const matchedTags = wfl.tags!.filter((tag) => (tag.name === options.tag))
@@ -143,19 +143,19 @@ export class Sdk {
     @Cacheable({ cacheKey: "workflow" })
     public getWorkflow(workflowId: string): Promise<Workflow> {
         return this._nwc.default.getWorkflow(workflowId)
-            .then((workflow) => SdkModelBuilder.Workflow(workflow))
+            .then((workflow) => NwcToSdkModelHelper.Workflow(workflow))
             .catch((error) => Promise.reject(error))
     }
 
     public getWorkflowPermissions(workflowId: string): Promise<WorkflowPermissions> {
         return Promise.all([this._nwc.default.getWorkflowOwners(workflowId), this._nwc.default.getWorkflowBusinessOwners(workflowId)])
-            .then((responses) => SdkModelBuilder.WorkflowPermissions(responses[0].permissions, responses[1].businessOwners))
+            .then((responses) => NwcToSdkModelHelper.WorkflowPermissions(responses[0].permissions, responses[1].businessOwners))
             .catch((error) => Promise.reject(error))
     }
 
     public updateWorkflowPermissions(workflowId: string, permissions: WorkflowPermissions): Promise<void> {
-        return this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.workflowOwners.map<permissionItem>((item) => NwcModelBuilder.permissionItem(item)) })
-            .then(() => this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.businessOwners.map<permissionItem>((item) => NwcModelBuilder.permissionItem(item)) })
+        return this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.workflowOwners.map<permissionItem>((item) => SdkToNwcModelHelper.permissionItem(item)) })
+            .then(() => this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.businessOwners.map<permissionItem>((item) => SdkToNwcModelHelper.permissionItem(item)) })
                 .then(() => Promise.resolve())
                 .catch((error) => Promise.reject(error)))
             .catch((error) => Promise.reject(error))
@@ -164,7 +164,7 @@ export class Sdk {
     @Cacheable({ cacheKey: "users" })
     public getUsers(): Promise<User[]> {
         return this._nwc.default.getTenantUsers()
-            .then((response) => response.users!.map<User>((tenantUser) => SdkModelBuilder.User(tenantUser)))
+            .then((response) => response.users!.map<User>((tenantUser) => NwcToSdkModelHelper.User(tenantUser)))
             .catch((error) => Promise.reject(error))
     }
 
@@ -179,7 +179,7 @@ export class Sdk {
     @Cacheable({ cacheKey: "connections" })
     public getConnections(): Promise<Connection[]> {
         return this._nwc.default.getTenantConnections()
-            .then((connections) => connections.map<Connection>(cn => SdkModelBuilder.Connection(cn)))
+            .then((connections) => connections.map<Connection>(cn => NwcToSdkModelHelper.Connection(cn)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -193,14 +193,14 @@ export class Sdk {
     @Cacheable({ cacheKey: "connectionSchema" })
     public getConnectionSchema(connectionId: string): Promise<ConnectionSchema> {
         return this._nwc.default.getTenantConnectionSchema(connectionId)
-            .then((schema) => SdkModelBuilder.ConnectionSchema(schema))
+            .then((schema) => NwcToSdkModelHelper.ConnectionSchema(schema))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable({ cacheKey: "contracts" })
     public getContracts(): Promise<Contract[]> {
         return this._nwc.default.getTenantContracts(true)
-            .then((contracts) => contracts.map<Contract>(cn => SdkModelBuilder.Contract(cn)))
+            .then((contracts) => contracts.map<Contract>(cn => NwcToSdkModelHelper.Contract(cn)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -221,7 +221,7 @@ export class Sdk {
     @Cacheable({ cacheKey: "datasources" })
     public getDatasources(): Promise<Datasource[]> {
         return this._nwc.default.getTenantDatasources()
-            .then((datasources) => datasources.map<Datasource>(datasource => SdkModelBuilder.Datasource(datasource)))
+            .then((datasources) => datasources.map<Datasource>(datasource => NwcToSdkModelHelper.Datasource(datasource)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
