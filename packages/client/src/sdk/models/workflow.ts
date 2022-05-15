@@ -1,6 +1,5 @@
 import { workflow } from "../../nwc";
-import { FormDefinitionDetails } from "./formDefinitionDetails";
-import { WorkflowDefinitionDetails } from "./workflowDefinitionDetails";
+import { ParsedWorkflowDefinition } from "../parsers/parsedWorkflowDefinition";
 import { WorkflowDesign } from "./workflowDesign";
 export interface Workflow extends WorkflowDesign {
     isActive: boolean;
@@ -13,7 +12,7 @@ export interface Workflow extends WorkflowDesign {
     comments?: string;
     type?: string;
     designVersion?: string;
-    // definition: WorkflowDefinitionDetails;
+    definition: ParsedWorkflowDefinition;
     _nwcObject: workflow
     // startForm?: FormDefinitionDetails
 }

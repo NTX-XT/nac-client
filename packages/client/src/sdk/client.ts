@@ -15,7 +15,7 @@ import { CacheClear, CacheUpdate, Cacheable } from '@type-cacheable/core'
 import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionSchema } from './models/connectionSchema'
 import { ConnectionProperty } from './models/connectionProperty'
-import { WorkflowDefinitionDetails } from './models/workflowDefinitionDetails'
+import { WorkflowDefinitionHelper } from './helpers/workflowDefinitionHelper'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
@@ -275,39 +275,26 @@ export class Sdk {
                 .catch((error) => Promise.reject(error)))
     }
 
-    @Cacheable({ cacheKey: "workflowDefinition" })
-    public getWorkflowDefinition(workflowId: string): Promise<workflowDefinition> {
-        return this.getWorkflow(workflowId)
-            .then((response) => JSON.parse(response._nwcObject.workflowDefinition) as workflowDefinition)
-            .catch((error: ApiError) => Promise.reject(error))
-    }
-
     public publishWorkflow = (workflow: Workflow): Promise<workflow> => {
-        return this.getWorkflowDefinition(workflow.id)
-            .then((definition) => {
-                if (definition.settings.id === '') {
-                    definition.settings.id = workflow.id
-                    workflow._nwcObject.workflowDefinition = JSON.stringify(definition)
-                }
-                return this._nwc.default.publishWorkflow(workflow.id, {
-                    author: workflow._nwcObject.author,
-                    datasources: workflow._nwcObject.datasources,
-                    engineName: workflow._nwcObject.engineName,
-                    permissions: workflow._nwcObject.permissions,
-                    startEvents: workflow._nwcObject.startEvents,
-                    tags: workflow._nwcObject.tags,
-                    version: workflow.version,
-                    workflowDefinition: workflow._nwcObject.workflowDefinition,
-                    workflowDescription: workflow.description,
-                    workflowDesignParentVersion: workflow.designVersion,
-                    workflowName: workflow.name,
-                    workflowType: workflow.type,
-                    workflowVersionComments: workflow.comments
-                })
-                    .then((response) => response)
-                    .catch((error: ApiError) => Promise.reject(error))
-            }
-            )
+        const definition = WorkflowDefinitionHelper.toObject(workflow._nwcObject.workflowDefinition)
+        WorkflowDefinitionHelper.ensureWorkflowId(definition, workflow.id)
+        workflow._nwcObject.workflowDefinition = WorkflowDefinitionHelper.toString(definition)
+        return this._nwc.default.publishWorkflow(workflow.id, {
+            author: workflow._nwcObject.author,
+            datasources: workflow._nwcObject.datasources,
+            engineName: workflow._nwcObject.engineName,
+            permissions: workflow._nwcObject.permissions,
+            startEvents: workflow._nwcObject.startEvents,
+            tags: workflow._nwcObject.tags,
+            version: workflow.version,
+            workflowDefinition: workflow._nwcObject.workflowDefinition,
+            workflowDescription: workflow.description,
+            workflowDesignParentVersion: workflow.designVersion,
+            workflowName: workflow.name,
+            workflowType: workflow.type,
+            workflowVersionComments: workflow.comments
+        })
+            .then((response) => response)
             .catch((error: ApiError) => Promise.reject(error))
     }
 }

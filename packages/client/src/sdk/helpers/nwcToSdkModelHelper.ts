@@ -12,6 +12,7 @@ import { WorkflowPermissions } from "../models/workflowPermissions";
 import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionProperty } from "../models/connectionProperty";
 import { ConnectionSchema } from "../models/connectionSchema";
+import { ParsedWorkflowDefinition } from "../parsers/parsedWorkflowDefinition";
 
 export class NwcToSdkModelHelper {
     public static Connection = (connection: connection): Connection => ({
@@ -105,6 +106,7 @@ export class NwcToSdkModelHelper {
         designVersion: source.workflowDesignVersion,
         type: source.workflowType,
         comments: source.workflowVersionComments,
+        definition: new ParsedWorkflowDefinition(source.workflowDefinition),
         _nwcObject: source
     }
         // _nwcObject: source,
