@@ -147,6 +147,17 @@ export class Sdk {
             .catch((error) => Promise.reject(error))
     }
 
+    public getWorkflowByName(workflowName: string): Promise<Workflow | undefined> {
+        return this.getWorkflowDesigns()
+            .then((designs) => {
+                const design = designs.find((design) => design.name === workflowName)
+                return (design)
+                    ? this.getWorkflow(design.id)
+                    : undefined
+            })
+            .catch((error) => Promise.reject(error))
+    }
+
     public getWorkflowPermissions(workflowId: string): Promise<WorkflowPermissions> {
         return Promise.all([this._nwc.default.getWorkflowOwners(workflowId), this._nwc.default.getWorkflowBusinessOwners(workflowId)])
             .then((responses) => NwcToSdkModelHelper.WorkflowPermissions(responses[0].permissions, responses[1].businessOwners))
@@ -291,7 +302,7 @@ export class Sdk {
             workflowDescription: workflow.description,
             workflowDesignParentVersion: workflow.designVersion,
             workflowName: workflow.name,
-            workflowType: workflow.type,
+            workflowType: workflow.definition.definition.settings.type,
             workflowVersionComments: workflow.comments
         })
             .then((response) => response)
