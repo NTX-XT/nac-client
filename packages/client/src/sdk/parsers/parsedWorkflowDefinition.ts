@@ -23,7 +23,7 @@ export class ParsedWorkflowDefinition {
 
     constructor(definition: string) {
         this.definition = WorkflowDefinitionHelper.toObject(definition)
-        const _actionsArray = flattenTree(this.definition.actions, "next", "actions")
+        const _actionsArray = flattenTree(this.definition.actions, "next", "children")
         this.actionsInfo = {
             actionsArray: _actionsArray,
             actionsDictionary: arrayToDictionary(_actionsArray, "id")

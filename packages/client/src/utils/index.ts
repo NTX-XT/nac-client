@@ -8,6 +8,6 @@ const _flattenTree = <Type>(node: Type, childNodePropertyName: string, childNode
         _flattenTree(node[childNodePropertyName], childNodePropertyName, childNodeArrayPropertyName, arrayResult);
     }
     if (childNodeArrayPropertyName && node[childNodeArrayPropertyName]) {
-        node[childNodePropertyName].forEach((child: Type) => _flattenTree(child, childNodePropertyName, childNodeArrayPropertyName, arrayResult));
+        node[childNodeArrayPropertyName].forEach((child: Type) => _flattenTree(child, childNodePropertyName, childNodeArrayPropertyName, arrayResult));
     } return arrayResult;
 }
