@@ -8,8 +8,10 @@ import { OpenAPIV2 } from "openapi-types";
 import { ActionConfiguration } from "../models/connectionDependencyActionConfiguration";
 import { ActionConfigurationEntryValue } from "../models/actionConfigurationEntryValue";
 import { ActionHelper } from "../helpers/actionHelper";
+import { Form } from "../models/form";
 
-export class ParsedWorkflowDefinition {
+
+export interface IParsedWorkflowDefinition {
     definition: workflowDefinition
     actionsInfo: {
         actionsArray: action[],
@@ -21,6 +23,23 @@ export class ParsedWorkflowDefinition {
         workflows: { [key: string]: WorkflowDependency; }
     }
 
+    taskForms: { [key: string]: Form }
+}
+
+export class ParsedWorkflowDefinition implements IParsedWorkflowDefinition {
+    definition: workflowDefinition
+    actionsInfo: {
+        actionsArray: action[],
+        actionsDictionary: { [key: string]: action; }
+    }
+
+    dependencies: {
+        contracts: { [key: string]: ContractDependency; },
+        workflows: { [key: string]: WorkflowDependency; }
+    }
+
+    taskForms: { [key: string]: Form; } = {}
+
     constructor(definition: string) {
         this.definition = WorkflowDefinitionHelper.toObject(definition)
         const _actionsArray = flattenTree(this.definition.actions, "next", "children")
@@ -31,6 +50,10 @@ export class ParsedWorkflowDefinition {
         this.dependencies = {
             contracts: this._resolveContractDependencies(),
             workflows: this._resolveWorkflowDependencies()
+        }
+
+        for (const key of Object.keys(this.definition.forms)) {
+            this.taskForms[key] = JSON.parse(this.definition.forms[key])
         }
     }
 

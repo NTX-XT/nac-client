@@ -13,6 +13,7 @@ import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionProperty } from "../models/connectionProperty";
 import { ConnectionSchema } from "../models/connectionSchema";
 import { ParsedWorkflowDefinition } from "../parsers/parsedWorkflowDefinition";
+import { Form } from "../models/form";
 
 export class NwcToSdkModelHelper {
     public static Connection = (connection: connection): Connection => ({
@@ -107,7 +108,11 @@ export class NwcToSdkModelHelper {
         type: source.workflowType,
         comments: source.workflowVersionComments,
         definition: new ParsedWorkflowDefinition(source.workflowDefinition),
-        _nwcObject: source
+        _nwcObject: source,
+        startForm: source.startEvents?.find(event => event.eventType === 'nintex:form')?.webformDefinition
+            ? JSON.parse(source.startEvents!.find(event => event.eventType === 'nintex:form')!.webformDefinition!) as Form
+            : undefined,
+        datasources: source.datasources ? JSON.parse(source.datasources!) : {}
     }
         // _nwcObject: source,
         // definition: WorkflowDefinitionParser.parse(source.workflowDefinition, contracts, connections, workflowInfos)

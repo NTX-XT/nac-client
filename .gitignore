@@ -9,6 +9,7 @@ packages/xtenstions/bin
 obj
 appsettings.json
 local.settings.json
+__azurite*
 
 # refactoring project
 packages/sdk-test/

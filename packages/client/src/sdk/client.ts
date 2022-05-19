@@ -16,6 +16,7 @@ import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionSchema } from './models/connectionSchema'
 import { ConnectionProperty } from './models/connectionProperty'
 import { WorkflowDefinitionHelper } from './helpers/workflowDefinitionHelper'
+import { Tag } from './models/tag'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
@@ -117,9 +118,9 @@ export class Sdk {
     }
 
     @Cacheable({ cacheKey: "tags" })
-    public getTags(): Promise<string[]> {
+    public getTags(): Promise<Tag[]> {
         return this._nwc.default.getTenantTags().then((response) => {
-            return Promise.resolve(response.resource!.map<string>((tag) => tag.name!))
+            return Promise.resolve(response.resource!.map<Tag>((tag) => NwcToSdkModelHelper.Tag(tag)))
         }).catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -215,15 +216,27 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
     }
 
+    public getContract(id: string): Promise<Contract | undefined> {
+        return this.getContracts()
+            .then((contracts) => contracts.find((contract) => contract.id === id))
+            .catch((error: ApiError) => Promise.reject(error))
+    }
+
+    public getContractByName(name: string): Promise<Contract | undefined> {
+        return this.getContracts()
+            .then((contracts) => contracts.find((contract) => contract.name === name))
+            .catch((error: ApiError) => Promise.reject(error))
+    }
+
     @Cacheable({ cacheKey: "contractSchema" })
     public getContractSchema(contractId: string): Promise<OpenAPIV2.Document> {
         return this._nwc.default.getTenantContractSchema(contractId)
-            .then((response) => JSON.parse(response) as OpenAPIV2.Document)
+            .then((response) => response)
             .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable({ cacheKey: "connectionProperties" })
-    public getConnectionProperties(contractId: string): Promise<{ [key: string]: ConnectionProperty }> {
+    public getContractConnectionProperties(contractId: string): Promise<{ [key: string]: ConnectionProperty }> {
         return this.getContractSchema(contractId)
             .then((schema) => Object.values(schema.securityDefinitions!)[0]?.["x-ntx-connection-properties"]?.properties ?? {})
             .catch((error: ApiError) => Promise.reject(error))
