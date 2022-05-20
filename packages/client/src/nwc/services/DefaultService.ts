@@ -86,7 +86,7 @@ tenantId: string,
 	private getTenantConnectionsCancelable(): CancelablePromise<Array<connection>> {
 		return this.httpRequest.request({
 			method: 'GET',
-			url: '/designer_/api/connection/api/connections',
+			url: '/workflows/v1/connections',
 		});
 	}
 
@@ -216,18 +216,6 @@ workflowId: string,
 			url: '/designer_/api/workflows/{workflowId}',
 			path: {
 				'workflowId': workflowId,
-			},
-		});
-	}
-
-	private checkWorkflowNameCancelable(
-workflowName: string,
-): CancelablePromise<string> {
-		return this.httpRequest.request({
-			method: 'GET',
-			url: '/designer_/api/workflows/{workflowName}/checkname',
-			path: {
-				'workflowName': workflowName,
 			},
 		});
 	}
@@ -498,17 +486,6 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
     @Cacheable()
     public deleteDraftWorkflow(workflowId: string): Promise<any> {
         return this.deleteDraftWorkflowCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
-    }
-
-    /**
-     * Check if workflow exists
-     * @param workflowName Name of the workflow
-     * @returns string Ok
-     * @throws ApiError
-     */
-    @Cacheable()
-    public checkWorkflowName(workflowName: string): Promise<string> {
-        return this.checkWorkflowNameCancelable(workflowName).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**

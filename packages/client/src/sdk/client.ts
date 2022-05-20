@@ -150,6 +150,11 @@ export class Sdk {
             .catch((error) => Promise.reject(error))
     }
 
+    public checkIfWorkflowExists = (workflowName: string): Promise<boolean> =>
+        this.getWorkflowByName(workflowName)
+            .then((workflow) => workflow !== undefined)
+            .catch((error) => Promise.reject(error))
+
     public getWorkflowByName(workflowName: string): Promise<Workflow | undefined> {
         return this.getWorkflowDesigns()
             .then((designs) => {

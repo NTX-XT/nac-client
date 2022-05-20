@@ -149,7 +149,7 @@
                 }
             }
         },
-        "/designer_/api/connection/api/connections": {
+        "/workflows/v1/connections": {
             "get": {
                 "description": "Get tenant connections",
                 "operationId": "getTenantConnections",
