@@ -1,6 +1,6 @@
 {
   "name": "nwc-sdk-validation-app",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A simple web app used for validating all the API endpoints used by nwc-sdk",
   "private": "true",
   "scripts": {
