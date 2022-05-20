@@ -159,10 +159,16 @@
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/connection"
-                            }
+                            "type": "object",
+                            "properties": {
+                                "connections": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/connection"
+                                    }
+                                }
+                            },
+                            "required": ["connections"]
                         }
                     }
                 }
@@ -223,10 +229,16 @@
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/datasource"
-                            }
+                            "type": "object",
+                            "properties": {
+                                "datasources": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/datasource"
+                                    }
+                                }
+                            },
+                            "required": ["datasources"]
                         }
                     }
                 }

@@ -198,14 +198,14 @@ export class Sdk {
     @Cacheable({ cacheKey: "connections" })
     public getConnections(): Promise<Connection[]> {
         return this._nwc.default.getTenantConnections()
-            .then((connections) => connections.map<Connection>(cn => NwcToSdkModelHelper.Connection(cn)))
+            .then((response) => response.connections.map<Connection>(cn => NwcToSdkModelHelper.Connection(cn)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable({ cacheKey: "connection" })
-    public getConnection(connectionId: string): Promise<Connection> {
+    public getConnection(connectionId: string): Promise<Connection | undefined> {
         return this.getConnections()
-            .then((connections) => connections.filter(cn => cn.id === connectionId)[0])
+            .then((connections) => connections.find(cn => cn.id === connectionId))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -252,7 +252,7 @@ export class Sdk {
     @Cacheable({ cacheKey: "datasources" })
     public getDatasources(): Promise<Datasource[]> {
         return this._nwc.default.getTenantDatasources()
-            .then((datasources) => datasources.map<Datasource>(datasource => NwcToSdkModelHelper.Datasource(datasource)))
+            .then((response) => response.datasources.map<Datasource>(datasource => NwcToSdkModelHelper.Datasource(datasource)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -289,8 +289,9 @@ export class Sdk {
             .then((response) => response.key!)
             .catch((error: ApiError) => Promise.reject(error))
 
-    public importWorkflow = (name: string, key: string, overwriteExisting: boolean = false): Promise<Workflow> =>
-        this.getWorkflowByName(name)
+    @CacheClear({ cacheKey: "workflowDesigns" })
+    public importWorkflow(name: string, key: string, overwriteExisting: boolean = false): Promise<Workflow> {
+        return this.getWorkflowByName(name)
             .then((foundWorkflow) => {
                 if (foundWorkflow && !overwriteExisting) {
                     throw new Error("workflow exists and no overwrite was specified")
@@ -306,18 +307,17 @@ export class Sdk {
                     .catch((error: ApiError) => Promise.reject(error))
             })
             .catch((error: ApiError) => Promise.reject(error))
-
-
-    @CacheUpdate({ cacheKey: "connection" })
-    public createConnection(contract: Contract, properties: Record<string, string>): Promise<Connection> {
-        return this._nwc.default.createConnection(contract.appId, properties)
-            .then((response) => this.getConnections()
-                .then((results) => results.find((cn) => cn.id === response)!)
-                .catch((error) => Promise.reject(error))
-                .catch((error) => Promise.reject(error)))
     }
 
-    public publishWorkflow = (workflow: Workflow): Promise<workflow> => {
+    @CacheClear({ cacheKey: "connections" })
+    public createConnection(contract: Contract, properties: Record<string, string>): Promise<Connection | undefined> {
+        return this._nwc.default.createConnection(contract.appId, properties)
+            .then((response) => this.getConnection(response))
+            .catch((error) => Promise.reject(error))
+    }
+
+    @CacheClear({ cacheKey: "workflow" })
+    public publishWorkflow(workflow: Workflow): Promise<workflow> {
         const definition = WorkflowDefinitionHelper.toObject(workflow._nwcObject.workflowDefinition)
         WorkflowDefinitionHelper.ensureWorkflowId(definition, workflow.id)
         workflow._nwcObject.workflowDefinition = WorkflowDefinitionHelper.toString(definition)

@@ -1,7 +1,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import { connection } from "./connection";
 import { connector } from "./connector";
+import { datasource } from "./datasource";
 import { permissionItem } from "./permissionItem";
 import { tag } from "./tag";
 import { tenantUser } from "./tenantUser";
@@ -17,7 +19,11 @@ export type getTokenOptions = {
     };
 export type getTenantConnectorsResponseType = {connectors: Array<connector>;
     };
+export type getTenantConnectionsResponseType = {connections: Array<connection>;
+    };
 export type getDatasourceTokenResponseType = {token?: string;
+    };
+export type getTenantDatasourcesResponseType = {datasources: Array<datasource>;
     };
 export type createConnectionProperties = Record<string, string>;
 export type getWorkflowDesignsResponseType = {workflows: Array<workflowDesign>;

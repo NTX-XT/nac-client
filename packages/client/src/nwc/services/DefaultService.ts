@@ -25,7 +25,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "@type-cacheable/core";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getDatasourceTokenResponseType, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -83,7 +83,7 @@ tenantId: string,
 		});
 	}
 
-	private getTenantConnectionsCancelable(): CancelablePromise<Array<connection>> {
+	private getTenantConnectionsCancelable(): CancelablePromise<getTenantConnectionsResponseType> {
 		return this.httpRequest.request({
 			method: 'GET',
 			url: '/workflows/v1/connections',
@@ -109,7 +109,7 @@ connectionId: string,
 		});
 	}
 
-	private getTenantDatasourcesCancelable(): CancelablePromise<Array<datasource>> {
+	private getTenantDatasourcesCancelable(): CancelablePromise<getTenantDatasourcesResponseType> {
 		return this.httpRequest.request({
 			method: 'GET',
 			url: '/connection/api/datasources',
@@ -359,11 +359,11 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
 
     /**
      * Get tenant connections
-     * @returns connection Ok
+     * @returns any Ok
      * @throws ApiError
      */
     @Cacheable()
-    public getTenantConnections(): Promise<Array<connection>> {
+    public getTenantConnections(): Promise<getTenantConnectionsResponseType> {
         return this.getTenantConnectionsCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -390,11 +390,11 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
 
     /**
      * Get tenant datasources
-     * @returns datasource Ok
+     * @returns any Ok
      * @throws ApiError
      */
     @Cacheable()
-    public getTenantDatasources(): Promise<Array<datasource>> {
+    public getTenantDatasources(): Promise<getTenantDatasourcesResponseType> {
         return this.getTenantDatasourcesCancelable().then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
