@@ -68,15 +68,12 @@ export class NwcToSdkModelHelper {
         tags: workflowDesign.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag))
     });
 
-    public static Tenant = (tenantInfo: tenantInfo, tenantConfiguration: tenantConfiguration, token: string, datasourceToken: string): Tenant => ({
+    public static Tenant = (tenantInfo: tenantInfo, tenantConfiguration: tenantConfiguration): Tenant => ({
         id: tenantInfo.id!,
         name: tenantInfo.name!,
         apiManagerUrl: tenantConfiguration.apiManagerUrl!,
         serviceRegion: tenantConfiguration.serviceRegion!,
-        cloudElementService: tenantConfiguration.cloudElementService!,
         host: tenantConfiguration.apiManagerUrl!.split('//')[1],
-        token: token,
-        datasourceToken: datasourceToken,
         url: tenantInfo.tenancy_url!
     });
 

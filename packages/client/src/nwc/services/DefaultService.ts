@@ -121,7 +121,7 @@ includePublic: boolean = true,
 ): CancelablePromise<Array<contract>> {
 		return this.httpRequest.request({
 			method: 'GET',
-			url: '/connection/api/datasources/contracts',
+			url: '/connection/api/contracts',
 			query: {
 				'includePublic': includePublic,
 			},

@@ -232,7 +232,7 @@
                 }
             }
         },
-        "/connection/api/datasources/contracts": {
+        "/connection/api/contracts": {
             "get": {
                 "description": "Get tenant contracts",
                 "operationId": "getTenantContracts",
@@ -469,31 +469,6 @@
                 "responses": {
                     "200": {
                         "description": "Ok"
-                    }
-                }
-            }
-        },
-        "/designer_/api/workflows/{workflowName}/checkname": {
-            "get": {
-                "description": "Check if workflow exists",
-                "operationId": "checkWorkflowName",
-                "x-ntx-summary": "Check if workflow exists",
-                "produces": [
-                    "text/plain"
-                ],
-                "parameters": [{
-                    "name": "workflowName",
-                    "in": "path",
-                    "description": "Name of the workflow",
-                    "type": "string",
-                    "required": true
-                }],
-                "responses": {
-                    "200": {
-                        "description": "Ok",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 }
             }

@@ -36,6 +36,9 @@ const invalidContract: Contract = {
 export class Sdk {
     private _tenant: Tenant
     private _nwc: Nwc
+    private _token: string
+    private _datasourceToken: string
+
     public get nwc(): Nwc {
         return this._nwc
     }
@@ -44,9 +47,10 @@ export class Sdk {
         return this._tenant
     }
 
-    private constructor(tenant: Tenant) {
-
+    private constructor(tenant: Tenant, token: string, datasourceToken: string) {
         this._tenant = tenant
+        this._token = token
+        this._datasourceToken = datasourceToken
         this._nwc = new Nwc({
             CREDENTIALS: "include",
             BASE: tenant.apiManagerUrl,
@@ -56,7 +60,7 @@ export class Sdk {
                 })
             },
             TOKEN: (options) => {
-                return Promise.resolve<string>(options.url.startsWith('/connection/api/') ? this._tenant.datasourceToken! : this._tenant.token)
+                return Promise.resolve<string>(options.url.startsWith('/connection/api/') ? this._datasourceToken : this._token)
             }
         })
     }
@@ -106,10 +110,8 @@ export class Sdk {
                     temporaryClient.default.getTenantInfo(tenantConfigurationRequestResult.user!.tenantId!),
                     temporaryClient.default.getDatasourceToken()])
                     .then((responses) => {
-                        const tenantInfoRequestResponse = responses[0]
-                        const dataSourceTokenRequestResult = responses[1]
-                        const tenant: Tenant = NwcToSdkModelHelper.Tenant(tenantInfoRequestResponse, tenantConfigurationRequestResult, token, dataSourceTokenRequestResult.token!)
-                        const client = new Sdk(tenant)
+                        const client = new Sdk(
+                            NwcToSdkModelHelper.Tenant(responses[0], tenantConfigurationRequestResult), token, responses[1].token!)
                         return client
                     })
                     .catch((error: ApiError) => Promise.reject(error))
@@ -283,12 +285,23 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
 
     public importWorkflow = (name: string, key: string, overwriteExisting: boolean = false): Promise<Workflow> =>
-        this._nwc.default.importWorkflow({ name: name, key: key, overwriteExisting: overwriteExisting })
-            .then((response) =>
-                this.getWorkflow(response.workflowId!.workflowId!)
-                    .then((workflow) => workflow))
-            .catch((error) => Promise.reject(error))
+        this.getWorkflowByName(name)
+            .then((foundWorkflow) => {
+                if (foundWorkflow && !overwriteExisting) {
+                    throw new Error("workflow exists and no overwrite was specified")
+                }
+                if (!foundWorkflow) {
+                    overwriteExisting = false
+                }
+                return this._nwc.default.importWorkflow({ name: name, key: key, overwriteExisting: overwriteExisting })
+                    .then((response) =>
+                        this.getWorkflow(response.workflowId!.workflowId!)
+                            .then((workflow) => workflow))
+                    .catch((error) => Promise.reject(error))
+                    .catch((error: ApiError) => Promise.reject(error))
+            })
             .catch((error: ApiError) => Promise.reject(error))
+
 
     @CacheUpdate({ cacheKey: "connection" })
     public createConnection(contract: Contract, properties: Record<string, string>): Promise<Connection> {
