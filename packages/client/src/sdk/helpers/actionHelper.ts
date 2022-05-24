@@ -1,3 +1,4 @@
+import { connection } from "client/src/nwc";
 import { action } from "../../nwc/models/action";
 import { parameter } from "../../nwc/models/parameter";
 import { property } from "../../nwc/models/property";
@@ -15,4 +16,9 @@ export class ActionHelper {
     public static getConnectionId = (parameter?: parameter): string | undefined => ActionHelper.getParameterValue(parameter)
         ? ActionHelper.getParameterValue(parameter)[ActionHelper.getParameterValueKey(parameter, KnownStrings.NTXConnectionId)]?.data.id
         : undefined;
+
+    public static getConnection = (parameter?: parameter): connection | undefined =>
+        ActionHelper.getParameterValue(parameter)
+            ? ActionHelper.getParameterValue(parameter)[ActionHelper.getParameterValueKey(parameter, KnownStrings.NTXConnectionId)]?.data
+            : undefined
 }

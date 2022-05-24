@@ -7,7 +7,7 @@ export type datasource = {
 	name: string;
 	description?: string;
 	contractId: string;
-	operationId?: string;
+	operationId: string;
 	connectionId: string;
 	createdByUserId?: string;
 	createdDate?: string;
@@ -15,4 +15,5 @@ export type datasource = {
 	modifiedDate?: string;
 	isInvalid?: boolean;
 	isEditable?: boolean;
+	definition?: string;
 };

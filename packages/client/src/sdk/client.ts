@@ -15,8 +15,10 @@ import { CacheClear, CacheUpdate, Cacheable } from '@type-cacheable/core'
 import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionSchema } from './models/connectionSchema'
 import { ConnectionProperty } from './models/connectionProperty'
-import { WorkflowDefinitionHelper } from './helpers/workflowDefinitionHelper'
+import { WorkflowHelper } from './helpers/workflowHelper'
 import { Tag } from './models/tag'
+import { Data } from 'node-cache'
+import { DoStatement } from 'ts-morph'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
@@ -121,9 +123,9 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "tags" })
     public getTags(): Promise<Tag[]> {
-        return this._nwc.default.getTenantTags().then((response) => {
-            return Promise.resolve(response.resource!.map<Tag>((tag) => NwcToSdkModelHelper.Tag(tag)))
-        }).catch((error: ApiError) => Promise.reject(error))
+        return this._nwc.default.getTenantTags()
+            .then((response) => response.resource!.map<Tag>((tag) => NwcToSdkModelHelper.Tag(tag)))
+            .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable({ cacheKey: "workflowDesigns" })
@@ -146,8 +148,10 @@ export class Sdk {
     @Cacheable({ cacheKey: "workflow" })
     public getWorkflow(workflowId: string): Promise<Workflow> {
         return this._nwc.default.getWorkflow(workflowId)
-            .then((workflow) => NwcToSdkModelHelper.Workflow(workflow))
-            .catch((error) => Promise.reject(error))
+            .then((workflow) => this.getWorkflowPermissions(workflowId)
+                .then((permissions) => NwcToSdkModelHelper.Workflow(workflow, permissions))
+                .catch((error) => Promise.reject(error))
+            ).catch((error) => Promise.reject(error))
     }
 
     public checkIfWorkflowExists = (workflowName: string): Promise<boolean> =>
@@ -174,7 +178,7 @@ export class Sdk {
 
     public updateWorkflowPermissions(workflowId: string, permissions: WorkflowPermissions): Promise<void> {
         return this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.workflowOwners.map<permissionItem>((item) => SdkToNwcModelHelper.permissionItem(item)) })
-            .then(() => this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.businessOwners.map<permissionItem>((item) => SdkToNwcModelHelper.permissionItem(item)) })
+            .then(() => this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.businessOwners?.map<permissionItem>((item) => SdkToNwcModelHelper.permissionItem(item)) })
                 .then(() => Promise.resolve())
                 .catch((error) => Promise.reject(error)))
             .catch((error) => Promise.reject(error))
@@ -252,11 +256,21 @@ export class Sdk {
     @Cacheable({ cacheKey: "datasources" })
     public getDatasources(): Promise<Datasource[]> {
         return this._nwc.default.getTenantDatasources()
-            .then((response) => response.datasources.map<Datasource>(datasource => NwcToSdkModelHelper.Datasource(datasource)))
+            .then((response) => Promise.all(response.datasources.map<Promise<Datasource>>((datasource) =>
+                this._nwc.default.getDatasource(datasource.id)
+                    .then((ds) => NwcToSdkModelHelper.Datasource(ds)))))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
+    public getDatasource = (id: string): Promise<Datasource | undefined> =>
+        this.getDatasources()
+            .then((datasources) => datasources.find(ds => ds.id === id))
+            .catch((error: ApiError) => Promise.reject(error))
 
+    public getDatasourceByName = (name: string): Promise<Datasource | undefined> =>
+        this.getDatasources()
+            .then((datasources) => datasources.find(ds => ds.name === name))
+            .catch((error: ApiError) => Promise.reject(error))
 
     // public groupConnections(connections: Connection[]): Promise<Contract[]> {
     //     const uniqueContractIds = connections.map((cn) => cn.contract?.id).filter((value, index, self) => self.indexOf(value) === index)
@@ -318,23 +332,24 @@ export class Sdk {
 
     @CacheClear({ cacheKey: "workflow" })
     public publishWorkflow(workflow: Workflow): Promise<workflow> {
-        const definition = WorkflowDefinitionHelper.toObject(workflow._nwcObject.workflowDefinition)
-        WorkflowDefinitionHelper.ensureWorkflowId(definition, workflow.id)
-        workflow._nwcObject.workflowDefinition = WorkflowDefinitionHelper.toString(definition)
+        // const definition = WorkflowDefinitionHelper.toObject(workflow._nwcObject.workflowDefinition)
+        // WorkflowDefinitionHelper.ensureWorkflowId(definition, workflow.id)
+        // workflow._nwcObject.workflowDefinition = WorkflowDefinitionHelper.toString(definition)
         return this._nwc.default.publishWorkflow(workflow.id, {
-            author: workflow._nwcObject.author,
-            datasources: workflow._nwcObject.datasources,
-            engineName: workflow._nwcObject.engineName,
-            permissions: workflow._nwcObject.permissions,
-            startEvents: workflow._nwcObject.startEvents,
-            tags: workflow._nwcObject.tags,
-            version: workflow.version,
-            workflowDefinition: workflow._nwcObject.workflowDefinition,
-            workflowDescription: workflow.description,
-            workflowDesignParentVersion: workflow.designVersion,
+            author: workflow.info.author,
+            datasources: "", // workflow._nwcObject.datasources,
+            engineName: workflow.info.engine,
+            permissions: workflow.permissions.workflowOwners,
+            businessOwners: workflow.permissions.workflowOwners,
+            startEvents: [],// workflow.details.startEvents,
+            tags: workflow.info.tags,
+            version: workflow.info.version,
+            workflowDefinition: "", // workflow.workflowDefinition,
+            workflowDescription: workflow.info.description,
+            workflowDesignParentVersion: workflow.info.designVersion,
             workflowName: workflow.name,
-            workflowType: workflow.definition.definition.settings.type,
-            workflowVersionComments: workflow.comments
+            workflowType: workflow.definition.settings.type,
+            workflowVersionComments: workflow.info.comments
         })
             .then((response) => response)
             .catch((error: ApiError) => Promise.reject(error))

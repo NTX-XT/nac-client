@@ -13,7 +13,6 @@ import type { tag } from '../models/tag';
 import type { tagResponse } from '../models/tagResponse';
 import type { tenantConfiguration } from '../models/tenantConfiguration';
 import type { tenantInfo } from '../models/tenantInfo';
-import type { tenantUser } from '../models/tenantUser';
 import type { tokenResponse } from '../models/tokenResponse';
 import type { user } from '../models/user';
 import type { workflow } from '../models/workflow';
@@ -112,7 +111,19 @@ connectionId: string,
 	private getTenantDatasourcesCancelable(): CancelablePromise<getTenantDatasourcesResponseType> {
 		return this.httpRequest.request({
 			method: 'GET',
-			url: '/connection/api/datasources',
+			url: '/workflows/v1/datasources',
+		});
+	}
+
+	private getDatasourceCancelable(
+datasourceId: string,
+): CancelablePromise<datasource> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/connection/api/datasources/{datasourceId}',
+			path: {
+				'datasourceId': datasourceId,
+			},
 		});
 	}
 
@@ -399,6 +410,17 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
     }
 
     /**
+     * Get datasource
+     * @param datasourceId Datasource Id
+     * @returns datasource Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getDatasource(datasourceId: string): Promise<datasource> {
+        return this.getDatasourceCancelable(datasourceId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
      * Get tenant contracts
      * @param includePublic Include public contracts
      * @returns contract Ok
@@ -411,7 +433,7 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
 
     /**
      * Get tenant contract schema
-     * @param contractId The contracts Id
+     * @param contractId The contract Id
      * @returns any Ok
      * @throws ApiError
      */

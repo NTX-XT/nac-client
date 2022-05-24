@@ -1,3 +1,4 @@
+
 import { ApiError } from "../nwc/core/ApiError"
 
 export const isError = (value: (any | ApiError)): value is ApiError => value.name !== undefined && value.name === 'ApiError'
@@ -20,3 +21,4 @@ export const unWrapErrorOrThrow = (value: (any | ApiError)): ApiError => {
     }
     throw new Error('value was not an ApiError')
 }
+

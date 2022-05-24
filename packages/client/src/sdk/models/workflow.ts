@@ -1,27 +1,17 @@
-import { workflow } from "../../nwc";
-import { ParsedWorkflowDefinition } from "../parsers/parsedWorkflowDefinition";
-import { Form } from "./form";
-import { WorkflowDesign } from "./workflowDesign";
-export interface Workflow extends WorkflowDesign {
-    isActive: boolean;
-    eventType?: string;
-    isPublished: boolean;
-    publishedId?: string;
-    status?: string;
-    version?: number;
-    description?: string;
-    comments?: string;
-    type?: string;
-    designVersion?: string;
-    definition: ParsedWorkflowDefinition;
-    _nwcObject: workflow
-    startForm?: Form,
-    datasources: {
-        [key: string]: {
-            sources: [
-                { id: string }
-            ],
-            type: string
-        }
-    }
+import { workflowDefinition, workflowStartEvent } from "../../nwc";
+import { WorkflowDependencies } from "./workflowDependencies";
+import { WorkflowForms } from "./workflowForms";
+import { WorkflowInfo } from "./workflowInfo";
+import { WorkflowPermissions } from "./workflowPermissions";
+
+export interface Workflow {
+    id: string,
+    name: string
+    info: WorkflowInfo,
+    forms: WorkflowForms,
+    definition: workflowDefinition,
+    dependencies: WorkflowDependencies,
+    permissions: WorkflowPermissions,
+    startEvents?: workflowStartEvent[]
 }
+

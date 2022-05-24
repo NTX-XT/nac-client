@@ -217,14 +217,11 @@
                 }
             }
         },
-        "/connection/api/datasources": {
+        "/workflows/v1/datasources": {
             "get": {
                 "description": "Get tenant datasources",
                 "operationId": "getTenantDatasources",
                 "x-ntx-summary": "Get tenant datasources",
-                "security": [{
-                    "datasources": []
-                }],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -239,6 +236,31 @@
                                 }
                             },
                             "required": ["datasources"]
+                        }
+                    }
+                }
+            }
+        },
+        "/connection/api/datasources/{datasourceId}": {
+            "get": {
+                "description": "Get datasource",
+                "operationId": "getDatasource",
+                "x-ntx-summary": "Get datasource",
+                "security": [{
+                    "datasources": []
+                }],
+                "parameters": [{
+                    "name": "datasourceId",
+                    "in": "path",
+                    "description": "Datasource Id",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/datasource"
                         }
                     }
                 }
@@ -286,7 +308,7 @@
                 "parameters": [{
                     "name": "contractId",
                     "in": "path",
-                    "description": "The contracts Id",
+                    "description": "The contract Id",
                     "type": "string",
                     "required": true
                 }],
@@ -511,6 +533,12 @@
                                 "author": {
                                     "$ref": "#/definitions/user"
                                 },
+                                "businessOwners": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/workflowPermission"
+                                    }
+                                },
                                 "datasources": {
                                     "type": "string"
                                 },
@@ -603,7 +631,7 @@
                                 "users": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/definitions/tenantUser"
+                                        "$ref": "#/definitions/user"
                                     }
                                 }
                             }
@@ -782,17 +810,13 @@
                 }
             }
         },
-        "tenantUser": {
+        "user": {
             "type": "object",
             "required": [
-                "id",
-                "email"
+                "id"
             ],
             "properties": {
                 "id": {
-                    "type": "string"
-                },
-                "email": {
                     "type": "string"
                 },
                 "first_name": {
@@ -811,26 +835,6 @@
                     "type": "string"
                 },
                 "legacy_id": {
-                    "type": "string"
-                },
-                "roles": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "user": {
-            "type": "object",
-            "required": [
-                "id",
-                "tenantId",
-                "nintexTenantId",
-                "displayName"
-            ],
-            "properties": {
-                "id": {
                     "type": "string"
                 },
                 "roles": {
@@ -1316,7 +1320,8 @@
                 "id",
                 "name",
                 "contractId",
-                "connectionId"
+                "connectionId",
+                "operationId"
             ],
             "properties": {
                 "id": {
@@ -1356,6 +1361,9 @@
                 },
                 "isEditable": {
                     "type": "boolean"
+                },
+                "definition": {
+                    "type": "string"
                 }
             }
         },
@@ -2722,6 +2730,34 @@
                 "actions"
             ],
             "additionalProperties": false
+        },
+        "workflowDatasources": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "sources": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["id"]
+                        }
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "sources",
+                    "type"
+                ],
+                "additionalProperties": false
+            }
         },
         "dataSourceVariableMethod": {
             "type": "object",

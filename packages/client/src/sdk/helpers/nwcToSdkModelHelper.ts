@@ -1,4 +1,4 @@
-import { connection, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, tenantUser, workflowDesign, permissionItem, connectionSchema, connectionSchemaProperty } from "../../nwc";
+import { connection, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, workflowDesign, permissionItem, connectionSchema, connectionSchemaProperty, user } from "../../nwc";
 import { Connection } from "../models/connection";
 import { Contract } from "../models/contract";
 import { Datasource } from "../models/datasource";
@@ -9,11 +9,10 @@ import { Tag } from "../models/tag";
 import { User } from "../models/user";
 import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
 import { WorkflowPermissions } from "../models/workflowPermissions";
-import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionProperty } from "../models/connectionProperty";
 import { ConnectionSchema } from "../models/connectionSchema";
-import { ParsedWorkflowDefinition } from "../parsers/parsedWorkflowDefinition";
 import { Form } from "../models/form";
+import { WorkflowHelper } from "./workflowHelper";
 
 export class NwcToSdkModelHelper {
     public static Connection = (connection: connection): Connection => ({
@@ -51,7 +50,9 @@ export class NwcToSdkModelHelper {
         name: datasource.name,
         contractId: datasource.contractId,
         operationId: datasource.operationId,
-        connectionId: datasource.connectionId
+        connectionId: datasource.connectionId,
+        isValid: !datasource.isInvalid,
+        definition: datasource.definition ?? ""
     })
 
     public static Tag = (tag: tag): Tag => ({
@@ -89,37 +90,42 @@ export class NwcToSdkModelHelper {
         businessOwners: businessOwners.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item))
     })
 
-    public static Workflow = (source: workflow): Workflow => ({
-        id: source.workflowId!,
-        name: source.workflowName!,
-        tags: source.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
-        engine: source.engineName,
-        eventType: source.eventType,
-        isActive: source.isActive === undefined ? false : source.isActive,
-        isPublished: source.isPublished === undefined ? false : source.isPublished,
-        publishedId: source.publishedId,
-        status: source.status,
-        version: source.version,
-        description: source.workflowDescription,
-        designVersion: source.workflowDesignVersion,
-        type: source.workflowType,
-        comments: source.workflowVersionComments,
-        definition: new ParsedWorkflowDefinition(source.workflowDefinition),
-        _nwcObject: source,
-        startForm: source.startEvents?.find(event => event.eventType === 'nintex:form')?.webformDefinition
-            ? JSON.parse(source.startEvents!.find(event => event.eventType === 'nintex:form')!.webformDefinition!) as Form
-            : undefined,
-        datasources: source.datasources ? JSON.parse(source.datasources!) : {}
+    public static Workflow = (source: workflow, permissions: WorkflowPermissions): Workflow => {
+        const definition = WorkflowHelper.parseDefinition(source.workflowDefinition)
+        const forms = WorkflowHelper.forms(definition, source.startEvents)
+        const dependencies = WorkflowHelper.dependencies(definition, source.datasources!, forms)
+        return ({
+            id: source.workflowId,
+            name: source.workflowName,
+            info: {
+                engine: source.engineName,
+                eventType: source.eventType,
+                tags: source.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
+                isActive: source.isActive === undefined ? false : source.isActive,
+                isPublished: source.isPublished === undefined ? false : source.isPublished,
+                publishedId: source.publishedId,
+                status: source.status,
+                version: source.version,
+                description: source.workflowDescription,
+                designVersion: source.workflowDesignVersion,
+                type: source.workflowType,
+                comments: source.workflowVersionComments,
+                author: NwcToSdkModelHelper.User(source.author!)
+            },
+            startEvents: source.startEvents,
+            permissions: permissions,
+            dependencies: dependencies,
+            forms: forms,
+            definition: definition
+        });
     }
-        // _nwcObject: source,
-        // definition: WorkflowDefinitionParser.parse(source.workflowDefinition, contracts, connections, workflowInfos)
-    );
 
-    public static User = (user: tenantUser): User => ({
+    public static User = (user: user): User => ({
         id: user.id,
         email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        roles: user.roles
+        firstName: user.firstName ?? user.first_name,
+        lastName: user.lastName ?? user.last_name,
+        roles: user.roles,
+        name: user.name ?? user.displayName
     })
 }

@@ -1,5 +1,5 @@
 
 export interface WorkflowDependency {
-    id: string;
-    actionIds: string[];
+    actionIds: string[]
 }
+

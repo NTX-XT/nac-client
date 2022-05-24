@@ -6,7 +6,6 @@ import { connector } from "./connector";
 import { datasource } from "./datasource";
 import { permissionItem } from "./permissionItem";
 import { tag } from "./tag";
-import { tenantUser } from "./tenantUser";
 import { user } from "./user";
 import { workflowDesign } from "./workflowDesign";
 import { workflowPermission } from "./workflowPermission";
@@ -38,6 +37,7 @@ export type importWorkflowOptions = {
     };
 export type publishWorkflowPayload = {
     author?: user;
+    businessOwners?: Array<workflowPermission>;
     datasources?: string;
     engineName?: string;
     permissions?: Array<workflowPermission>;
@@ -51,7 +51,7 @@ export type publishWorkflowPayload = {
     workflowType?: string;
     workflowVersionComments?: string;
     };
-export type getTenantUsersResponseType = {users: Array<tenantUser>;
+export type getTenantUsersResponseType = {users: Array<user>;
     };
 export type getWorkflowOwnersResponseType = {permissions: Array<permissionItem>;
     };

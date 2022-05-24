@@ -2,6 +2,7 @@ import { ActionConfiguration } from "./connectionDependencyActionConfiguration";
 
 
 export interface ConnectionDependency {
-    connectionId: string,
-    actions: { [actionId: string]: ActionConfiguration };
+    connectionName: string
+    actions: { [actionId: string]: ActionConfiguration }
+    datasources: { [datasourceId: string]: string }
 }

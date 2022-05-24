@@ -3,5 +3,7 @@ export interface Datasource {
     name: string
     contractId: string
     connectionId: string
-    operationId?: string
+    operationId: string
+    isValid: boolean,
+    definition: string
 }

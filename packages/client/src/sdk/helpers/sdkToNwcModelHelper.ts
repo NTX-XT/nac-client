@@ -1,5 +1,6 @@
-import { permissionItem, tag, workflow } from "../../nwc";
+import { permissionItem, tag, user } from "../../nwc";
 import { Tag } from "../models/tag";
+import { User } from "../models/user";
 import { Workflow } from "../models/workflow";
 import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
 
@@ -19,6 +20,12 @@ export class SdkToNwcModelHelper {
         type: permission.type
     })
 
+    // public static user = (user: User) : user => ({
+    //     id: user.id,
+    //     displayName: user.name ?? "",
+
+
+    // })
     // public static workflowSource = (worklflow: Workflow): workflow => ({
     //     author: worklflow._nwcObject.author,
     //     created: worklflow._nwcObject.created,
