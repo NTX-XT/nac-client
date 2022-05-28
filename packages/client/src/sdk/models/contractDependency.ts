@@ -1,8 +1,8 @@
 import { ConnectionDependency } from "./connectionDependency";
-import { DatasourceDependency } from "./datasourceDependency";
 
 
 export interface ContractDependency {
+    contractId: string
     contractName: string
     needsResolution: boolean
     connections: { [key: string]: ConnectionDependency; }

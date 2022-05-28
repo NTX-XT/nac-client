@@ -22,8 +22,7 @@ import { DoStatement } from 'ts-morph'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
-    name?: string,
-    matchNameAsPattern?: boolean
+    namePattern?: string,
 }
 
 export const invalidId = "undefined"
@@ -138,18 +137,21 @@ export class Sdk {
                     return (matchedTags && matchedTags.length > 0)
                 })
             }
-            if (options.name) {
-                workflowInfos = workflowInfos.filter((wfl) => (options.matchNameAsPattern === true ? wfl.name!.includes(options.name!) : wfl.name! === options.name))
+            if (options.namePattern) {
+                workflowInfos = workflowInfos.filter(wfl => wfl.name! === options.namePattern)
             }
             return Promise.resolve(workflowInfos)
         }).catch((error: ApiError) => Promise.reject(error))
     }
 
+    public getWorkflowDesign = (workflowId: string): Promise<WorkflowDesign | undefined> => this.getWorkflowDesigns().then((designs) => designs.find(design => design.id === workflowId))
+    public getWorkflowDesignByName = (workflowName: string): Promise<WorkflowDesign | undefined> => this.getWorkflowDesigns().then((designs) => designs.find(design => design.name === workflowName))
+
     @Cacheable({ cacheKey: "workflow" })
     public getWorkflow(workflowId: string): Promise<Workflow> {
         return this._nwc.default.getWorkflow(workflowId)
-            .then((workflow) => this.getWorkflowPermissions(workflowId)
-                .then((permissions) => NwcToSdkModelHelper.Workflow(workflow, permissions))
+            .then((workflow) => this.getWorkflowDesign(workflowId)
+                .then((design) => NwcToSdkModelHelper.Workflow(workflow, design!))
                 .catch((error) => Promise.reject(error))
             ).catch((error) => Promise.reject(error))
     }
@@ -331,27 +333,21 @@ export class Sdk {
     }
 
     @CacheClear({ cacheKey: "workflow" })
-    public publishWorkflow(workflow: Workflow): Promise<workflow> {
-        // const definition = WorkflowDefinitionHelper.toObject(workflow._nwcObject.workflowDefinition)
-        // WorkflowDefinitionHelper.ensureWorkflowId(definition, workflow.id)
-        // workflow._nwcObject.workflowDefinition = WorkflowDefinitionHelper.toString(definition)
-        return this._nwc.default.publishWorkflow(workflow.id, {
-            author: workflow.info.author,
-            datasources: "", // workflow._nwcObject.datasources,
-            engineName: workflow.info.engine,
-            permissions: workflow.permissions.workflowOwners,
-            businessOwners: workflow.permissions.workflowOwners,
-            startEvents: [],// workflow.details.startEvents,
-            tags: workflow.info.tags,
-            version: workflow.info.version,
-            workflowDefinition: "", // workflow.workflowDefinition,
-            workflowDescription: workflow.info.description,
-            workflowDesignParentVersion: workflow.info.designVersion,
-            workflowName: workflow.name,
-            workflowType: workflow.definition.settings.type,
-            workflowVersionComments: workflow.info.comments
-        })
-            .then((response) => response)
+    public publishWorkflow(workflow: Workflow): Promise<Workflow> {
+        return this._nwc.default.publishWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
+            .then((response) => this.getWorkflow(response.workflowId)
+                .then((workflow) => workflow))
+            .catch((error: ApiError) => Promise.reject(error))
             .catch((error: ApiError) => Promise.reject(error))
     }
+
+    @CacheClear({ cacheKey: "workflow" })
+    public saveWorkflow(workflow: Workflow): Promise<Workflow> {
+        return this._nwc.default.saveWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
+            .then((response) => this.getWorkflow(response.workflowId)
+                .then((workflow) => workflow))
+            .catch((error: ApiError) => Promise.reject(error))
+            .catch((error: ApiError) => Promise.reject(error))
+    }
+
 }

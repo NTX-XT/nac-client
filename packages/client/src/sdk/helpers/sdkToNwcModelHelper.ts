@@ -1,9 +1,11 @@
-import { permissionItem, tag, user } from "../../nwc";
+import { permissionItem, tag, user, connection, publishWorkflowPayload, updateWorkflowPayload, workflowDatasources } from "../../nwc";
+import { Connection } from "../models/connection";
+import { DatasourceDependency } from "../models/datasourceDependency";
 import { Tag } from "../models/tag";
 import { User } from "../models/user";
 import { Workflow } from "../models/workflow";
 import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
-
+import { WorkflowHelper } from "./workflowHelper";
 
 export class SdkToNwcModelHelper {
     public static tag = (tag: Tag): tag => (
@@ -20,6 +22,41 @@ export class SdkToNwcModelHelper {
         type: permission.type
     })
 
+    public static updateWorkflowPayload = (workflow: Workflow): updateWorkflowPayload => ({
+        workflowName: workflow.name,
+        workflowDescription: workflow.info.description,
+        workflowType: workflow.definition.settings.type,
+        workflowDefinition: JSON.stringify(workflow.definition),
+        author: workflow.info.author,
+        startEvents: workflow.startEvents,
+        datasources: JSON.stringify(SdkToNwcModelHelper.datasources(WorkflowHelper.allDatasourceDependencies(workflow.dependencies))),
+        permissions: workflow.permissions.workflowOwners,
+        businessOwners: workflow.permissions.businessOwners,
+        workflowVersionComments: workflow.info.comments,
+        workflowDesignParentVersion: workflow.info.designVersion,
+        tags: workflow.info.tags,
+        engineName: workflow.info.engine,
+        version: workflow.info.version
+    })
+
+    public static datasources = (dependencies: DatasourceDependency[]): workflowDatasources => {
+        const datasources: workflowDatasources = {}
+
+        for (const dependency of dependencies) {
+            for (const formId of dependency.formIds) {
+                if (!datasources[formId]) {
+                    datasources[formId] = {
+                        sources: [],
+                        type: formId === "startForm" ? formId : "taskForm"
+                    }
+                }
+                const existingId = datasources[formId].sources.find(ds => ds.id === formId)
+                if (!existingId)
+                    datasources[formId].sources.push({ id: formId })
+            }
+        }
+        return datasources
+    }
     // public static user = (user: User) : user => ({
     //     id: user.id,
     //     displayName: user.name ?? "",

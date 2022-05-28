@@ -5,11 +5,9 @@ import { connection } from "./connection";
 import { connector } from "./connector";
 import { datasource } from "./datasource";
 import { permissionItem } from "./permissionItem";
-import { tag } from "./tag";
+import { updateWorkflowPayload } from "./updateWorkflowPayload";
 import { user } from "./user";
 import { workflowDesign } from "./workflowDesign";
-import { workflowPermission } from "./workflowPermission";
-import { workflowStartEvent } from "./workflowStartEvent";
 
 export type getTokenOptions = {
     client_id: string;
@@ -35,22 +33,8 @@ export type importWorkflowOptions = {
     key: string;
     overwriteExisting?: boolean;
     };
-export type publishWorkflowPayload = {
-    author?: user;
-    businessOwners?: Array<workflowPermission>;
-    datasources?: string;
-    engineName?: string;
-    permissions?: Array<workflowPermission>;
-    startEvents?: Array<workflowStartEvent>;
-    tags?: Array<tag>;
-    version?: number;
-    workflowDefinition?: string;
-    workflowDescription?: string;
-    workflowDesignParentVersion?: string;
-    workflowName?: string;
-    workflowType?: string;
-    workflowVersionComments?: string;
-    };
+export type saveWorkflowPayload = updateWorkflowPayload;
+export type publishWorkflowPayload = updateWorkflowPayload;
 export type getTenantUsersResponseType = {users: Array<user>;
     };
 export type getWorkflowOwnersResponseType = {permissions: Array<permissionItem>;

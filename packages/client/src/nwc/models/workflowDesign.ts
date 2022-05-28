@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { businessOwner } from './businessOwner';
 import type { draftWorkflowDetails } from './draftWorkflowDetails';
 import type { publishedWorkflowDetails } from './publishedWorkflowDetails';
+import type { workflowPermission } from './workflowPermission';
 
 export type workflowDesign = {
 	id: string;
@@ -12,7 +12,7 @@ export type workflowDesign = {
 	published?: publishedWorkflowDetails;
 	lastModified?: string;
 	name: string;
-	businessOwners?: Array<businessOwner>;
+	businessOwners: Array<workflowPermission>;
 	tags?: Array<any>;
 	engine: string;
 	publishRequestedBy?: string;

@@ -19,7 +19,8 @@ export class NwcToSdkModelHelper {
         id: connection.id,
         name: connection.displayName,
         isValid: !(connection.isInvalid ?? false),
-        contractId: connection.contractId
+        contractId: connection.contractId,
+        nwcObject: connection
     })
 
     public static ConnectionSchema = (schema: connectionSchema): ConnectionSchema => ({
@@ -66,7 +67,9 @@ export class NwcToSdkModelHelper {
         id: workflowDesign.id!,
         name: workflowDesign.name!,
         engine: workflowDesign.engine,
-        tags: workflowDesign.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag))
+        tags: workflowDesign.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
+        businessOwners: workflowDesign.businessOwners.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item)),
+        formUrl: workflowDesign.published?.urls?.formUrl ?? workflowDesign.draft?.urls?.formUrl
     });
 
     public static Tenant = (tenantInfo: tenantInfo, tenantConfiguration: tenantConfiguration): Tenant => ({
@@ -90,33 +93,37 @@ export class NwcToSdkModelHelper {
         businessOwners: businessOwners.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item))
     })
 
-    public static Workflow = (source: workflow, permissions: WorkflowPermissions): Workflow => {
-        const definition = WorkflowHelper.parseDefinition(source.workflowDefinition)
-        const forms = WorkflowHelper.forms(definition, source.startEvents)
-        const dependencies = WorkflowHelper.dependencies(definition, source.datasources!, forms)
+    public static Workflow = (workflow: workflow, design: WorkflowDesign): Workflow => {
+        const definition = WorkflowHelper.parseDefinition(workflow.workflowDefinition)
+        const forms = WorkflowHelper.forms(definition, workflow.startEvents)
+        const dependencies = WorkflowHelper.dependencies(definition, workflow.datasources!, forms)
         return ({
-            id: source.workflowId,
-            name: source.workflowName,
+            id: workflow.workflowId,
+            name: workflow.workflowName,
             info: {
-                engine: source.engineName,
-                eventType: source.eventType,
-                tags: source.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
-                isActive: source.isActive === undefined ? false : source.isActive,
-                isPublished: source.isPublished === undefined ? false : source.isPublished,
-                publishedId: source.publishedId,
-                status: source.status,
-                version: source.version,
-                description: source.workflowDescription,
-                designVersion: source.workflowDesignVersion,
-                type: source.workflowType,
-                comments: source.workflowVersionComments,
-                author: NwcToSdkModelHelper.User(source.author!)
+                engine: workflow.engineName,
+                eventType: workflow.eventType,
+                tags: workflow.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
+                isActive: workflow.isActive === undefined ? false : workflow.isActive,
+                isPublished: workflow.isPublished === undefined ? false : workflow.isPublished,
+                publishedId: workflow.publishedId,
+                status: workflow.status,
+                version: workflow.version,
+                description: workflow.workflowDescription,
+                designVersion: workflow.workflowDesignVersion,
+                type: workflow.workflowType,
+                comments: workflow.workflowVersionComments,
+                author: NwcToSdkModelHelper.User(workflow.author!)
             },
-            startEvents: source.startEvents,
-            permissions: permissions,
+            startEvents: workflow.startEvents,
+            permissions: {
+                businessOwners: design.businessOwners,
+                workflowOwners: (workflow.permissions) ? workflow.permissions.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item)) : []
+            },
             dependencies: dependencies,
             forms: forms,
-            definition: definition
+            definition: definition,
+            startFormUrl: design.formUrl
         });
     }
 

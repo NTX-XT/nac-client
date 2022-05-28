@@ -12,6 +12,7 @@ export interface Workflow {
     definition: workflowDefinition,
     dependencies: WorkflowDependencies,
     permissions: WorkflowPermissions,
-    startEvents?: workflowStartEvent[]
+    startEvents?: workflowStartEvent[],
+    startFormUrl?: string
 }
 

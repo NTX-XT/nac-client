@@ -9,22 +9,21 @@ import type { datasource } from '../models/datasource';
 import type { exportWorkflowResponse } from '../models/exportWorkflowResponse';
 import type { importWorkflowResponse } from '../models/importWorkflowResponse';
 import type { permissionItem } from '../models/permissionItem';
-import type { tag } from '../models/tag';
+import type { saveWorkflowResponse } from '../models/saveWorkflowResponse';
 import type { tagResponse } from '../models/tagResponse';
 import type { tenantConfiguration } from '../models/tenantConfiguration';
 import type { tenantInfo } from '../models/tenantInfo';
 import type { tokenResponse } from '../models/tokenResponse';
+import type { updateWorkflowPayload } from '../models/updateWorkflowPayload';
 import type { user } from '../models/user';
 import type { workflow } from '../models/workflow';
 import type { workflowDesign } from '../models/workflowDesign';
-import type { workflowPermission } from '../models/workflowPermission';
-import type { workflowStartEvent } from '../models/workflowStartEvent';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "@type-cacheable/core";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -228,6 +227,20 @@ workflowId: string,
 			path: {
 				'workflowId': workflowId,
 			},
+		});
+	}
+
+	private saveWorkflowCancelable(
+workflowId: string,
+payload: saveWorkflowPayload,
+): CancelablePromise<saveWorkflowResponse> {
+		return this.httpRequest.request({
+			method: 'PUT',
+			url: '/designer_/api/workflows/{workflowId}',
+			path: {
+				'workflowId': workflowId,
+			},
+			body: payload,
 		});
 	}
 
@@ -508,6 +521,18 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
     @Cacheable()
     public deleteDraftWorkflow(workflowId: string): Promise<any> {
         return this.deleteDraftWorkflowCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Save workflow
+     * @param workflowId Id of the workflow
+     * @param payload
+     * @returns saveWorkflowResponse Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public saveWorkflow(workflowId: string, payload: saveWorkflowPayload): Promise<saveWorkflowResponse> {
+        return this.saveWorkflowCancelable(workflowId, payload).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**

@@ -21,4 +21,12 @@ export class ActionHelper {
         ActionHelper.getParameterValue(parameter)
             ? ActionHelper.getParameterValue(parameter)[ActionHelper.getParameterValueKey(parameter, KnownStrings.NTXConnectionId)]?.data
             : undefined
+
+    public static getXtensionInput = (action: action): any | undefined => {
+        const parameter = ActionHelper.getXtensionInputParameter(action)
+        return (parameter)
+            ? ActionHelper.getParameterValue(parameter)[ActionHelper.getParameterValueKey(parameter, KnownStrings.NTXConnectionId)]
+            : undefined
+    }
+
 }

@@ -505,7 +505,37 @@
                         "description": "Ok"
                     }
                 }
+            },
+            "put": {
+                "description": "Save workflow",
+                "operationId": "saveWorkflow",
+                "x-ntx-summary": "Save workflow",
+                "parameters": [{
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/updateWorkflowPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/saveWorkflowResponse"
+                        }
+                    }
+                }
             }
+
         },
         "/designer_/api/workflows/{workflowId}/published": {
             "post": {
@@ -524,68 +554,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "required": [
-                                "name",
-                                "key"
-                            ],
-                            "properties": {
-                                "author": {
-                                    "$ref": "#/definitions/user"
-                                },
-                                "businessOwners": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/workflowPermission"
-                                    }
-                                },
-                                "datasources": {
-                                    "type": "string"
-                                },
-                                "engineName": {
-                                    "type": "string"
-                                },
-                                "permissions": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/workflowPermission"
-                                    }
-                                },
-                                "startEvents": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/workflowStartEvent"
-                                    }
-                                },
-                                "tags": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/definitions/tag"
-                                    }
-                                },
-                                "version": {
-                                    "type": "integer",
-                                    "format": "int32"
-                                },
-                                "workflowDefinition": {
-                                    "type": "string"
-                                },
-                                "workflowDescription": {
-                                    "type": "string"
-                                },
-                                "workflowDesignParentVersion": {
-                                    "type": "string"
-                                },
-                                "workflowName": {
-                                    "type": "string"
-                                },
-                                "workflowType": {
-                                    "type": "string"
-                                },
-                                "workflowVersionComments": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/definitions/updateWorkflowPayload"
                         }
                     }
                 ],
@@ -1572,7 +1541,8 @@
             "required": [
                 "id",
                 "name",
-                "engine"
+                "engine",
+                "businessOwners"
             ],
             "properties": {
                 "id": {
@@ -1593,7 +1563,7 @@
                 "businessOwners": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/businessOwner"
+                        "$ref": "#/definitions/workflowPermission"
                     }
                 },
                 "tags": {
@@ -1740,6 +1710,88 @@
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "saveWorkflowResponse": {
+            "type": "object",
+            "required": [
+                "workflowId",
+                "workflowDesignVersion"
+            ],
+            "properties": {
+                "workflowId": {
+                    "type": "string"
+                },
+                "workflowDesignVersion": {
+                    "type": "string"
+                }
+            }
+        },
+        "updateWorkflowPayload": {
+            "type": "object",
+            "required": [
+                "datasources",
+                "engineName",
+                "permissions",
+                "workflowDefinition",
+                "workflowName"
+            ],
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/user"
+                },
+                "businessOwners": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/workflowPermission"
+                    }
+                },
+                "datasources": {
+                    "type": "string"
+                },
+                "engineName": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/workflowPermission"
+                    }
+                },
+                "startEvents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/workflowStartEvent"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tag"
+                    }
+                },
+                "version": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "workflowDefinition": {
+                    "type": "string"
+                },
+                "workflowDescription": {
+                    "type": "string"
+                },
+                "workflowDesignParentVersion": {
+                    "type": "string"
+                },
+                "workflowName": {
+                    "type": "string"
+                },
+                "workflowType": {
+                    "type": "string"
+                },
+                "workflowVersionComments": {
                     "type": "string"
                 }
             }

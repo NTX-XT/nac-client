@@ -10,6 +10,10 @@ import { Form } from "../models/form";
 import { KnownStrings } from "../../utils/knownStrings";
 import { WorkflowForms } from "../models/workflowForms";
 import { WorkflowDependencies } from "../models/workflowDependencies";
+import { Connection } from "../models/connection";
+import { Workflow } from "../models/workflow";
+import { ConnectionDependency } from "../models/connectionDependency";
+import { DatasourceDependency } from "../models/datasourceDependency";
 
 export class WorkflowHelper {
     static parseDefinition = (definition: string): workflowDefinition => JSON.parse(definition)
@@ -69,13 +73,37 @@ export class WorkflowHelper {
     static dependencies = (definition: workflowDefinition, datasources: string, forms: WorkflowForms): WorkflowDependencies => {
         const dependencies: { [key: string]: ContractDependency; } = {}
         this.resolveConnectionDependencies(dependencies, definition)
-        this.resolveDatasourceDependencies(dependencies, JSON.parse(datasources), forms)
+        if (datasources !== "") {
+            this.resolveDatasourceDependencies(dependencies, JSON.parse(datasources), forms)
+        }
         return {
             contracts: dependencies,
             workflows: this.workflowDependencies(definition),
         }
     }
-    // source.datasources ? WorkflowHelper.datasourceDependencies(JSON.parse(source.datasources!)
+
+    static allContractDependencies = (dependencies: WorkflowDependencies): ContractDependency[] => Object.values(dependencies.contracts)
+    static allConnectionDependencies = (dependencies: WorkflowDependencies): ConnectionDependency[] => {
+        const connectionDependencies: ConnectionDependency[] = []
+        this.allContractDependencies(dependencies).map((dep) =>
+            Object.values(dep.connections).map((cn) =>
+                connectionDependencies.push(cn)
+            )
+        )
+        return connectionDependencies
+    }
+
+    static allDatasourceDependencies = (dependencies: WorkflowDependencies): DatasourceDependency[] => {
+        const datasourceDependencies: DatasourceDependency[] = []
+        this.allConnectionDependencies(dependencies).map((dep) =>
+            Object.values(dep.datasources).map((ds) =>
+                datasourceDependencies.push(ds)
+            )
+        )
+        return datasourceDependencies
+    }
+
+
 
     private static workflowDependencies = (definition: workflowDefinition): { [key: string]: WorkflowDependency; } => {
         const dependencies: { [key: string]: WorkflowDependency; } = {}
@@ -103,6 +131,7 @@ export class WorkflowHelper {
         for (const contractId of Object.keys(definition.inUseXtensions)) {
             if (!(dependencies[contractId])) {
                 dependencies[contractId] = {
+                    contractId: contractId,
                     contractName: "",
                     connections: {},
                     needsResolution: false
@@ -116,6 +145,7 @@ export class WorkflowHelper {
                     if (!(dependencies[contractId].connections[connection.id])) {
                         dependencies[contractId].connections[connection.id] = {
                             connectionName: connection.displayName,
+                            connectionId: connection.id,
                             actions: {},
                             datasources: {}
                         }
@@ -164,9 +194,9 @@ export class WorkflowHelper {
 
     private static resolveDatasourceDependencies = (dependencies: { [key: string]: ContractDependency; }, datasources: workflowDatasources, forms: WorkflowForms): void => {
         for (const formId of Object.keys(datasources)) {
-            for (const index in datasources[formId].sources) {
+            for (const source of datasources[formId].sources) {
                 const form = datasources[formId].type === "startForm" ? forms.startForm! : forms.taskForms![formId]
-                const connection = this.getDatasourceConnection(datasources[formId].sources[index].id, form)
+                const connection = this.getDatasourceConnection(source.id, form)
                 if (connection) {
                     let dependencyKey = connection.contractId ?? connection.contractName
                     let needsResolution = (!connection.contractId)
@@ -180,6 +210,7 @@ export class WorkflowHelper {
                     }
                     if (!(dependencies[dependencyKey])) {
                         dependencies[dependencyKey] = {
+                            contractId: connection.contractId,
                             contractName: connection.contractName,
                             connections: {},
                             needsResolution: needsResolution
@@ -187,33 +218,23 @@ export class WorkflowHelper {
                     }
                     if (!(dependencies[dependencyKey].connections[connection.id])) {
                         dependencies[dependencyKey].connections[connection.id] = {
+                            connectionId: connection.id,
                             connectionName: connection.displayName,
                             actions: {},
                             datasources: {}
                         }
                     }
-                    dependencies[dependencyKey].connections[connection.id].datasources[datasources[formId].sources[index].id] = formId
+                    if (!(dependencies[dependencyKey].connections[connection.id].datasources[source.id])) {
+                        dependencies[dependencyKey].connections[connection.id].datasources[source.id] = {
+                            datasourceId: source.id,
+                            formIds: []
+                        }
+                    }
+                    dependencies[dependencyKey].connections[connection.id].datasources[source.id].formIds.push(formId)
                 }
             }
         }
     }
-
-    // static datasourceDependencies = (datasources: workflowDatasources): { [key: string]: DatasourceDependency; } => {
-    //     const dependencies: { [key: string]: DatasourceDependency; } = {}
-    //     for (const formId of Object.keys(datasources)) {
-    //         for (const index in datasources[formId].sources) {
-    //             const sourceId = datasources[formId].sources[index].id
-    //             if (!dependencies[sourceId]) {
-    //                 dependencies[sourceId] = {
-    //                     datasourceId: sourceId,
-    //                     formIds: []
-    //                 }
-    //             }
-    //             dependencies[sourceId].formIds.push(formId)
-    //         }
-    //     }
-    //     return dependencies
-    // }
 
     static forms = (definition: workflowDefinition, startEvents?: workflowStartEvent[]): WorkflowForms => {
         const taskForms: { [key: string]: Form } = {}
@@ -249,5 +270,25 @@ export class WorkflowHelper {
                 }
             }
         }
+    }
+
+    static swapConnection = (workflow: Workflow, existingConnection: Connection, newConnection: Connection): void => {
+        for (const actionId of Object.keys(workflow.dependencies.contracts[existingConnection.contractId].connections[existingConnection.id].actions)) {
+            const dic = WorkflowHelper.actionsDictionary(workflow.definition)
+            const value = ActionHelper.getXtensionInput(dic[actionId])
+            value.data = newConnection.nwcObject
+            value.literal = newConnection.id
+            // let cn = ActionHelper.getConnection(ActionHelper.getXtensionInputParameter(dic[actionId]))
+            // cn = newConnection.nwcObject
+        }
+    }
+
+    static findConnectionDependency = (workflow: Workflow, connectionId: string): ConnectionDependency | undefined => {
+        for (const contractId in workflow.dependencies.contracts) {
+            if (workflow.dependencies.contracts[contractId].connections[connectionId]) {
+                return workflow.dependencies.contracts[contractId].connections[connectionId]
+            }
+        }
+        return undefined
     }
 }
