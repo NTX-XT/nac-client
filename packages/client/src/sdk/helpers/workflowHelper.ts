@@ -272,14 +272,15 @@ export class WorkflowHelper {
         }
     }
 
-    static swapConnection = (workflow: Workflow, existingConnection: Connection, newConnection: Connection): void => {
-        for (const actionId of Object.keys(workflow.dependencies.contracts[existingConnection.contractId].connections[existingConnection.id].actions)) {
-            const dic = WorkflowHelper.actionsDictionary(workflow.definition)
-            const value = ActionHelper.getXtensionInput(dic[actionId])
-            value.data = newConnection.nwcObject
-            value.literal = newConnection.id
-            // let cn = ActionHelper.getConnection(ActionHelper.getXtensionInputParameter(dic[actionId]))
-            // cn = newConnection.nwcObject
+    static swapConnection = (workflow: Workflow, connectionId: string, newConnection: Connection): void => {
+        const dependency = WorkflowHelper.allConnectionDependencies(workflow.dependencies).find(cn => cn.connectionId === connectionId)
+        if (dependency) {
+            for (const actionId of Object.keys(dependency.actions)) {
+                const dic = WorkflowHelper.actionsDictionary(workflow.definition)
+                const value = ActionHelper.getXtensionInput(dic[actionId])
+                value.data = newConnection.nwcObject
+                value.literal = newConnection.id
+            }
         }
     }
 
