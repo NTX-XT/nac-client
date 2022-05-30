@@ -13,5 +13,6 @@ export type { ActionConfiguration } from './models/connectionDependencyActionCon
 export type { ConnectionSchema } from './models/connectionSchema'
 export type { ConnectionProperty } from './models/connectionProperty'
 export type { Tag } from './models/tag'
+export type { WorkflowPermissions } from './models/workflowPermissions'
 export { DatasourceHelper } from './helpers/datasourceHelper'
 export { WorkflowHelper } from './helpers/workflowHelper'
