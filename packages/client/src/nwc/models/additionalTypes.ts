@@ -4,6 +4,7 @@
 import { connection } from "./connection";
 import { connector } from "./connector";
 import { datasource } from "./datasource";
+import { datasourcePayload } from "./datasourcePayload";
 import { permissionItem } from "./permissionItem";
 import { updateWorkflowPayload } from "./updateWorkflowPayload";
 import { user } from "./user";
@@ -22,6 +23,7 @@ export type getDatasourceTokenResponseType = {token?: string;
     };
 export type getTenantDatasourcesResponseType = {datasources: Array<datasource>;
     };
+export type createDatasourcePayload = datasourcePayload;
 export type createConnectionProperties = Record<string, string>;
 export type getWorkflowDesignsResponseType = {workflows: Array<workflowDesign>;
     };

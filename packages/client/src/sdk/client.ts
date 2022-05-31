@@ -1,5 +1,5 @@
 
-import { Nwc, ApiError, permissionItem, workflow, workflowDefinition } from './../nwc'
+import { Nwc, ApiError, permissionItem, workflow, workflowDefinition, datasourcePayload } from './../nwc'
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
 import { Workflow } from './models/workflow'
@@ -19,6 +19,7 @@ import { WorkflowHelper } from './helpers/workflowHelper'
 import { Tag } from './models/tag'
 import { Data } from 'node-cache'
 import { DoStatement } from 'ts-morph'
+import { DatasourceHelper } from './helpers/datasourceHelper'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
@@ -264,16 +265,25 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
     }
 
-    public getDatasource = (id: string): Promise<Datasource | undefined> =>
-        this.getDatasources()
-            .then((datasources) => datasources.find(ds => ds.id === id))
+    @Cacheable({ cacheKey: "datasource" })
+    public getDatasource(id: string): Promise<Datasource> {
+        return this._nwc.default.getDatasource(id)
+            .then((datasource) => NwcToSdkModelHelper.Datasource(datasource))
             .catch((error: ApiError) => Promise.reject(error))
+    }
 
     public getDatasourceByName = (name: string): Promise<Datasource | undefined> =>
         this.getDatasources()
             .then((datasources) => datasources.find(ds => ds.name === name))
             .catch((error: ApiError) => Promise.reject(error))
 
+    @CacheClear({ cacheKey: "datasources" })
+    public createDatasource(payload: datasourcePayload): Promise<Datasource | undefined> {
+        DatasourceHelper.changeConnection(payload, payload.connectionId)
+        return this._nwc.default.createDatasource(payload).then((response) =>
+            this.getDatasource(response))
+            .catch((error: ApiError) => Promise.reject(error))
+    }
     // public groupConnections(connections: Connection[]): Promise<Contract[]> {
     //     const uniqueContractIds = connections.map((cn) => cn.contract?.id).filter((value, index, self) => self.indexOf(value) === index)
     //     const invalidConnections = connections.filter((cn) => cn.contract === undefined)

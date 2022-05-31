@@ -6,6 +6,7 @@ import type { connectionSchema } from '../models/connectionSchema';
 import type { connector } from '../models/connector';
 import type { contract } from '../models/contract';
 import type { datasource } from '../models/datasource';
+import type { datasourcePayload } from '../models/datasourcePayload';
 import type { exportWorkflowResponse } from '../models/exportWorkflowResponse';
 import type { importWorkflowResponse } from '../models/importWorkflowResponse';
 import type { permissionItem } from '../models/permissionItem';
@@ -23,7 +24,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "@type-cacheable/core";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createDatasourcePayload, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -123,6 +124,16 @@ datasourceId: string,
 			path: {
 				'datasourceId': datasourceId,
 			},
+		});
+	}
+
+	private createDatasourceCancelable(
+payload: createDatasourcePayload,
+): CancelablePromise<string> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/connection/api/datasources',
+			body: payload,
 		});
 	}
 
@@ -431,6 +442,17 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
     @Cacheable()
     public getDatasource(datasourceId: string): Promise<datasource> {
         return this.getDatasourceCancelable(datasourceId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Create datasource
+     * @param payload Datasource payload
+     * @returns string Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public createDatasource(payload: createDatasourcePayload): Promise<string> {
+        return this.createDatasourceCancelable(payload).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**

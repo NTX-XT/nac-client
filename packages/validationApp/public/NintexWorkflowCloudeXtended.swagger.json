@@ -266,6 +266,33 @@
                 }
             }
         },
+        "/connection/api/datasources": {
+            "post": {
+                "description": "Create datasource",
+                "operationId": "createDatasource",
+                "x-ntx-summary": "Create datasource",
+                "security": [{
+                    "datasources": []
+                }],
+                "parameters": [{
+                    "name": "payload",
+                    "in": "body",
+                    "description": "Datasource payload",
+                    "schema": {
+                        "$ref": "#/definitions/datasourcePayload"
+                    },
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/connection/api/contracts": {
             "get": {
                 "description": "Get tenant contracts",
@@ -1280,6 +1307,37 @@
                 },
                 "ownership": {
                     "type": "boolean"
+                }
+            }
+        },
+        "datasourcePayload": {
+            "type": "object",
+            "required": [
+                "name",
+                "description",
+                "operationId",
+                "contractId",
+                "connectionId",
+                "definition"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "contractId": {
+                    "type": "string"
+                },
+                "operationId": {
+                    "type": "string"
+                },
+                "connectionId": {
+                    "type": "string"
+                },
+                "definition": {
+                    "type": "string"
                 }
             }
         },

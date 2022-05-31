@@ -1,9 +1,10 @@
 import { Datasource } from "../models/datasource";
 import jsonSchemaTraverse from "json-schema-traverse";
 import { KnownStrings } from "../../utils/knownStrings";
+import { datasourcePayload } from "../../nwc";
 
 export class DatasourceHelper {
-    static changeConnection = (datasource: Datasource, newConnectionId: string) => {
+    static changeConnection = (datasource: Datasource | datasourcePayload, newConnectionId: string) => {
         datasource.definition = datasource.definition.split(datasource.connectionId).join(newConnectionId)
         datasource.connectionId = newConnectionId
     }

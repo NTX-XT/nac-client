@@ -20,6 +20,7 @@ export type { connectionSchemaProperty } from './models/connectionSchemaProperty
 export type { connector } from './models/connector';
 export type { contract } from './models/contract';
 export type { datasource } from './models/datasource';
+export type { datasourcePayload } from './models/datasourcePayload';
 export type { dataSourceVariable } from './models/dataSourceVariable';
 export type { dataSourceVariableMethod } from './models/dataSourceVariableMethod';
 export type { dataType } from './models/dataType';
@@ -66,6 +67,7 @@ export type { getTenantConnectorsResponseType } from "./models/additionalTypes";
 export type { getTenantConnectionsResponseType } from "./models/additionalTypes";
 export type { getDatasourceTokenResponseType } from "./models/additionalTypes";
 export type { getTenantDatasourcesResponseType } from "./models/additionalTypes";
+export type { createDatasourcePayload } from "./models/additionalTypes";
 export type { createConnectionProperties } from "./models/additionalTypes";
 export type { getWorkflowDesignsResponseType } from "./models/additionalTypes";
 export type { exportWorkflowOptions } from "./models/additionalTypes";
