@@ -96,7 +96,7 @@ export class NwcToSdkModelHelper {
     public static Workflow = (workflow: workflow, design: WorkflowDesign): Workflow => {
         const definition = WorkflowHelper.parseDefinition(workflow.workflowDefinition)
         const forms = WorkflowHelper.forms(definition, workflow.startEvents)
-        const dependencies = WorkflowHelper.dependencies(definition, workflow.datasources!, forms)
+        const dependencies = WorkflowHelper.dependencies(definition, forms)
         return ({
             id: workflow.workflowId,
             name: workflow.workflowName,

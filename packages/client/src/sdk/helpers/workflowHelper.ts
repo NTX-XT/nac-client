@@ -70,12 +70,10 @@ export class WorkflowHelper {
     static actionsArray = (definition: workflowDefinition): action[] => flattenTree(definition.actions, "next", "children")
     static actionsDictionary = (definition: workflowDefinition): { [key: string]: action; } => arrayToDictionary(WorkflowHelper.actionsArray(definition), "id")
 
-    static dependencies = (definition: workflowDefinition, datasources: string, forms: WorkflowForms): WorkflowDependencies => {
+    static dependencies = (definition: workflowDefinition, forms: WorkflowForms): WorkflowDependencies => {
         const dependencies: { [key: string]: ContractDependency; } = {}
         this.resolveConnectionDependencies(dependencies, definition)
-        if (datasources !== "") {
-            this.resolveDatasourceDependencies(dependencies, JSON.parse(datasources), forms)
-        }
+        this.resolveDatasourceDependencies(dependencies, definition.settings.datasources, forms)
         return {
             contracts: dependencies,
             workflows: this.workflowDependencies(definition),
