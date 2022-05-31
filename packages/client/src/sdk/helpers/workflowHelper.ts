@@ -140,14 +140,16 @@ export class WorkflowHelper {
             for (const actionId of definition.inUseXtensions[contractId].usedByActionIds) {
                 const action = WorkflowHelper.actionsDictionary(definition)[actionId]
                 const connection = ActionHelper.getConnection(ActionHelper.getXtensionInputParameter(action))
-                // const connectionId = ActionHelper.getConnectionId(ActionHelper.getXtensionInputParameter(action))
                 if (connection) {
-                    if (!(dependencies[contractId].connections[connection.id])) {
-                        dependencies[contractId].connections[connection.id] = {
+                    const dependencyKey = connection.id === 'undefined' ? connection.displayName : connection.id
+                    const needsResolution = (connection.id === 'undefined')
+                    if (!(dependencies[contractId].connections[dependencyKey])) {
+                        dependencies[contractId].connections[dependencyKey] = {
                             connectionName: connection.displayName,
                             connectionId: connection.id,
                             actions: {},
-                            datasources: {}
+                            datasources: {},
+                            needsResolution: needsResolution
                         }
                     }
                     if (dependencies[contractId].contractName === "") {
@@ -185,7 +187,7 @@ export class WorkflowHelper {
                             })
                         }
 
-                        dependencies[contractId].connections[connection.id].actions[actionId] = actionConfiguration
+                        dependencies[contractId].connections[dependencyKey].actions[actionId] = actionConfiguration
                     }
                 }
             }
@@ -217,11 +219,19 @@ export class WorkflowHelper {
                         }
                     }
                     if (!(dependencies[dependencyKey].connections[connection.id])) {
-                        dependencies[dependencyKey].connections[connection.id] = {
-                            connectionId: connection.id,
-                            connectionName: connection.displayName,
-                            actions: {},
-                            datasources: {}
+                        if (dependencies[dependencyKey].connections[connection.displayName]) {
+                            dependencies[dependencyKey].connections[connection.id] = dependencies[dependencyKey].connections[connection.displayName]
+                            dependencies[dependencyKey].connections[connection.id].connectionId = connection.id
+                            dependencies[dependencyKey].connections[connection.id].needsResolution = false
+                            delete dependencies[dependencyKey].connections[connection.displayName]
+                        } else {
+                            dependencies[dependencyKey].connections[connection.id] = {
+                                connectionId: connection.id,
+                                connectionName: connection.displayName,
+                                actions: {},
+                                datasources: {},
+                                needsResolution: false
+                            }
                         }
                     }
                     if (!(dependencies[dependencyKey].connections[connection.id].datasources[source.id])) {
