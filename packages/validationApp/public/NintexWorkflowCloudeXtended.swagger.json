@@ -429,7 +429,7 @@
                 }
             }
         },
-        "/workflows/v1/designs/import": {
+        "/designer_/api/import": {
             "post": {
                 "description": "Import workflow",
                 "operationId": "importWorkflow",

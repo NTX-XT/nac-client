@@ -201,7 +201,7 @@ options: importWorkflowOptions,
 ): CancelablePromise<importWorkflowResponse> {
 		return this.httpRequest.request({
 			method: 'POST',
-			url: '/workflows/v1/designs/import',
+			url: '/designer_/api/import',
 			body: options,
 		});
 	}
