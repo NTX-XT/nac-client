@@ -5,7 +5,7 @@
 export type datasource = {
 	id: string;
 	name: string;
-	description?: string;
+	description: string;
 	contractId: string;
 	operationId: string;
 	connectionId: string;
@@ -15,5 +15,5 @@ export type datasource = {
 	modifiedDate?: string;
 	isInvalid?: boolean;
 	isEditable?: boolean;
-	definition?: string;
+	definition: string;
 };

@@ -4,14 +4,17 @@ import { KnownStrings } from "../../utils/knownStrings";
 import { datasourcePayload } from "../../nwc";
 
 export class DatasourceHelper {
-    static changeConnection = (datasource: Datasource | datasourcePayload, newConnectionId: string) => {
-        datasource.definition = datasource.definition.split(datasource.connectionId).join(newConnectionId)
-        datasource.connectionId = newConnectionId
+    static ensureConnectionInDefinition = (definition: string, newConnectionId: string): string => {
+        const details = this.processDefinition(definition)
+        if (details.connectionId !== newConnectionId) {
+            definition = definition.split(details.connectionId).join(newConnectionId)
+        }
+        return definition
     }
 
     static parseDefinition = (definition: string): any => JSON.parse(definition)
     static stringifyDefinition = (definition: any): string => JSON.stringify(definition)
-    static processDefinition = (definition: string): { generilisedDefinition: any, contractId?: string, connectionId?: string } => {
+    static processDefinition = (definition: string): { generilisedDefinition: any, contractId: string, connectionId: string } => {
         const definitionCopy = JSON.parse(definition)
         let connectionId: string | undefined
         let contractId: string | undefined
@@ -39,8 +42,8 @@ export class DatasourceHelper {
 
         return {
             generilisedDefinition: JSON.stringify(definitionCopy),
-            connectionId: connectionId,
-            contractId: contractId
+            connectionId: connectionId!,
+            contractId: contractId!
         }
     }
 }

@@ -279,7 +279,7 @@ export class Sdk {
 
     @CacheClear({ cacheKey: "datasources" })
     public createDatasource(payload: datasourcePayload): Promise<Datasource | undefined> {
-        DatasourceHelper.changeConnection(payload, payload.connectionId)
+        payload.definition = DatasourceHelper.ensureConnectionInDefinition(payload.definition, payload.connectionId)
         return this._nwc.default.createDatasource(payload).then((response) =>
             this.getDatasource(response))
             .catch((error: ApiError) => Promise.reject(error))

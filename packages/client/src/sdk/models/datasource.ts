@@ -5,5 +5,6 @@ export interface Datasource {
     connectionId: string
     operationId: string
     isValid: boolean,
-    definition: string
+    definition: string,
+    description: string
 }

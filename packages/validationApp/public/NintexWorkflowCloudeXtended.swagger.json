@@ -1348,7 +1348,9 @@
                 "name",
                 "contractId",
                 "connectionId",
-                "operationId"
+                "operationId",
+                "description",
+                "definition"
             ],
             "properties": {
                 "id": {

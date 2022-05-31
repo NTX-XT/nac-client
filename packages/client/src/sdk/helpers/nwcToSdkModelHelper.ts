@@ -53,7 +53,8 @@ export class NwcToSdkModelHelper {
         operationId: datasource.operationId,
         connectionId: datasource.connectionId,
         isValid: !datasource.isInvalid,
-        definition: datasource.definition ?? ""
+        definition: datasource.definition,
+        description: datasource.description
     })
 
     public static Tag = (tag: tag): Tag => ({
