@@ -1,3 +1,4 @@
+import { FormRow } from "./formRow";
 import { FormVariable } from "./formVariable"
 
 export interface Form {
@@ -16,7 +17,10 @@ export interface Form {
         variables: FormVariable[],
         version: number
     };
-    rows: any[];
+    rows: FormRow[];
     settings: any;
     submissionConfig?: any;
+    dataSourceContext?: {
+        [key: string]: { id: string }
+    }
 }

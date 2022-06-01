@@ -14,6 +14,10 @@ import { Connection } from "../models/connection";
 import { Workflow } from "../models/workflow";
 import { ConnectionDependency } from "../models/connectionDependency";
 import { DatasourceDependency } from "../models/datasourceDependency";
+import { Datasource } from "../models/datasource";
+import { FormVariable } from "../models/formVariable";
+import { FormControlDatasourceConfig } from "../models/formVariableConfig";
+import { FormHelper } from "./formHelper";
 
 export class WorkflowHelper {
     static parseDefinition = (definition: string): workflowDefinition => JSON.parse(definition)
@@ -72,6 +76,7 @@ export class WorkflowHelper {
 
     static dependencies = (definition: workflowDefinition, forms: WorkflowForms): WorkflowDependencies => {
         const dependencies: { [key: string]: ContractDependency; } = {}
+        this.ensureDatasources(definition, forms)
         this.resolveConnectionDependencies(dependencies, definition)
         this.resolveDatasourceDependencies(dependencies, definition.settings.datasources, forms)
         return {
@@ -101,7 +106,46 @@ export class WorkflowHelper {
         return datasourceDependencies
     }
 
+    private static _addToDatasource = (datasources: workflowDatasources, form: Form, datasourceId: string) => {
+        const formKey = form.formType === 'startform' ? "startForm" : form.id
+        if (!(datasources[formKey])) {
+            datasources[formKey] = {
+                sources: [],
+                type: form.formType === 'startform' ? "startForm" : "taskForm"
+            }
+        }
+        const foundDatasourceId = datasources[formKey].sources.find(source => source.id === datasourceId)
+        if (!foundDatasourceId) {
+            datasources[formKey].sources.push({
+                id: datasourceId
+            })
+        }
+    }
 
+    private static ensureDatasources = (definition: workflowDefinition, forms: WorkflowForms) => {
+        const datasources: workflowDatasources = definition.settings.datasources ?? {}
+        const allForms = forms.taskForms ? Object.values(forms.taskForms) : []
+
+        if (forms.startForm) {
+            allForms.push(forms.startForm)
+        }
+
+        for (const form of allForms) {
+            const controls = FormHelper.allFormControls(form.rows)
+            for (const control of controls) {
+                if (control.properties.dataSourceConfiguration) {
+                    this._addToDatasource(datasources, form, control.properties.dataSourceConfiguration.dataSourceId)
+                }
+            }
+
+            for (const variable of form.variableContext.variables) {
+                if (variable.config.dataSourceId) {
+                    this._addToDatasource(datasources, form, variable.config.dataSourceId)
+                }
+            }
+        }
+        definition.settings.datasources = datasources
+    }
 
     private static workflowDependencies = (definition: workflowDefinition): { [key: string]: WorkflowDependency; } => {
         const dependencies: { [key: string]: WorkflowDependency; } = {}
@@ -145,6 +189,7 @@ export class WorkflowHelper {
                         dependencies[contractId].connections[dependencyKey] = {
                             connectionName: connection.displayName,
                             connectionId: connection.id,
+                            contractId: contractId,
                             actions: {},
                             datasources: {},
                             needsResolution: needsResolution
@@ -196,7 +241,7 @@ export class WorkflowHelper {
         for (const formId of Object.keys(datasources)) {
             for (const source of datasources[formId].sources) {
                 const form = datasources[formId].type === "startForm" ? forms.startForm! : forms.taskForms![formId]
-                const connection = this.getDatasourceConnection(source.id, form)
+                const connection = FormHelper.getFormDatasourceConnection(source.id, form)
                 if (connection) {
                     let dependencyKey = connection.contractId ?? connection.contractName
                     let needsResolution = (!connection.contractId)
@@ -225,6 +270,7 @@ export class WorkflowHelper {
                         } else {
                             dependencies[dependencyKey].connections[connection.id] = {
                                 connectionId: connection.id,
+                                contractId: connection.contractId,
                                 connectionName: connection.displayName,
                                 actions: {},
                                 datasources: {},
@@ -235,6 +281,8 @@ export class WorkflowHelper {
                     if (!(dependencies[dependencyKey].connections[connection.id].datasources[source.id])) {
                         dependencies[dependencyKey].connections[connection.id].datasources[source.id] = {
                             datasourceId: source.id,
+                            connectionId: connection.id,
+                            contractId: dependencyKey,
                             formIds: []
                         }
                     }
@@ -257,38 +305,105 @@ export class WorkflowHelper {
         }
     }
 
-    private static getDatasourceConnection = (datasourceId: string, form: Form): connection | undefined => {
-        for (const row of form.rows) {
-            for (const control of row.controls) {
-                if (control.properties.dataSourceConfiguration && control.properties.dataSourceConfiguration.dataSourceId === datasourceId) {
-                    for (const key of Object.keys(control.properties.dataSourceConfiguration.config.value)) {
-                        if (key.endsWith(KnownStrings.NTXConnectionId)) {
-                            return control.properties.dataSourceConfiguration.config.value[key].data
-                        }
-                    }
-                }
-            }
-        }
-        for (const variable of form.variableContext.variables) {
-            if (variable.config.dataSourceId === datasourceId) {
-                for (const key of Object.keys(variable.config.config.value)) {
-                    if (key.endsWith(KnownStrings.NTXConnectionId)) {
-                        return variable.config.config.value[key].data
-                    }
-                }
-            }
-        }
-    }
-
     static swapConnection = (workflow: Workflow, connectionId: string, newConnection: Connection): void => {
         const dependency = WorkflowHelper.allConnectionDependencies(workflow.dependencies).find(cn => cn.connectionId === connectionId)
         if (dependency) {
+            let newConnectionDependency = workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id]
+            if (!(newConnectionDependency)) {
+                workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id] = {
+                    actions: {},
+                    connectionId: newConnection.id,
+                    contractId: newConnection.contractId,
+                    connectionName: newConnection.name,
+                    needsResolution: false,
+                    datasources: {}
+                }
+                newConnectionDependency = workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id]
+            }
             for (const actionId of Object.keys(dependency.actions)) {
                 const dic = WorkflowHelper.actionsDictionary(workflow.definition)
                 const value = ActionHelper.getXtensionInput(dic[actionId])
                 value.data = newConnection.nwcObject
                 value.literal = newConnection.id
+                newConnectionDependency.actions[actionId] = dependency.actions[actionId]
             }
+            dependency.actions = {}
+            if (Object.values(dependency.actions).length === 0 && Object.values(dependency.datasources).length === 0) {
+                delete workflow.dependencies.contracts[dependency.contractId].connections[dependency.connectionId]
+            }
+        }
+    }
+
+    static swapDatasource = (workflow: Workflow, datasourceId: string, newDatasource: Datasource, newConnection: Connection): void => {
+        const dependency = WorkflowHelper.allDatasourceDependencies(workflow.dependencies).find(ds => ds.datasourceId === datasourceId)
+        if (dependency) {
+            for (const formId of dependency.formIds) {
+                const form = (formId === 'startForm' ? workflow.forms.startForm : workflow.forms.taskForms![formId])!
+                const existingConnection = (FormHelper.getFormDatasourceConnection(datasourceId, form))!
+                const allControls = FormHelper.getFormDatasourceControls(datasourceId, form)
+                for (const control of allControls) {
+                    const datasourceConfiguration = FormHelper.getFormDatasourceControlConfig(control)
+                    datasourceConfiguration.dataSourceId = newDatasource.id
+                    datasourceConfiguration.dataSourceLabel = newDatasource.name
+                    const configNode = FormHelper.getDatasourceConnectionIdNode(datasourceConfiguration)
+                    configNode.literal = newConnection.id
+                    configNode.data = newConnection.nwcObject
+                    if (control.properties.items) {
+                        control.properties.items.datasourceId = newDatasource.id
+                        for (const key of Object.keys(control.properties.items.config.value)) {
+                            if (key.endsWith(KnownStrings.NTXConnectionId)) {
+                                control.properties.items.config.value[key].literal = newConnection.id
+                                control.properties.items.config.value[key].data = newConnection.nwcObject
+                            }
+                        }
+                    }
+                }
+                const allVariables = FormHelper.getFormDatasourceVariables(datasourceId, form)
+                for (const variable of allVariables) {
+                    const datasourceConfiguration = FormHelper.getFormDatasourceVariableConfig(variable)
+                    datasourceConfiguration.dataSourceId = newDatasource.id
+                    datasourceConfiguration.dataSourceLabel = newDatasource.name
+                    const configNode = FormHelper.getDatasourceConnectionIdNode(datasourceConfiguration)
+                    configNode.literal = newConnection.id
+                    configNode.data = newConnection.nwcObject
+                }
+                form.dataSourceContext![newDatasource.id] = { id: newDatasource.id }
+                delete form.dataSourceContext![datasourceId]
+
+                if (formId === 'startForm') {
+                    workflow.startEvents!.find(event => event.eventType === 'nintex:form')!.webformDefinition = JSON.stringify(form)
+                } else {
+                    workflow.definition.forms[formId] = form
+                }
+                const key = formId === 'startForm' ? 'startForm' : formId
+                for (const source of workflow.definition.settings.datasources[key].sources) {
+                    if (source.id === datasourceId) {
+                        source.id = newDatasource.id
+                    }
+                }
+            }
+            let connectionDependency = workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id]
+            if (!(connectionDependency)) {
+                workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id] = {
+                    actions: {},
+                    connectionId: newConnection.id,
+                    contractId: newConnection.contractId,
+                    connectionName: newConnection.name,
+                    needsResolution: false,
+                    datasources: {}
+                }
+                connectionDependency = workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id]
+            }
+            if (!(connectionDependency.datasources[newDatasource.id])) {
+                connectionDependency.datasources[newDatasource.id] = {
+                    datasourceId: newDatasource.id,
+                    connectionId: newDatasource.connectionId,
+                    contractId: newDatasource.contractId,
+                    formIds: []
+                }
+            }
+            connectionDependency.datasources[newDatasource.id].formIds = dependency.formIds
+            delete workflow.dependencies.contracts[dependency.contractId].connections[dependency.connectionId].datasources[datasourceId]
         }
     }
 

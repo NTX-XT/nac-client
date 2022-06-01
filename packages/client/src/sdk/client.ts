@@ -216,6 +216,12 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
     }
 
+    public getConnectionByName = (name: string): Promise<Connection | undefined> =>
+        this.getConnections()
+            .then((connections) => connections.find(cn => cn.name === name))
+            .catch((error: ApiError) => Promise.reject(error))
+
+
     @Cacheable({ cacheKey: "connectionSchema" })
     public getConnectionSchema(connectionId: string): Promise<ConnectionSchema> {
         return this._nwc.default.getTenantConnectionSchema(connectionId)
@@ -315,7 +321,7 @@ export class Sdk {
             .then((response) => response.key!)
             .catch((error: ApiError) => Promise.reject(error))
 
-    @CacheClear({ cacheKey: "workflowDesigns" })
+    @CacheClear({ cacheKey: ["workflowDesigns"] })
     public importWorkflow(name: string, key: string, overwriteExisting: boolean = false): Promise<Workflow> {
         return this.getWorkflowByName(name)
             .then((foundWorkflow) => {

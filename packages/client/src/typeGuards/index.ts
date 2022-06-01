@@ -1,5 +1,7 @@
 
 import { ApiError } from "../nwc/core/ApiError"
+import { Form } from "../sdk/models/form"
+import { FormControl } from "../sdk/models/formControl"
 
 export const isError = (value: (any | ApiError)): value is ApiError => value.name !== undefined && value.name === 'ApiError'
 export const isNotError = <T>(value: (T | ApiError)): value is T => !isError(value)
@@ -22,3 +24,5 @@ export const unWrapErrorOrThrow = (value: (any | ApiError)): ApiError => {
     throw new Error('value was not an ApiError')
 }
 
+export const isFormControl = (value: (any | FormControl)): value is FormControl => value.properties !== undefined
+export const isForm = (value: (any | Form)): value is Form => value.formType !== undefined

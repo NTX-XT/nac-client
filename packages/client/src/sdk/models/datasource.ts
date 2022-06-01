@@ -1,3 +1,4 @@
+import { datasource } from "../../nwc"
 export interface Datasource {
     id: string
     name: string
@@ -6,5 +7,6 @@ export interface Datasource {
     operationId: string
     isValid: boolean,
     definition: string,
-    description: string
+    description: string,
+    nwcObject: datasource
 }
