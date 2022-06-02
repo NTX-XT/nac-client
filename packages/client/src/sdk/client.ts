@@ -1,5 +1,5 @@
 
-import { Nwc, ApiError, permissionItem, workflow, workflowDefinition, datasourcePayload } from './../nwc'
+import { Nwc, ApiError, permissionItem, datasourcePayload } from './../nwc'
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
 import { Workflow } from './models/workflow'
@@ -9,17 +9,14 @@ import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
 import { NwcToSdkModelHelper } from './helpers/nwcToSdkModelHelper'
 import { User } from './models/user'
-import { WorkflowPermissions } from './models/workflowPermissions'
 import { SdkToNwcModelHelper } from './helpers/sdkToNwcModelHelper'
 import { CacheClear, CacheUpdate, Cacheable } from '@type-cacheable/core'
 import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionSchema } from './models/connectionSchema'
 import { ConnectionProperty } from './models/connectionProperty'
-import { WorkflowHelper } from './helpers/workflowHelper'
 import { Tag } from './models/tag'
-import { Data } from 'node-cache'
-import { DoStatement } from 'ts-morph'
 import { DatasourceHelper } from './helpers/datasourceHelper'
+import { Permission } from './models/permission'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
@@ -67,23 +64,10 @@ export class Sdk {
         })
     }
 
-    // private _initialiseCache = (): Promise<void> => {
-    //     this.clearCache()
-    //     return Promise.all([this.getContracts(), this.getTags()]).then(() =>
-    //         Promise.resolve(this.getConnections()).then(() =>
-    //             Promise.resolve(this.getDatasources().then(() => Promise.resolve())
-    //             ).catch((error: ApiError) => Promise.reject(error))
-    //         ).catch((error: ApiError) => Promise.reject(error))
-    //     ).catch((error: ApiError) => {
-    //         console.log(error)
-    //         Promise.reject(error)
-    //     })
-    // }
-
     @CacheClear({ isPattern: true, cacheKey: '.' })
     // TODO: Extremelly bad workaround until I find the right way to do it
     public clearCache(): void {
-        const c = true
+        return undefined
     }
 
     public static connectWithClientCredentials(credentials: ClientCredentials): Promise<Sdk> {
@@ -173,15 +157,15 @@ export class Sdk {
             .catch((error) => Promise.reject(error))
     }
 
-    public getWorkflowPermissions(workflowId: string): Promise<WorkflowPermissions> {
+    public getWorkflowPermissions(workflowId: string): Promise<Permission[]> {
         return Promise.all([this._nwc.default.getWorkflowOwners(workflowId), this._nwc.default.getWorkflowBusinessOwners(workflowId)])
             .then((responses) => NwcToSdkModelHelper.WorkflowPermissions(responses[0].permissions, responses[1].businessOwners))
             .catch((error) => Promise.reject(error))
     }
 
-    public updateWorkflowPermissions(workflowId: string, permissions: WorkflowPermissions): Promise<void> {
-        return this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.workflowOwners.map<permissionItem>((item) => SdkToNwcModelHelper.permissionItem(item)) })
-            .then(() => this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.businessOwners?.map<permissionItem>((item) => SdkToNwcModelHelper.permissionItem(item)) })
+    public updateWorkflowPermissions(workflowId: string, permissions: Permission[]): Promise<void> {
+        return this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.filter(p => p.isOwner).map<permissionItem>((item) => SdkToNwcModelHelper.workflowPermissionItem(item)) })
+            .then(() => this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.filter(p => p.isUser).map<permissionItem>((item) => SdkToNwcModelHelper.workflowPermissionItem(item)) })
                 .then(() => Promise.resolve())
                 .catch((error) => Promise.reject(error)))
             .catch((error) => Promise.reject(error))
@@ -286,9 +270,12 @@ export class Sdk {
     @CacheClear({ cacheKey: "datasources" })
     public createDatasource(payload: datasourcePayload): Promise<Datasource | undefined> {
         payload.definition = DatasourceHelper.ensureConnectionInDefinition(payload.definition, payload.connectionId)
-        return this._nwc.default.createDatasource(payload).then((response) =>
-            this.getDatasource(response))
-            .catch((error: ApiError) => Promise.reject(error))
+        return this._nwc.default.createDatasource(payload)
+            .then((response) => this._nwc.default.updateDatasourcePermissions(response, { permissions: [{ id: "everyone", name: "Everyone", type: "group", scope: { owner: true, user: true } }] })
+                .then(() => this.getDatasource(response))
+                .then((datasource) => datasource)
+                .catch((error) => Promise.reject(error)))
+            .catch((error) => Promise.reject(error))
     }
     // public groupConnections(connections: Connection[]): Promise<Contract[]> {
     //     const uniqueContractIds = connections.map((cn) => cn.contract?.id).filter((value, index, self) => self.indexOf(value) === index)
@@ -344,7 +331,11 @@ export class Sdk {
     @CacheClear({ cacheKey: "connections" })
     public createConnection(contract: Contract, properties: Record<string, string>): Promise<Connection | undefined> {
         return this._nwc.default.createConnection(contract.appId, properties)
-            .then((response) => this.getConnection(response))
+            .then((response) =>
+                this._nwc.default.updateConnectionPermissions(response, { permissions: [{ id: "everyone", name: "Everyone", type: "group", scope: { own: true, use: true } }] })
+                    .then(() => this.getConnection(response))
+                    .then((connection) => connection)
+                    .catch((error) => Promise.reject(error)))
             .catch((error) => Promise.reject(error))
     }
 

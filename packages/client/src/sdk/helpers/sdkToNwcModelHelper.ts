@@ -4,7 +4,7 @@ import { DatasourceDependency } from "../models/datasourceDependency";
 import { Tag } from "../models/tag";
 import { User } from "../models/user";
 import { Workflow } from "../models/workflow";
-import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
+import { Permission } from "../models/permission";
 import { WorkflowHelper } from "./workflowHelper";
 
 export class SdkToNwcModelHelper {
@@ -16,7 +16,7 @@ export class SdkToNwcModelHelper {
         }
     );
 
-    public static permissionItem = (permission: WorkflowPermissionItem): permissionItem => ({
+    public static workflowPermissionItem = (permission: Permission): permissionItem => ({
         id: permission.id,
         name: permission.name,
         type: permission.type
@@ -30,8 +30,8 @@ export class SdkToNwcModelHelper {
         author: workflow.info.author,
         startEvents: workflow.startEvents,
         datasources: JSON.stringify(SdkToNwcModelHelper.datasources(WorkflowHelper.allDatasourceDependencies(workflow.dependencies))),
-        permissions: workflow.permissions.workflowOwners,
-        businessOwners: workflow.permissions.businessOwners,
+        permissions: workflow.permissions.filter(p => p.isOwner).map<permissionItem>((item) => this.workflowPermissionItem(item)),
+        businessOwners: workflow.permissions.filter(p => p.isUser).map<permissionItem>((item) => this.workflowPermissionItem(item)),
         workflowVersionComments: workflow.info.comments,
         workflowDesignParentVersion: workflow.info.designVersion,
         tags: workflow.info.tags,

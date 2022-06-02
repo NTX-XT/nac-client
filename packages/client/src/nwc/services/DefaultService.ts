@@ -24,7 +24,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "@type-cacheable/core";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createDatasourcePayload, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createDatasourcePayload, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners, getConnectionPermissionsResponseType, updateConnectionPermissionsPermissions, getDatasourcePermissionsResponseType, updateDatasourcePermissionsPermissions } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -170,7 +170,7 @@ contractId: string,
 	private createConnectionCancelable(
 appId: string,
 properties: createConnectionProperties,
-): CancelablePromise<any> {
+): CancelablePromise<string> {
 		return this.httpRequest.request({
 			method: 'POST',
 			url: '/connection/api/v1/connections',
@@ -340,6 +340,58 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
 		});
 	}
 
+	private getConnectionPermissionsCancelable(
+connectionId: string,
+): CancelablePromise<getConnectionPermissionsResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/connections/{connectionId}/permissions',
+			path: {
+				'connectionId': connectionId,
+			},
+		});
+	}
+
+	private updateConnectionPermissionsCancelable(
+connectionId: string,
+permissions: updateConnectionPermissionsPermissions,
+): CancelablePromise<any> {
+		return this.httpRequest.request({
+			method: 'PUT',
+			url: '/designer_/api/connections/{connectionId}/permissions',
+			path: {
+				'connectionId': connectionId,
+			},
+			body: permissions,
+		});
+	}
+
+	private getDatasourcePermissionsCancelable(
+datasourceId: string,
+): CancelablePromise<getDatasourcePermissionsResponseType> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/connection/api/datasources/{datasourceId}/permissions',
+			path: {
+				'datasourceId': datasourceId,
+			},
+		});
+	}
+
+	private updateDatasourcePermissionsCancelable(
+datasourceId: string,
+permissions: updateDatasourcePermissionsPermissions,
+): CancelablePromise<any> {
+		return this.httpRequest.request({
+			method: 'PUT',
+			url: '/connection/api/datasources/{datasourceId}/permissions',
+			path: {
+				'datasourceId': datasourceId,
+			},
+			body: permissions,
+		});
+	}
+
     /**
      * Retrieve authentication token
      * @param options
@@ -481,11 +533,11 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
      * Create connection
      * @param appId The app id of the contract the connection is using
      * @param properties
-     * @returns any Ok
+     * @returns string Ok
      * @throws ApiError
      */
     @Cacheable()
-    public createConnection(appId: string, properties: createConnectionProperties): Promise<any> {
+    public createConnection(appId: string, properties: createConnectionProperties): Promise<string> {
         return this.createConnectionCancelable(appId, properties).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -634,5 +686,51 @@ businessOwners: updateWorkflowBusinessOwnersBusinessOwners,
     @Cacheable()
     public updateWorkflowBusinessOwners(workflowId: string, businessOwners: updateWorkflowBusinessOwnersBusinessOwners): Promise<any> {
         return this.updateWorkflowBusinessOwnersCancelable(workflowId, businessOwners).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Get connection permissions
+     * @param connectionId The connection Id
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getConnectionPermissions(connectionId: string): Promise<getConnectionPermissionsResponseType> {
+        return this.getConnectionPermissionsCancelable(connectionId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Update connection permissions
+     * @param connectionId The connection Id
+     * @param permissions
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public updateConnectionPermissions(connectionId: string, permissions: updateConnectionPermissionsPermissions): Promise<any> {
+        return this.updateConnectionPermissionsCancelable(connectionId, permissions).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Get datasource permissions
+     * @param datasourceId The datasource Id
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getDatasourcePermissions(datasourceId: string): Promise<getDatasourcePermissionsResponseType> {
+        return this.getDatasourcePermissionsCancelable(datasourceId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Update datasource permissions
+     * @param datasourceId The datasource Id
+     * @param permissions
+     * @returns any Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public updateDatasourcePermissions(datasourceId: string, permissions: updateDatasourcePermissionsPermissions): Promise<any> {
+        return this.updateDatasourcePermissionsCancelable(datasourceId, permissions).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 }

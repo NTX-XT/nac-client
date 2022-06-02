@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { permissionItem } from './permissionItem';
 import type { tag } from './tag';
 import type { user } from './user';
-import type { workflowPermission } from './workflowPermission';
 import type { workflowStartEvent } from './workflowStartEvent';
 
 export type workflow = {
@@ -34,7 +34,7 @@ export type workflow = {
 	workflowType: string;
 	workflowDefinition: string;
 	startEvents?: Array<workflowStartEvent>;
-	permissions?: Array<workflowPermission>;
+	permissions?: Array<permissionItem>;
 	workflowDesignVersion?: string;
 	isLatest?: boolean;
 	publishRequestedBy?: user;

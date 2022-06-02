@@ -49,3 +49,13 @@ export type getWorkflowBusinessOwnersResponseType = {businessOwners: Array<permi
 export type updateWorkflowBusinessOwnersBusinessOwners = {
     businessOwners?: Array<permissionItem>;
     };
+export type getConnectionPermissionsResponseType = {permissions: Array<permissionItem>;
+    };
+export type updateConnectionPermissionsPermissions = {
+    permissions?: Array<permissionItem>;
+    };
+export type getDatasourcePermissionsResponseType = {permissions?: Array<permissionItem>;
+    };
+export type updateDatasourcePermissionsPermissions = {
+    permissions?: Array<permissionItem>;
+    };

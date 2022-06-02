@@ -379,7 +379,7 @@
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "type": "object"
+                            "type": "string"
                         }
                     }
                 }
@@ -765,6 +765,135 @@
                     }
                 }
             }
+        },
+        "/designer_/api/connections/{connectionId}/permissions": {
+            "get": {
+                "description": "Get connection permissions",
+                "operationId": "getConnectionPermissions",
+                "x-ntx-summary": "Get connection permissions",
+                "parameters": [{
+                    "name": "connectionId",
+                    "in": "path",
+                    "description": "The connection Id",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "required": ["permissions"],
+                            "properties": {
+                                "permissions": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/permissionItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update connection permissions",
+                "operationId": "updateConnectionPermissions",
+                "parameters": [{
+                        "name": "connectionId",
+                        "in": "path",
+                        "description": "The connection Id",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "permissions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "permissions": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/permissionItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok"
+                    }
+                }
+            }
+        },
+        "/connection/api/datasources/{datasourceId}/permissions": {
+            "get": {
+                "description": "Get datasource permissions",
+                "operationId": "getDatasourcePermissions",
+                "security": [{
+                    "datasources": []
+                }],
+                "parameters": [{
+                    "name": "datasourceId",
+                    "in": "path",
+                    "description": "The datasource Id",
+                    "type": "string",
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "permissions": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/permissionItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update datasource permissions",
+                "operationId": "updateDatasourcePermissions",
+                "parameters": [{
+                        "name": "datasourceId",
+                        "in": "path",
+                        "description": "The datasource Id",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "permissions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "permissions": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/permissionItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok"
+                    }
+                }
+            }
         }
     },
     "parameters": {
@@ -801,8 +930,28 @@
                 "type": {
                     "type": "string"
                 },
+                "email": {
+                    "type": "string"
+                },
                 "subtext": {
                     "type": "string"
+                },
+                "scope": {
+                    "type": "object",
+                    "properties": {
+                        "own": {
+                            "type": "boolean"
+                        },
+                        "use": {
+                            "type": "boolean"
+                        },
+                        "owner": {
+                            "type": "boolean"
+                        },
+                        "user": {
+                            "type": "boolean"
+                        }
+                    }
                 }
             }
         },
@@ -1623,7 +1772,7 @@
                 "businessOwners": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/workflowPermission"
+                        "$ref": "#/definitions/permissionItem"
                     }
                 },
                 "tags": {
@@ -1755,25 +1904,6 @@
                 }
             }
         },
-        "workflowPermission": {
-            "type": "object",
-            "required": [
-                "id",
-                "name",
-                "type"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
         "saveWorkflowResponse": {
             "type": "object",
             "required": [
@@ -1805,7 +1935,7 @@
                 "businessOwners": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/workflowPermission"
+                        "$ref": "#/definitions/permissionItem"
                     }
                 },
                 "datasources": {
@@ -1817,7 +1947,7 @@
                 "permissions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/workflowPermission"
+                        "$ref": "#/definitions/permissionItem"
                     }
                 },
                 "startEvents": {
@@ -2030,7 +2160,7 @@
                 "permissions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/workflowPermission"
+                        "$ref": "#/definitions/permissionItem"
                     }
                 },
                 "workflowDesignVersion": {

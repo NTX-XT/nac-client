@@ -2,17 +2,17 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { permissionItem } from './permissionItem';
 import type { tag } from './tag';
 import type { user } from './user';
-import type { workflowPermission } from './workflowPermission';
 import type { workflowStartEvent } from './workflowStartEvent';
 
 export type updateWorkflowPayload = {
 	author?: user;
-	businessOwners?: Array<workflowPermission>;
+	businessOwners?: Array<permissionItem>;
 	datasources: string;
 	engineName: string;
-	permissions: Array<workflowPermission>;
+	permissions: Array<permissionItem>;
 	startEvents?: Array<workflowStartEvent>;
 	tags?: Array<tag>;
 	version?: number;

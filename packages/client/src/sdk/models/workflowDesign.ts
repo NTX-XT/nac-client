@@ -1,5 +1,5 @@
 import { Tag } from "./tag";
-import { WorkflowPermissionItem } from "./workflowPermissionItem";
+import { Permission } from "./permission";
 
 export interface WorkflowDesign {
     id: string;
@@ -7,5 +7,5 @@ export interface WorkflowDesign {
     engine?: string;
     tags: Tag[];
     formUrl?: string
-    businessOwners: WorkflowPermissionItem[]
+    businessOwners: Permission[]
 }

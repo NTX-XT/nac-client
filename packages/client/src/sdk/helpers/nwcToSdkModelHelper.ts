@@ -7,11 +7,9 @@ import { Workflow } from "../models/workflow";
 import { Tenant } from "../models/tenant";
 import { Tag } from "../models/tag";
 import { User } from "../models/user";
-import { WorkflowPermissionItem } from "../models/workflowPermissionItem";
-import { WorkflowPermissions } from "../models/workflowPermissions";
+import { Permission } from "../models/permission";
 import { ConnectionProperty } from "../models/connectionProperty";
 import { ConnectionSchema } from "../models/connectionSchema";
-import { Form } from "../models/form";
 import { WorkflowHelper } from "./workflowHelper";
 
 export class NwcToSdkModelHelper {
@@ -70,7 +68,7 @@ export class NwcToSdkModelHelper {
         name: workflowDesign.name!,
         engine: workflowDesign.engine,
         tags: workflowDesign.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
-        businessOwners: workflowDesign.businessOwners.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item)),
+        businessOwners: workflowDesign.businessOwners.map<Permission>((item) => NwcToSdkModelHelper.Permission(item)),
         formUrl: workflowDesign.published?.urls?.formUrl ?? workflowDesign.draft?.urls?.formUrl
     });
 
@@ -83,17 +81,38 @@ export class NwcToSdkModelHelper {
         url: tenantInfo.tenancy_url!
     });
 
-    public static WorkflowPermissionItem = (item: permissionItem): WorkflowPermissionItem => ({
+    public static Permission = (item: permissionItem): Permission => ({
         id: item.id,
         name: item.name,
         type: item.type,
-        email: item.subtext
+        email: item.email ?? item.subtext,
+        isOwner: item.scope?.own ?? false,
+        isUser: item.scope?.use ?? false
     })
 
-    public static WorkflowPermissions = (workflowOwners: permissionItem[], businessOwners: permissionItem[]): WorkflowPermissions => ({
-        workflowOwners: workflowOwners.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item)),
-        businessOwners: businessOwners.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item))
-    })
+    public static WorkflowPermissions = (workflowOwners: permissionItem[], businessOwners: permissionItem[]): Permission[] => {
+        const owners = workflowOwners.map<Permission>((item) => {
+            item.scope = { own: true, use: false }
+            return NwcToSdkModelHelper.Permission(item)
+        })
+        const users = businessOwners.map<Permission>((item) => {
+            item.scope = { own: false, use: true }
+            return NwcToSdkModelHelper.Permission(item)
+        })
+
+        const permissions: Permission[] = [...owners]
+
+        for (const user of users) {
+            const permission = permissions.find(p => p.id === user.id)
+            if (permission) {
+                permission.isUser = true
+            } else {
+                permissions.push(user)
+            }
+        }
+
+        return permissions
+    }
 
     public static Workflow = (workflow: workflow, design: WorkflowDesign): Workflow => {
         const definition = WorkflowHelper.parseDefinition(workflow.workflowDefinition)
@@ -118,10 +137,7 @@ export class NwcToSdkModelHelper {
                 author: NwcToSdkModelHelper.User(workflow.author!)
             },
             startEvents: workflow.startEvents,
-            permissions: {
-                businessOwners: design.businessOwners,
-                workflowOwners: (workflow.permissions) ? workflow.permissions.map<WorkflowPermissionItem>((item) => NwcToSdkModelHelper.WorkflowPermissionItem(item)) : []
-            },
+            permissions: NwcToSdkModelHelper.WorkflowPermissions(workflow.permissions ?? [], design.businessOwners),
             dependencies: dependencies,
             forms: forms,
             definition: definition,
