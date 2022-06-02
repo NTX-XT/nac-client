@@ -306,7 +306,10 @@ export class WorkflowHelper {
     }
 
     static swapConnection = (workflow: Workflow, connectionId: string, newConnection: Connection): void => {
-        const dependency = WorkflowHelper.allConnectionDependencies(workflow.dependencies).find(cn => cn.connectionId === connectionId)
+        let dependency = WorkflowHelper.allConnectionDependencies(workflow.dependencies).find(cn => cn.connectionId === connectionId)
+        if (!dependency) {
+            dependency = WorkflowHelper.allConnectionDependencies(workflow.dependencies).find(cn => cn.connectionName === newConnection.name && cn.contractId === newConnection.contractId && cn.needsResolution)
+        }
         if (dependency) {
             let newConnectionDependency = workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id]
             if (!(newConnectionDependency)) {
