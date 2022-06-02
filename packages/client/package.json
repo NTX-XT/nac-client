@@ -1,6 +1,6 @@
 {
     "name": "@nwc-sdk/client",
-    "version": "1.0.29",
+    "version": "1.0.30",
     "description": "Typescript client for the experimental nwc sdk",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
