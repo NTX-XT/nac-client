@@ -89,9 +89,9 @@ export class SdkToNwcModelHelper {
                         type: formId === "startForm" ? formId : "taskForm"
                     }
                 }
-                const existingId = datasources[formId].sources.find(ds => ds.id === formId)
+                const existingId = datasources[formId].sources.find(ds => ds.id === dependency.datasourceId)
                 if (!existingId)
-                    datasources[formId].sources.push({ id: formId })
+                    datasources[formId].sources.push({ id: dependency.datasourceId })
             }
         }
         return datasources
