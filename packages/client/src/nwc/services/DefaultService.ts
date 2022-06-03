@@ -357,7 +357,7 @@ connectionId: string,
 permissions: updateConnectionPermissionsPermissions,
 ): CancelablePromise<any> {
 		return this.httpRequest.request({
-			method: 'PUT',
+			method: 'POST',
 			url: '/designer_/api/connections/{connectionId}/permissions',
 			path: {
 				'connectionId': connectionId,

@@ -9,7 +9,7 @@ import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
 import { NwcToSdkModelHelper } from './helpers/nwcToSdkModelHelper'
 import { User } from './models/user'
-import { SdkToNwcModelHelper } from './helpers/sdkToNwcModelHelper'
+import { PermissionType, SdkToNwcModelHelper } from './helpers/sdkToNwcModelHelper'
 import { CacheClear, CacheUpdate, Cacheable } from '@type-cacheable/core'
 import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionSchema } from './models/connectionSchema'
@@ -17,10 +17,15 @@ import { ConnectionProperty } from './models/connectionProperty'
 import { Tag } from './models/tag'
 import { DatasourceHelper } from './helpers/datasourceHelper'
 import { Permission } from './models/permission'
+import { ThisTypeNode } from 'ts-morph'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
     namePattern?: string,
+}
+
+const everyonePermission: Permission = {
+    id: "everyone", name: "Everyone", type: "group", isOwner: true, isUser: true
 }
 
 export const invalidId = "undefined"
@@ -37,6 +42,7 @@ export class Sdk {
     private _nwc: Nwc
     private _token: string
     private _datasourceToken: string
+    private _user: User
 
     public get nwc(): Nwc {
         return this._nwc
@@ -46,10 +52,15 @@ export class Sdk {
         return this._tenant
     }
 
-    private constructor(tenant: Tenant, token: string, datasourceToken: string) {
+    public get user(): User {
+        return this._user
+    }
+
+    private constructor(tenant: Tenant, user: User, token: string, datasourceToken: string) {
         this._tenant = tenant
         this._token = token
         this._datasourceToken = datasourceToken
+        this._user = user
         this._nwc = new Nwc({
             CREDENTIALS: "include",
             BASE: tenant.apiManagerUrl,
@@ -63,6 +74,15 @@ export class Sdk {
             }
         })
     }
+
+    private _defaultPermisssions = (): Permission[] => [everyonePermission, {
+        id: this._user.id,
+        email: this._user.email,
+        name: this._user.name ?? `${this._user.firstName ?? ''} ${this._user.lastName ?? ''}`.trim(),
+        isOwner: true,
+        isUser: false,
+        type: 'user'
+    }]
 
     @CacheClear({ isPattern: true, cacheKey: '.' })
     // TODO: Extremelly bad workaround until I find the right way to do it
@@ -96,8 +116,9 @@ export class Sdk {
                     temporaryClient.default.getTenantInfo(tenantConfigurationRequestResult.user!.tenantId!),
                     temporaryClient.default.getDatasourceToken()])
                     .then((responses) => {
+                        const user = NwcToSdkModelHelper.User(tenantConfigurationRequestResult.user!)
                         const client = new Sdk(
-                            NwcToSdkModelHelper.Tenant(responses[0], tenantConfigurationRequestResult), token, responses[1].token!)
+                            NwcToSdkModelHelper.Tenant(responses[0], tenantConfigurationRequestResult), user, token, responses[1].token!)
                         return client
                     })
                     .catch((error: ApiError) => Promise.reject(error))
@@ -268,13 +289,14 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
 
     @CacheClear({ cacheKey: "datasources" })
-    public createDatasource(payload: datasourcePayload): Promise<Datasource | undefined> {
+    public createDatasource(payload: datasourcePayload, permissions?: Permission[]): Promise<Datasource | undefined> {
         payload.definition = DatasourceHelper.ensureConnectionInDefinition(payload.definition, payload.connectionId)
         return this._nwc.default.createDatasource(payload)
-            .then((response) => this._nwc.default.updateDatasourcePermissions(response, { permissions: [{ id: "everyone", name: "Everyone", type: "group", scope: { owner: true, user: true } }] })
-                .then(() => this.getDatasource(response))
-                .then((datasource) => datasource)
-                .catch((error) => Promise.reject(error)))
+            .then((response) =>
+                this._nwc.default.updateDatasourcePermissions(response, { permissions: SdkToNwcModelHelper.permissionItems(permissions ?? this._defaultPermisssions(), PermissionType.DatasourcePost) })
+                    .then(() => this.getDatasource(response))
+                    .then((datasource) => datasource)
+                    .catch((error) => Promise.reject(error)))
             .catch((error) => Promise.reject(error))
     }
     // public groupConnections(connections: Connection[]): Promise<Contract[]> {
@@ -329,10 +351,10 @@ export class Sdk {
     }
 
     @CacheClear({ cacheKey: "connections" })
-    public createConnection(contract: Contract, properties: Record<string, string>): Promise<Connection | undefined> {
+    public createConnection(contract: Contract, properties: Record<string, string>, permissions?: Permission[]): Promise<Connection | undefined> {
         return this._nwc.default.createConnection(contract.appId, properties)
             .then((response) =>
-                this._nwc.default.updateConnectionPermissions(response, { permissions: [{ id: "everyone", name: "Everyone", type: "group", scope: { own: true, use: true } }] })
+                this._nwc.default.updateConnectionPermissions(response, { permissions: SdkToNwcModelHelper.permissionItems(permissions ?? this._defaultPermisssions(), PermissionType.ConnectionPost) })
                     .then(() => this.getConnection(response))
                     .then((connection) => connection)
                     .catch((error) => Promise.reject(error)))

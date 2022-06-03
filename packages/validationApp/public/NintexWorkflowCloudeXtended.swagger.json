@@ -796,7 +796,7 @@
                     }
                 }
             },
-            "put": {
+            "post": {
                 "description": "Update connection permissions",
                 "operationId": "updateConnectionPermissions",
                 "parameters": [{

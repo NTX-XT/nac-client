@@ -7,6 +7,14 @@ import { Workflow } from "../models/workflow";
 import { Permission } from "../models/permission";
 import { WorkflowHelper } from "./workflowHelper";
 
+
+export enum PermissionType {
+    DatasourceGet,
+    ConnectionGet,
+    DatasourcePost,
+    ConnectionPost,
+    Workflow
+}
 export class SdkToNwcModelHelper {
     public static tag = (tag: Tag): tag => (
         {
@@ -21,6 +29,37 @@ export class SdkToNwcModelHelper {
         name: permission.name,
         type: permission.type
     })
+
+    static permissionItem = (permission: Permission, type: PermissionType) => {
+        const item: permissionItem = {
+            id: permission.id,
+            name: permission.name,
+            subtext: permission.email,
+            email: permission.email,
+            type: permission.type,
+        }
+        switch (type) {
+            case PermissionType.DatasourceGet:
+            case PermissionType.DatasourcePost: {
+                item.scope = {
+                    owner: permission.isOwner ?? false,
+                    user: permission.isUser ?? false
+                }
+                break
+            }
+            case PermissionType.ConnectionGet:
+            case PermissionType.ConnectionPost: {
+                item.scope = {
+                    own: permission.isOwner ?? false,
+                    use: permission.isUser ?? false
+                }
+                break
+            }
+        }
+        return item
+    }
+
+    public static permissionItems = (permissions: Permission[], type: PermissionType) => permissions.map<permissionItem>((permission) => this.permissionItem(permission, type))
 
     public static updateWorkflowPayload = (workflow: Workflow): updateWorkflowPayload => ({
         workflowName: workflow.name,
