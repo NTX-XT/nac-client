@@ -37,6 +37,7 @@ export type importWorkflowOptions = {
     };
 export type saveWorkflowPayload = updateWorkflowPayload;
 export type publishWorkflowPayload = updateWorkflowPayload;
+export type scheduleWorkflowPayload = updateWorkflowPayload;
 export type getTenantUsersResponseType = {users: Array<user>;
     };
 export type getWorkflowOwnersResponseType = {permissions: Array<permissionItem>;

@@ -17,19 +17,19 @@ import { ConnectionProperty } from './models/connectionProperty'
 import { Tag } from './models/tag'
 import { DatasourceHelper } from './helpers/datasourceHelper'
 import { Permission } from './models/permission'
-import { ThisTypeNode } from 'ts-morph'
+import { ThisExpression, ThisTypeNode } from 'ts-morph'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
     namePattern?: string,
 }
 
-const everyonePermission: Permission = {
-    id: "everyone", name: "Everyone", type: "group", isOwner: true, isUser: true
-}
+const everyonePermission = (asUser: boolean = true, asOwner: boolean = true): Permission => ({
+    id: "everyone", name: "Everyone", type: "group", isOwner: asOwner, isUser: asUser
+})
 
 export const invalidId = "undefined"
-const defaultBaseURL = (isTestTenant: boolean = false) => isTestTenant ? "https://us.nintextest.io" : "https://us.nintex.io"
+const defaultBaseURL = (isTestTenant: boolean = false): string => isTestTenant ? "https://us.nintextest.io" : "https://us.nintex.io"
 
 const invalidContract: Contract = {
     id: invalidId,
@@ -75,7 +75,7 @@ export class Sdk {
         })
     }
 
-    private _defaultPermisssions = (): Permission[] => [everyonePermission, {
+    private _defaultPermisssions = (): Permission[] => [everyonePermission(), {
         id: this._user.id,
         email: this._user.email,
         name: this._user.name ?? `${this._user.firstName ?? ''} ${this._user.lastName ?? ''}`.trim(),
@@ -363,15 +363,32 @@ export class Sdk {
 
     @CacheClear({ cacheKey: "workflow" })
     public publishWorkflow(workflow: Workflow): Promise<Workflow> {
+        if (workflow.permissions.filter(p => p.isUser).length === 0) {
+            workflow.permissions.push(everyonePermission(true, false))
+        }
         return this._nwc.default.publishWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
-            .then((response) => this.getWorkflow(response.workflowId)
-                .then((workflow) => workflow))
-            .catch((error: ApiError) => Promise.reject(error))
+            .then(() => {
+                if ((workflow.startEvents) && workflow.startEvents[0].eventType === 'nintex:scheduledstart') {
+                    return this._nwc.default.getWorkflowEndpoints(workflow.id)
+                        .then((endpoints) => {
+                            const payload = SdkToNwcModelHelper.scheduleWorkflowPayload(workflow, endpoints)
+                            return this._nwc.default.scheduleWorkflow(workflow.id, payload)
+                                .then(() => this.getWorkflow(workflow.id))
+                                .catch((error: ApiError) => Promise.reject(error))
+                        })
+                        .catch((error: ApiError) => Promise.reject(error))
+                } else {
+                    return this.getWorkflow(workflow.id)
+                }
+            })
             .catch((error: ApiError) => Promise.reject(error))
     }
 
     @CacheClear({ cacheKey: "workflow" })
     public saveWorkflow(workflow: Workflow): Promise<Workflow> {
+        if (workflow.permissions.filter(p => p.isUser).length === 0) {
+            workflow.permissions.push(everyonePermission(true, false))
+        }
         return this._nwc.default.saveWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
             .then((response) => this.getWorkflow(response.workflowId)
                 .then((workflow) => workflow))

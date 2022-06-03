@@ -1,4 +1,4 @@
-import { permissionItem, tag, user, connection, publishWorkflowPayload, updateWorkflowPayload, workflowDatasources } from "../../nwc";
+import { permissionItem, tag, user, connection, publishWorkflowPayload, updateWorkflowPayload, workflowDatasources, workflowEndpoints } from "../../nwc";
 import { Connection } from "../models/connection";
 import { DatasourceDependency } from "../models/datasourceDependency";
 import { Tag } from "../models/tag";
@@ -60,6 +60,14 @@ export class SdkToNwcModelHelper {
     }
 
     public static permissionItems = (permissions: Permission[], type: PermissionType) => permissions.map<permissionItem>((permission) => this.permissionItem(permission, type))
+
+    public static scheduleWorkflowPayload = (workflow: Workflow, endpoints: workflowEndpoints): updateWorkflowPayload => {
+        const payload = this.updateWorkflowPayload(workflow)
+        delete payload.workflowDefinition
+        payload.scheduledstart = endpoints
+        return payload
+    }
+
 
     public static updateWorkflowPayload = (workflow: Workflow): updateWorkflowPayload => ({
         workflowName: workflow.name,

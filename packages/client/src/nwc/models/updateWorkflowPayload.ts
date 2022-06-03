@@ -5,6 +5,7 @@
 import type { permissionItem } from './permissionItem';
 import type { tag } from './tag';
 import type { user } from './user';
+import type { workflowEndpoints } from './workflowEndpoints';
 import type { workflowStartEvent } from './workflowStartEvent';
 
 export type updateWorkflowPayload = {
@@ -16,10 +17,11 @@ export type updateWorkflowPayload = {
 	startEvents?: Array<workflowStartEvent>;
 	tags?: Array<tag>;
 	version?: number;
-	workflowDefinition: string;
+	workflowDefinition?: string;
 	workflowDescription?: string;
 	workflowDesignParentVersion?: string;
 	workflowName: string;
 	workflowType?: string;
 	workflowVersionComments?: string;
+	scheduledstart?: workflowEndpoints;
 };

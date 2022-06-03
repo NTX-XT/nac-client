@@ -19,12 +19,13 @@ import type { updateWorkflowPayload } from '../models/updateWorkflowPayload';
 import type { user } from '../models/user';
 import type { workflow } from '../models/workflow';
 import type { workflowDesign } from '../models/workflowDesign';
+import type { workflowEndpoints } from '../models/workflowEndpoints';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "@type-cacheable/core";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createDatasourcePayload, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners, getConnectionPermissionsResponseType, updateConnectionPermissionsPermissions, getDatasourcePermissionsResponseType, updateDatasourcePermissionsPermissions } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createDatasourcePayload, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, scheduleWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners, getConnectionPermissionsResponseType, updateConnectionPermissionsPermissions, getDatasourcePermissionsResponseType, updateDatasourcePermissionsPermissions } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -275,6 +276,32 @@ workflowId: string,
 		return this.httpRequest.request({
 			method: 'DELETE',
 			url: '/designer_/api/workflows/{workflowId}/published',
+			path: {
+				'workflowId': workflowId,
+			},
+		});
+	}
+
+	private scheduleWorkflowCancelable(
+workflowId: string,
+payload: scheduleWorkflowPayload,
+): CancelablePromise<workflow> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/designer_/api/workflows/{workflowId}/published/schedule',
+			path: {
+				'workflowId': workflowId,
+			},
+			body: payload,
+		});
+	}
+
+	private getWorkflowEndpointsCancelable(
+workflowId: string,
+): CancelablePromise<workflowEndpoints> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/designer_/api/v1/workflow/{workflowId}/url',
 			path: {
 				'workflowId': workflowId,
 			},
@@ -630,6 +657,29 @@ permissions: updateDatasourcePermissionsPermissions,
     @Cacheable()
     public deletePublishedWorkflow(workflowId: string): Promise<any> {
         return this.deletePublishedWorkflowCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Schedule workflow
+     * @param workflowId Id of the workflow
+     * @param payload
+     * @returns workflow Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public scheduleWorkflow(workflowId: string, payload: scheduleWorkflowPayload): Promise<workflow> {
+        return this.scheduleWorkflowCancelable(workflowId, payload).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Get workflow endpoints
+     * @param workflowId Id of the workflow
+     * @returns workflowEndpoints Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getWorkflowEndpoints(workflowId: string): Promise<workflowEndpoints> {
+        return this.getWorkflowEndpointsCancelable(workflowId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**
