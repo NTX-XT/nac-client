@@ -352,7 +352,7 @@ export class WorkflowHelper {
                     configNode.literal = newConnection.id
                     configNode.data = newConnection.nwcObject
                     if (control.properties.items) {
-                        control.properties.items.datasourceId = newDatasource.id
+                        control.properties.items.dataSourceId = newDatasource.id
                         for (const key of Object.keys(control.properties.items.config.value)) {
                             if (key.endsWith(KnownStrings.NTXConnectionId)) {
                                 control.properties.items.config.value[key].literal = newConnection.id
