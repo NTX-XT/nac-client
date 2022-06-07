@@ -20,4 +20,13 @@ type: string;
 	overwriteExistingWorkflow: boolean;
 	isPublishing: boolean;
 	isActive: boolean;
+	workflowMetaData?: {
+lastModified?: string;
+lastPublished?: string;
+isMigrated?: boolean;
+isDeactivatedInO365?: boolean;
+workflowName?: string;
+workflowDesignVersion?: string;
+tags?: Array<string>;
+};
 };

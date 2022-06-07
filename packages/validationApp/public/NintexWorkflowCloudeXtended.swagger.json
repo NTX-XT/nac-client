@@ -2505,6 +2505,37 @@
                 },
                 "isActive": {
                     "type": "boolean"
+                },
+                "workflowMetaData": {
+                    "type": "object",
+                    "properties": {
+                        "lastModified": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "lastPublished": {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        "isMigrated": {
+                            "type": "boolean"
+                        },
+                        "isDeactivatedInO365": {
+                            "type": "boolean"
+                        },
+                        "workflowName": {
+                            "type": "string"
+                        },
+                        "workflowDesignVersion": {
+                            "type": "string"
+                        },
+                        "tags": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             },
             "required": [

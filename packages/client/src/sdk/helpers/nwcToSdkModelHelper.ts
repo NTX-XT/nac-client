@@ -131,7 +131,7 @@ export class NwcToSdkModelHelper {
                 status: workflow.status,
                 version: workflow.version,
                 description: workflow.workflowDescription,
-                designVersion: workflow.workflowDesignVersion,
+                designVersion: definition.settings.workflowMetaData?.workflowDesignVersion ?? workflow.workflowDesignVersion,
                 type: workflow.workflowType,
                 comments: workflow.workflowVersionComments,
                 author: NwcToSdkModelHelper.User(workflow.author!)

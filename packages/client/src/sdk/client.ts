@@ -369,11 +369,21 @@ export class Sdk {
         return this._nwc.default.publishWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
             .then(() => {
                 if ((workflow.startEvents) && workflow.startEvents[0].eventType === 'nintex:scheduledstart') {
-                    return this._nwc.default.getWorkflowEndpoints(workflow.id)
-                        .then((endpoints) => {
-                            const payload = SdkToNwcModelHelper.scheduleWorkflowPayload(workflow, endpoints)
-                            return this._nwc.default.scheduleWorkflow(workflow.id, payload)
-                                .then(() => this.getWorkflow(workflow.id))
+                    return this.getWorkflow(workflow.id)
+                        .then((published) => {
+                            return this._nwc.default.getWorkflowEndpoints(published.id)
+                                .then((response) => {
+                                    if (response.endpoints![0].url!.endsWith('published//instances')) {
+                                        response.endpoints![0].url = response.endpoints![0].url!.replace('published//instances', `published/${published.id}/instances`)
+                                    }
+                                    const payload = SdkToNwcModelHelper.scheduleWorkflowPayload(published, response)
+                                    return this._nwc.default.scheduleWorkflow(published.id, payload)
+                                        .then((response) => {
+                                            console.log(response)
+                                            return this.getWorkflow(published.id)
+                                        })
+                                        .catch((error: ApiError) => Promise.reject(error))
+                                })
                                 .catch((error: ApiError) => Promise.reject(error))
                         })
                         .catch((error: ApiError) => Promise.reject(error))
