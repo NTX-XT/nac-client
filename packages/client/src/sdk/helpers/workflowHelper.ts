@@ -139,7 +139,7 @@ export class WorkflowHelper {
             }
 
             for (const variable of form.variableContext.variables) {
-                if (variable.config.dataSourceId) {
+                if (variable.config?.dataSourceId) {
                     this._addToDatasource(datasources, form, variable.config.dataSourceId)
                 }
             }

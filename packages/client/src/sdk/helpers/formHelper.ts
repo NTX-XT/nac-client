@@ -36,7 +36,7 @@ export class FormHelper {
     static getFormDatasourceVariables = (datasourceId: string, form: Form): FormVariable[] => {
         const matchedVariables: FormVariable[] = []
         for (const variable of form.variableContext.variables) {
-            if (variable.config.dataSourceId === datasourceId) {
+            if ((variable.config) && variable.config.dataSourceId === datasourceId) {
                 matchedVariables.push(variable)
             }
         }
