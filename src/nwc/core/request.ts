@@ -1,7 +1,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
+import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import FormData from 'form-data';
 
 import { ApiError } from './ApiError';
@@ -34,6 +35,10 @@ const isBlob = (value: any): value is Blob => {
 		/^(Blob|File)$/.test(value.constructor.name) &&
 		/^(Blob|File)$/.test(value[Symbol.toStringTag])
 	);
+};
+
+const isFormData = (value: any): value is FormData => {
+	return value instanceof FormData;
 };
 
 const isSuccess = (status: number): boolean => {
@@ -126,7 +131,7 @@ const getFormData = (options: ApiRequestOptions): FormData | undefined => {
 
 		return formData;
 	}
-	return;
+	return undefined;
 };
 
 type Resolver<T> = (options: ApiRequestOptions) => Promise<T>;
@@ -166,6 +171,18 @@ const getHeaders = async (config: OpenAPIConfig, options: ApiRequestOptions, for
 		headers['Authorization'] = `Basic ${credentials}`;
 	}
 
+	if (options.body) {
+		if (options.mediaType) {
+			headers['Content-Type'] = options.mediaType;
+		} else if (isBlob(options.body)) {
+			headers['Content-Type'] = options.body.type || 'application/octet-stream';
+		} else if (isString(options.body)) {
+			headers['Content-Type'] = 'text/plain';
+		} else if (!isFormData(options.body)) {
+			headers['Content-Type'] = 'application/json';
+		}
+	}
+
 	return headers;
 };
 
@@ -173,7 +190,7 @@ const getRequestBody = (options: ApiRequestOptions): any => {
 	if (options.body) {
 		return options.body;
 	}
-	return;
+	return undefined;
 };
 
 const sendRequest = async <T>(
@@ -201,7 +218,7 @@ const sendRequest = async <T>(
 	try {
 		return await axios.request(requestConfig);
 	} catch (error) {
-		const axiosError = error as AxiosError;
+		const axiosError = error as AxiosError<T>;
 		if (axiosError.response) {
 			return axiosError.response;
 		}
@@ -216,14 +233,14 @@ const getResponseHeader = (response: AxiosResponse<any>, responseHeader?: string
 			return content;
 		}
 	}
-	return;
+	return undefined;
 };
 
 const getResponseBody = (response: AxiosResponse<any>): any => {
 	if (response.status !== 204) {
 		return response.data;
 	}
-	return;
+	return undefined;
 };
 
 const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): void => {
@@ -240,11 +257,11 @@ const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): void =>
 
 	const error = errors[result.status];
 	if (error) {
-		throw new ApiError(result, error);
+		throw new ApiError(options, result, error);
 	}
 
 	if (!result.ok) {
-		throw new ApiError(result, 'Generic Error');
+		throw new ApiError(options, result, 'Generic Error');
 	}
 };
 

@@ -1,4 +1,4 @@
-import { connection } from "client/src/nwc";
+import { connection } from "../../nwc";
 import { action } from "../../nwc/models/action";
 import { parameter } from "../../nwc/models/parameter";
 import { property } from "../../nwc/models/property";
