@@ -21,14 +21,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/NTX-XT/nwc-sdk.git"
+        "url": "git+https://github.com/NTX-XT/nwc-sdk-client.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/NTX-XT/nwc-sdk/issues"
+        "url": "https://github.com/NTX-XT/nwc-sdk-client/issues"
     },
-    "homepage": "https://github.com/NTX-XT/nwc-sdk#readme",
+    "homepage": "https://github.com/NTX-XT/nwc-sdk-client#readme",
     "dependencies": {
         "@type-cacheable/core": "^10.1.0",
         "@type-cacheable/node-cache-adapter": "^10.0.4",
