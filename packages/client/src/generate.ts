@@ -8,7 +8,7 @@ const projectPath = './src/nwc'
 const serviceClassName = 'DefaultService'
 
 generate({
-    input: './../validationApp/public/NintexWorkflowCloudeXtended.swagger.json',
+    input: './src/specifications/NintexWorkflowCloudeXtended.swagger.json',
     output: projectPath,
     //    postfix: postfix,
     httpClient: 'axios',
