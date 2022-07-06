@@ -1,3 +1,0 @@
-# nwc-package-sample
-
-WIP

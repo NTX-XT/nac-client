@@ -1,7 +1,6 @@
 {
     "extends": "@tsconfig/recommended/tsconfig.json",
     "compilerOptions": {
-        "baseUrl": "./packages",
         "declaration": true,
         "noImplicitAny": false,
         "removeComments": true,
@@ -14,10 +13,15 @@
         ],
         "moduleResolution": "Node",
         "resolveJsonModule": true,
-        "isolatedModules": true
+        "isolatedModules": true,
+        "outDir": "./dist",
+        "allowSyntheticDefaultImports": true
     },
     "exclude": ["node_modules", "**/*/lib", "**/*/dist", "__template__"],
     "paths": {
         "@base/*": ["./*"]
-    }
+    },
+    "include": [
+        "src/**/*.*"
+    ]
 }

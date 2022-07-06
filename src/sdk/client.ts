@@ -1,5 +1,5 @@
 
-import { Nwc, ApiError, permissionItem, datasourcePayload } from './../nwc'
+import { Nwc, ApiError, permissionItem, datasourcePayload } from '../nwc'
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
 import { Workflow } from './models/workflow'

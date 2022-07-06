@@ -1,16 +1,4 @@
 node_modules/
-lerna-debug.log
 npm-debug.log
-packages/*/lib
-packages/*/dist
-
-# Azure Functions artifacts
-packages/xtenstions/bin
-obj
-appsettings.json
-local.settings.json
-__azurite*
-
-# refactoring project
-packages/sdk-test/
-.local
+lib/
+dist/

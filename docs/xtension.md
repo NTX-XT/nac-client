@@ -1,4 +1,0 @@
-
-## NWC SDK Xtension
-
-WIP
