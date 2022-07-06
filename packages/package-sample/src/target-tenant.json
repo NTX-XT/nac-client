@@ -1,5 +1,0 @@
-{
-	"clientId": "TARGET_TENANT_APP_CLIENT_ID",
-	"clientSecret": "TARGET_TENANT_APP_CLIENT_SECRET",
-	"tenantName": "TARGET_TENANT_NAME"
-}
