@@ -469,7 +469,8 @@
                         "type": "object",
                         "required": [
                             "name",
-                            "key"
+                            "key",
+                            "author"
                         ],
                         "properties": {
                             "name": {
@@ -481,6 +482,21 @@
                             "overwriteExisting": {
                                 "type": "boolean",
                                 "default": false
+                            },
+                            "author": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "tenantId": {
+                                        "type": "string"
+                                    }
+                                }
+
                             }
                         }
                     }
@@ -948,6 +964,7 @@
             }
         }
     },
+
     "parameters": {
         "datasourceToken": {
             "name": "Authorization",
@@ -1491,7 +1508,9 @@
             "required": [
                 "id",
                 "name",
-                "enabled"
+                "enabled",
+                "actions",
+                "events"
             ],
             "type": "object",
             "properties": {
@@ -1644,7 +1663,8 @@
             "required": [
                 "id",
                 "name",
-                "appId"
+                "appId",
+                "icon"
             ],
             "properties": {
                 "id": {
@@ -2402,7 +2422,7 @@
                     "type": "string"
                 },
                 "value": {
-                    "type": "string"
+                    "type": "object"
                 },
                 "valuePath": {
                     "type": "string"
@@ -2423,7 +2443,9 @@
                 "data": {
                     "type": "object",
                     "properties": {
-                        "value": {}
+                        "value": {
+                            "type": "object"
+                        }
                     },
                     "required": [
                         "value"
@@ -2630,7 +2652,7 @@
             "type": "object",
             "properties": {
                 "xtension": {
-                    "$ref": "#/definitions/xtension"
+                    "type": "object"
                 },
                 "usedByActionIds": {
                     "type": "array",
@@ -2707,7 +2729,7 @@
                             "type": "object",
                             "properties": {
                                 "valueType": {
-                                    "type": "string"
+                                    "type": "object"
                                 }
                             },
                             "required": [
@@ -2726,7 +2748,7 @@
                     "type": "string"
                 },
                 "valueType": {
-                    "type": "string"
+                    "type": "object"
                 },
                 "hidden": {
                     "type": "boolean"
@@ -2897,8 +2919,35 @@
                 "originalName": {
                     "type": "string"
                 },
-                "subHeader": {},
-                "image": {},
+                "subHeader": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "svgIcon": {
+                            "type": "string"
+                        },
+                        "svgLight": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "toolboxSrc": {
+                            "type": "string"
+                        },
+                        "canvasSrc": {
+                            "type": "string"
+                        },
+                        "configPanelSrc": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "toolboxSrc",
+                        "canvasSrc",
+                        "configPanelSrc"
+                    ]
+                },
                 "serverInfo": {
                     "type": "object",
                     "properties": {

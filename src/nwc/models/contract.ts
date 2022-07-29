@@ -10,7 +10,7 @@ export type contract = {
 	createdByUserId?: string;
 	timeStamp?: string;
 	createdDate?: string;
-	icon?: string;
+	icon: string;
 	operations?: Array<{
 operationId?: string;
 name?: string;

@@ -2,10 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { xtension } from './xtension';
-
 export type xtensionUsage = {
-	xtension: xtension;
+	xtension: any;
 	usedByActionIds: Array<string>;
 	usedByEventIds: Array<string>;
 };

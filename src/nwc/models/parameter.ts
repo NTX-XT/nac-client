@@ -22,11 +22,11 @@ valueType: valueType;
 formatValues: Array<formatValue>;
 };
 variable: {
-valueType: string;
+valueType: any;
 };
 };
 	placeholder: string;
-	valueType?: string;
+	valueType?: any;
 	hidden?: boolean;
 	originalRequired?: boolean;
 	helpText?: string;

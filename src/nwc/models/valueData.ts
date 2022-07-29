@@ -4,6 +4,6 @@
 
 export type valueData = {
 	name: string;
-	value: string;
+	value: any;
 	valuePath?: string;
 };

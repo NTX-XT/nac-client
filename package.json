@@ -17,7 +17,8 @@
     "scripts": {
         "prebuild": "ts-node ./src/generate.ts",
         "build": "node ./build.js run production",
-        "build:dev": "tsc"
+        "build:dev": "tsc --sourcemap --declarationMap",
+        "test": "ts-node ./src/sandbox/index.ts"
     },
     "repository": {
         "type": "git",

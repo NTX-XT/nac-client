@@ -1,4 +1,4 @@
-import { connection, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, workflowDesign, permissionItem, connectionSchema, connectionSchemaProperty, user } from "../../nwc";
+import { connection, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, workflowDesign, permissionItem, connectionSchema, connectionSchemaProperty, user, connector } from "../../nwc";
 import { Connection } from "../models/connection";
 import { Contract } from "../models/contract";
 import { Datasource } from "../models/datasource";
@@ -37,11 +37,14 @@ export class NwcToSdkModelHelper {
         })))
     })
 
-    public static Contract = (contract: contract): Contract => ({
+    public static Contract = (contract: contract, connector?: connector): Contract => ({
         id: contract.id!,
         name: contract.name!,
         description: contract.description,
-        appId: contract.appId
+        appId: contract.appId,
+        icon: contract.icon,
+        actions: (connector) ? connector.actions!.map((a) => ({ type: a.type, name: a.name })) : [],
+        events: (connector) ? connector.events!.map((e) => ({ type: e.type, name: e.name })) : [],
     })
 
     public static Datasource = (datasource: datasource): Datasource => ({
@@ -116,6 +119,13 @@ export class NwcToSdkModelHelper {
 
     public static Workflow = (workflow: workflow, design: WorkflowDesign): Workflow => {
         const definition = WorkflowHelper.parseDefinition(workflow.workflowDefinition)
+        WorkflowHelper.ensureWorkflowId(definition, workflow.workflowId)
+        // fix inUseXtensions
+        for (const key of Object.keys(definition.inUseXtensions)) {
+            if (typeof definition.inUseXtensions[key].xtension === 'string' || definition.inUseXtensions[key].xtension instanceof String) {
+                definition.inUseXtensions[key].xtension = JSON.parse(definition.inUseXtensions[key].xtension)
+            }
+        }
         const forms = WorkflowHelper.forms(definition, workflow.startEvents)
         const dependencies = WorkflowHelper.dependencies(definition, forms)
         return ({

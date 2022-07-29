@@ -8,6 +8,6 @@ export type connector = {
 	id: string;
 	name: string;
 	enabled: boolean;
-	events?: Array<actionDefinition>;
-	actions?: Array<actionDefinition>;
+	events: Array<actionDefinition>;
+	actions: Array<actionDefinition>;
 };

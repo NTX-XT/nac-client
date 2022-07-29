@@ -18,6 +18,7 @@ import { Tag } from './models/tag'
 import { DatasourceHelper } from './helpers/datasourceHelper'
 import { Permission } from './models/permission'
 import { ThisExpression, ThisTypeNode } from 'ts-morph'
+import { WorkflowHelper } from './helpers/workflowHelper'
 
 export interface WorkflowsQueryOptions {
     tag?: string,
@@ -35,6 +36,9 @@ const invalidContract: Contract = {
     id: invalidId,
     name: "(Invalid Contract)",
     appId: "",
+    actions: [],
+    events: [],
+    icon: ""
 }
 
 export class Sdk {
@@ -153,13 +157,36 @@ export class Sdk {
     public getWorkflowDesign = (workflowId: string): Promise<WorkflowDesign | undefined> => this.getWorkflowDesigns().then((designs) => designs.find(design => design.id === workflowId))
     public getWorkflowDesignByName = (workflowName: string): Promise<WorkflowDesign | undefined> => this.getWorkflowDesigns().then((designs) => designs.find(design => design.name === workflowName))
 
+    private resolveDependencies = async (workflow: Workflow): Promise<Workflow> => {
+        const nonResolvedConnections = WorkflowHelper.allConnectionDependencies(workflow.dependencies).filter(dep => dep.needsResolution)
+        for (const dep of nonResolvedConnections) {
+            const cn = await this.getConnection(dep.connectionId)
+            if (cn) {
+                dep.connectionName = cn.name
+                dep.needsResolution = false
+                workflow.dependencies.contracts[dep.contractId].contractName = cn.nwcObject.contractName
+            }
+        }
+        return workflow
+    }
+
     @Cacheable({ cacheKey: "workflow" })
     public getWorkflow(workflowId: string): Promise<Workflow> {
         return this._nwc.default.getWorkflow(workflowId)
             .then((workflow) => this.getWorkflowDesign(workflowId)
-                .then((design) => NwcToSdkModelHelper.Workflow(workflow, design!))
+                .then((design) => this.resolveDependencies(NwcToSdkModelHelper.Workflow(workflow, design!))
+                    .then((wfl) => wfl)
+                    .catch((error) => Promise.reject(error)))
                 .catch((error) => Promise.reject(error))
             ).catch((error) => Promise.reject(error))
+    }
+
+    public tryGetWorkflow = async (workflowId: string): Promise<Workflow | undefined> => {
+        try {
+            return await this.getWorkflow(workflowId)
+        } catch {
+            return undefined
+        }
     }
 
     public checkIfWorkflowExists = (workflowName: string): Promise<boolean> =>
@@ -236,8 +263,8 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "contracts" })
     public getContracts(): Promise<Contract[]> {
-        return this._nwc.default.getTenantContracts(true)
-            .then((contracts) => contracts.map<Contract>(cn => NwcToSdkModelHelper.Contract(cn)))
+        return Promise.all([this._nwc.default.getTenantContracts(true), this._nwc.default.getTenantConnectors()])
+            .then((responses) => responses[0].map<Contract>(cn => NwcToSdkModelHelper.Contract(cn, responses[1].connectors.find(c => c.id === cn.id))))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -281,6 +308,14 @@ export class Sdk {
         return this._nwc.default.getDatasource(id)
             .then((datasource) => NwcToSdkModelHelper.Datasource(datasource))
             .catch((error: ApiError) => Promise.reject(error))
+    }
+
+    public tryGetDatasource = async (id: string): Promise<Datasource | undefined> => {
+        try {
+            return await this.getDatasource(id)
+        } catch {
+            return undefined
+        }
     }
 
     public getDatasourceByName = (name: string): Promise<Datasource | undefined> =>
@@ -330,7 +365,7 @@ export class Sdk {
             .then((response) => response.key!)
             .catch((error: ApiError) => Promise.reject(error))
 
-    @CacheClear({ cacheKey: ["workflowDesigns"] })
+    @CacheClear({ cacheKey: ["workflowDesigns", "workflow"] })
     public importWorkflow(name: string, key: string, overwriteExisting: boolean = false): Promise<Workflow> {
         return this.getWorkflowByName(name)
             .then((foundWorkflow) => {
@@ -340,12 +375,19 @@ export class Sdk {
                 if (!foundWorkflow) {
                     overwriteExisting = false
                 }
-                return this._nwc.default.importWorkflow({ name: name, key: key, overwriteExisting: overwriteExisting })
-                    .then((response) =>
-                        this.getWorkflow(response.workflowId!.workflowId!)
-                            .then((workflow) => workflow))
-                    .catch((error) => Promise.reject(error))
-                    .catch((error: ApiError) => Promise.reject(error))
+                return this._nwc.default.importWorkflow({
+                    name: name, key: key, overwriteExisting: overwriteExisting,
+                    author: {
+                        id: this._user.id,
+                        tenantId: this._tenant.id,
+                        name: this._user.name ?? ''
+                    }
+                }).then((response) => {
+                    const s = response
+                    return this.getWorkflow(response.workflowId!.workflowId!)
+                        .then((workflow) => workflow)
+                        .catch((error) => Promise.reject(error))
+                }).catch((error: ApiError) => Promise.reject(error))
             })
             .catch((error: ApiError) => Promise.reject(error))
     }
@@ -366,6 +408,7 @@ export class Sdk {
         if (workflow.permissions.filter(p => p.isUser).length === 0) {
             workflow.permissions.push(everyonePermission(true, false))
         }
+        this.ensureCorrectAuthorInDefinition(workflow)
         return this._nwc.default.publishWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
             .then(() => {
                 if ((workflow.startEvents) && workflow.startEvents[0].eventType === 'nintex:scheduledstart') {
@@ -399,6 +442,7 @@ export class Sdk {
         if (workflow.permissions.filter(p => p.isUser).length === 0) {
             workflow.permissions.push(everyonePermission(true, false))
         }
+        this.ensureCorrectAuthorInDefinition(workflow)
         return this._nwc.default.saveWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
             .then((response) => this.getWorkflow(response.workflowId)
                 .then((workflow) => workflow))
@@ -406,4 +450,18 @@ export class Sdk {
             .catch((error: ApiError) => Promise.reject(error))
     }
 
+    private ensureCorrectAuthorInDefinition(workflow: Workflow) {
+        if (workflow.definition.settings.author.tenantId !== this._tenant.id) {
+            workflow.definition.settings.author.displayName = this._user.name
+            workflow.definition.settings.author.email = workflow.info.author.email
+            workflow.definition.settings.author.firstName = workflow.info.author.firstName
+            workflow.definition.settings.author.id = workflow.info.author.id
+            workflow.definition.settings.author.lastName = workflow.info.author.lastName
+            workflow.definition.settings.author.name = workflow.info.author.name
+            workflow.definition.settings.author.nintexTenantId = '00000000-0000-0000-0000-000000000000'
+            workflow.definition.settings.author.roles = this._user.roles
+            workflow.definition.settings.author.tenantId = this._tenant.id
+            workflow.definition.settings.author.tenantName = this._tenant.name
+        }
+    }
 }

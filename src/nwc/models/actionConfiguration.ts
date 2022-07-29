@@ -9,8 +9,14 @@ export type actionConfiguration = {
 	id: string;
 	name: string;
 	originalName: string;
-	subHeader?: any;
-	image: any;
+	subHeader?: string;
+	image: {
+svgIcon?: string;
+svgLight?: boolean;
+toolboxSrc: string;
+canvasSrc: string;
+configPanelSrc: string;
+};
 	serverInfo: {
 className: string;
 };

@@ -34,6 +34,11 @@ export type importWorkflowOptions = {
     name: string;
     key: string;
     overwriteExisting?: boolean;
+    author: {
+    id?: string;
+    name?: string;
+    tenantId?: string;
+    };
     };
 export type saveWorkflowPayload = updateWorkflowPayload;
 export type publishWorkflowPayload = updateWorkflowPayload;

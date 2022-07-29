@@ -1,8 +1,6 @@
-import { permissionItem, tag, user, connection, publishWorkflowPayload, updateWorkflowPayload, workflowDatasources, workflowEndpoints } from "../../nwc";
-import { Connection } from "../models/connection";
+import { permissionItem, tag, updateWorkflowPayload, workflowDatasources, workflowEndpoints } from "../../nwc";
 import { DatasourceDependency } from "../models/datasourceDependency";
 import { Tag } from "../models/tag";
-import { User } from "../models/user";
 import { Workflow } from "../models/workflow";
 import { Permission } from "../models/permission";
 import { WorkflowHelper } from "./workflowHelper";

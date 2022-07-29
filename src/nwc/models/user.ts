@@ -19,4 +19,5 @@ export type user = {
 	email?: string;
 	nintexTenantId?: string;
 	displayName?: string;
+	tenantName?: string;
 };

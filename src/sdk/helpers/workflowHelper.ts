@@ -1,6 +1,6 @@
 import { arrayToDictionary, findOperation, flattenTree } from "../../utils";
 import { OpenAPIV2 } from "openapi-types";
-import { action, connection, workflowDatasources, workflowDefinition, workflowStartEvent } from "../../nwc";
+import { action, connection, workflowDatasources, workflowDefinition, workflowStartEvent, xtensionUsage } from "../../nwc";
 import { ActionConfigurationEntryValue } from "../models/actionConfigurationEntryValue";
 import { WorkflowDependency } from "../models/workflowDependency";
 import { ActionHelper } from "./actionHelper";
@@ -18,13 +18,24 @@ import { Datasource } from "../models/datasource";
 import { FormVariable } from "../models/formVariable";
 import { FormControlDatasourceConfig } from "../models/formVariableConfig";
 import { FormHelper } from "./formHelper";
+import { Contract } from "../models/contract";
+import { FormControl } from "../models/formControl";
+import { ParameterDeclaration } from "ts-morph";
 
 export class WorkflowHelper {
     static parseDefinition = (definition: string): workflowDefinition => JSON.parse(definition)
     static stringifyDefinition = (definition: workflowDefinition): string => JSON.stringify(definition)
     static ensureWorkflowId = (definition: workflowDefinition, workflowId: string): void => { definition.settings.id = workflowId }
 
-    static resolveActionConfigurationEntryValue = (entry: { parameter: OpenAPIV2.Parameter, value: any }): ActionConfigurationEntryValue => {
+    static resolveActionConfigurationEntryValue = (entry: { parameter: OpenAPIV2.Parameter | string, value: any }): ActionConfigurationEntryValue => {
+        if (typeof (entry.parameter) === "string" || entry.parameter instanceof String) {
+            return {
+                key: entry.parameter.toString(),
+                value: entry.value,
+                name: entry.parameter.toString(),
+                type: "value"
+            }
+        }
         if (entry.value === undefined) {
             return {
                 key: entry.parameter.name,
@@ -32,42 +43,43 @@ export class WorkflowHelper {
                 name: entry.parameter["x-ntx-summary"],
                 type: "value"
             }
-        } else if (entry.parameter.type === "string" && entry.value.literal) {
+        }
+        if (entry.parameter.type === "string" && entry.value.literal) {
             return {
                 key: entry.parameter.name,
                 value: entry.value.literal,
                 name: entry.parameter["x-ntx-summary"],
                 type: "value"
             }
-        } else if (entry.parameter.type === "string" && entry.value.variable) {
+        }
+        if (entry.parameter.type === "string" && entry.value.variable) {
             return {
                 key: entry.parameter.name,
                 value: entry.value.variable.name,
                 name: entry.parameter["x-ntx-summary"],
                 type: "variable"
             }
-        } else if (entry.parameter.schema && entry.parameter.schema.type === "object" && entry.value.value) {
-            const values = Object.keys(entry.value.value).map<ActionConfigurationEntryValue>((key) => {
-                return {
-                    key: key,
-                    name: entry.value.value[key].schema.title,
-                    value: entry.value.value[key].literal ? entry.value.value[key].literal : (entry.value.value[key].variable ? entry.value.value[key].variable.name : entry.parameter.name),
-                    type: entry.value.value[key].literal ? "value" : (entry.value.value[key].variable ? "variable" : "unsupported")
-                }
-            })
+        }
+        if (entry.parameter.schema && entry.parameter.schema.type === "object" && entry.value.value) {
+            const values = Object.keys(entry.value.value).map<ActionConfigurationEntryValue>((key) => ({
+                key: key,
+                name: entry.value.value[key].schema.title,
+                value: entry.value.value[key].literal ? entry.value.value[key].literal : (entry.value.value[key].variable ? entry.value.value[key].variable.name : (entry.parameter as OpenAPIV2.Parameter).name),
+                type: entry.value.value[key].literal ? "value" : (entry.value.value[key].variable ? "variable" : "unsupported")
+            }))
             return {
                 key: entry.parameter.name,
                 value: values,
                 name: entry.parameter["x-ntx-summary"],
                 type: "dictionary"
             }
-        } else {
-            return {
-                key: entry.parameter.name,
-                name: entry.parameter["x-ntx-summary"] ?? entry.parameter.name,
-                type: "unsupported",
-                value: undefined
-            }
+        }
+
+        return {
+            key: entry.parameter.name,
+            name: entry.parameter["x-ntx-summary"] ?? entry.parameter.name,
+            type: "unsupported",
+            value: undefined
         }
     }
 
@@ -86,6 +98,7 @@ export class WorkflowHelper {
     }
 
     static allContractDependencies = (dependencies: WorkflowDependencies): ContractDependency[] => Object.values(dependencies.contracts)
+    static allWorkflowDependencies = (dependencies: WorkflowDependencies): WorkflowDependency[] => Object.values(dependencies.workflows)
     static allConnectionDependencies = (dependencies: WorkflowDependencies): ConnectionDependency[] => {
         const connectionDependencies: ConnectionDependency[] = []
         this.allContractDependencies(dependencies).map((dep) =>
@@ -157,7 +170,7 @@ export class WorkflowHelper {
             if (referencedWorkflowId) {
                 if (!dependencies[referencedWorkflowId]) {
                     dependencies[referencedWorkflowId] = {
-
+                        workflowId: referencedWorkflowId,
                         actionIds: []
                     }
                 }
@@ -180,11 +193,23 @@ export class WorkflowHelper {
                 }
             }
             for (const actionId of definition.inUseXtensions[contractId].usedByActionIds) {
+                let byConnectionId = false
                 const action = WorkflowHelper.actionsDictionary(definition)[actionId]
-                const connection = ActionHelper.getConnection(ActionHelper.getXtensionInputParameter(action))
+                let connection = ActionHelper.getConnection(ActionHelper.getXtensionInputParameter(action))
+                if (!connection) {
+                    const parameter = ActionHelper.getConnectionIdParameter(action)
+                    const connectionId = ActionHelper.getParameterValue(parameter)
+                    byConnectionId = true
+                    connection = {
+                        id: connectionId,
+                        contractId: contractId,
+                        contractName: "",
+                        displayName: connectionId,
+                    }
+                }
                 if (connection) {
                     const dependencyKey = connection.id === 'undefined' ? connection.displayName : connection.id
-                    const needsResolution = (connection.id === 'undefined')
+                    const needsResolution = (connection.id === 'undefined' || connection.displayName === connection.id)
                     if (!(dependencies[contractId].connections[dependencyKey])) {
                         dependencies[contractId].connections[dependencyKey] = {
                             connectionName: connection.displayName,
@@ -198,40 +223,49 @@ export class WorkflowHelper {
                     if (dependencies[contractId].contractName === "") {
                         dependencies[contractId].contractName = connection.contractName
                     }
-                    const operationId = WorkflowHelper.actionsDictionary(definition)[actionId].configuration.xtension!.operationId
-                    const document: OpenAPIV2.Document = definition.inUseXtensions[contractId].xtension as OpenAPIV2.Document
+                    const valuesDictionary: { [key: string]: { parameter: OpenAPIV2.Parameter | string, value: any } } = {}
+                    const operationId = byConnectionId ? action.configuration.operationId! : action.configuration.xtension!.operationId
+                    const document: OpenAPIV2.Document = definition.inUseXtensions[contractId].xtension
                     const operation = findOperation(document.paths, operationId)
                     if (operation) {
-                        const values = ActionHelper.getXtensionInputValue(WorkflowHelper.actionsDictionary(definition)[actionId])
-                        const valuesDictionary: { [key: string]: { parameter: OpenAPIV2.Parameter, value: any } } = {}
-                        for (const p of operation.parameters!) {
-                            const parameter: OpenAPIV2.Parameter = p as OpenAPIV2.Parameter
-                            const key = `${operation.operationId}.${parameter.in}.${parameter.name}`
-                            valuesDictionary[key] = {
-                                parameter: parameter,
-                                value: values[key]
+                        if (!byConnectionId) {
+                            const values = ActionHelper.getXtensionInputValue(action)
+                            for (const p of operation.parameters!) {
+                                const parameter: OpenAPIV2.Parameter = p as OpenAPIV2.Parameter
+                                const key = `${operation.operationId}.${parameter.in}.${parameter.name}`
+                                valuesDictionary[key] = {
+                                    parameter: parameter,
+                                    value: values[key]
+                                }
+                            }
+                        } else {
+                            const property = ActionHelper.getConnectionIdProperty(action)
+                            for (const parameter of property!.parameters.filter(p => (!p.hidden))) {
+                                const key = `${operation.operationId}.${parameter.direction}.${parameter.name}`
+                                valuesDictionary[key] = {
+                                    parameter: parameter.name,
+                                    value: parameter.value.primitiveValue.valueType.data.value
+                                }
                             }
                         }
-
-                        const actionConfiguration: ActionConfiguration = {
-                            actionId: actionId,
-                            data: valuesDictionary,
-                            configuration: []
-                        }
-
-                        for (const [key, entry] of Object.entries(valuesDictionary)) {
-                            const actionConfigurationValue = WorkflowHelper.resolveActionConfigurationEntryValue(entry)
-                            actionConfiguration.configuration.push({
-                                path: key,
-                                name: actionConfigurationValue.name,
-                                key: actionConfigurationValue.key,
-                                value: actionConfigurationValue.value,
-                                type: actionConfigurationValue.type
-                            })
-                        }
-
-                        dependencies[contractId].connections[dependencyKey].actions[actionId] = actionConfiguration
                     }
+                    const actionConfiguration: ActionConfiguration = {
+                        actionId: actionId,
+                        data: valuesDictionary,
+                        configuration: []
+                    }
+
+                    for (const [key, entry] of Object.entries(valuesDictionary)) {
+                        const actionConfigurationValue = WorkflowHelper.resolveActionConfigurationEntryValue(entry)
+                        actionConfiguration.configuration.push({
+                            path: key,
+                            name: actionConfigurationValue.name,
+                            key: actionConfigurationValue.key,
+                            value: actionConfigurationValue.value,
+                            type: actionConfigurationValue.type
+                        })
+                    }
+                    dependencies[contractId].connections[dependencyKey].actions[actionId] = actionConfiguration
                 }
             }
         }
@@ -279,10 +313,12 @@ export class WorkflowHelper {
                         }
                     }
                     if (!(dependencies[dependencyKey].connections[connection.id].datasources[source.id])) {
+                        const config = FormHelper.getFormDatasourceConfiguration(source.id, form)
                         dependencies[dependencyKey].connections[connection.id].datasources[source.id] = {
                             datasourceId: source.id,
                             connectionId: connection.id,
                             contractId: dependencyKey,
+                            name: config?.dataSourceLabel,
                             formIds: []
                         }
                     }
@@ -305,12 +341,28 @@ export class WorkflowHelper {
         }
     }
 
-    static swapConnection = (workflow: Workflow, connectionId: string, newConnection: Connection): void => {
+    static swapConnection = (workflow: Workflow, connectionId: string, newConnection: Connection, connectionName: string, newContract: Contract, newContractSchema: OpenAPIV2.Document): void => {
         let dependency = WorkflowHelper.allConnectionDependencies(workflow.dependencies).find(cn => cn.connectionId === connectionId)
         if (!dependency) {
+            // Use case: Find invalid connections with the same name as the new one of imported workflows based on out-of-the-box contracts
             dependency = WorkflowHelper.allConnectionDependencies(workflow.dependencies).find(cn => cn.connectionName === newConnection.name && cn.contractId === newConnection.contractId && cn.needsResolution)
         }
+        if (!dependency) {
+            // Use case: Find invalid connections of imported workflows based on custom contracts
+            dependency = WorkflowHelper.allConnectionDependencies(workflow.dependencies).find(cn => cn.connectionName === connectionName && cn.needsResolution)
+        }
+        const currentContractId = dependency?.contractId
         if (dependency) {
+            const contractDependency = workflow.dependencies.contracts[newConnection.contractId]
+            if (!contractDependency) {
+                // Use case: Swapping connections of custom contracts
+                workflow.dependencies.contracts[newConnection.contractId] = {
+                    contractId: newConnection.contractId,
+                    contractName: newConnection.nwcObject.contractName,
+                    needsResolution: false,
+                    connections: {}
+                }
+            }
             let newConnectionDependency = workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id]
             if (!(newConnectionDependency)) {
                 workflow.dependencies.contracts[newConnection.contractId].connections[newConnection.id] = {
@@ -325,14 +377,82 @@ export class WorkflowHelper {
             }
             for (const actionId of Object.keys(dependency.actions)) {
                 const dic = WorkflowHelper.actionsDictionary(workflow.definition)
-                const value = ActionHelper.getXtensionInput(dic[actionId])
-                value.data = newConnection.nwcObject
-                value.literal = newConnection.id
+                const action = dic[actionId]
+                const newClassName = newContract.actions.find(a => a.name === action.configuration.originalName)?.type
+                const value = ActionHelper.getXtensionInput(action)
+                if (value) {
+                    value.data = newConnection.nwcObject
+                    value.literal = newConnection.id
+                } else {
+                    const parameter = ActionHelper.getConnectionIdParameter(action)
+                    parameter!.value.primitiveValue.valueType.data.value = newConnection.id
+                    const property = ActionHelper.getConnectionIdProperty(action)
+                    for (const param of property!.parameters) {
+                        if (param.value.primitiveValue?.valueType?.data?.value) {
+                            param.value.primitiveValue.valueType.data.value = parameter!.value.primitiveValue.valueType.data.value.split('/undefined/').join(`/${newConnection.id}/`)
+                        }
+                    }
+                }
                 newConnectionDependency.actions[actionId] = dependency.actions[actionId]
+                action.configuration.image.canvasSrc = newContract.icon
+                action.configuration.image.configPanelSrc = newContract.icon
+                action.configuration.image.toolboxSrc = newContract.icon
+                action.configuration.xtension!.id = newContract.id
+                if ((currentContractId) && currentContractId !== newContract.id) {
+                    for (const property of action.configuration.properties) {
+                        for (const parameter of property.parameters) {
+                            if ((parameter.dataType.subType) && (parameter.dataType.subType.startsWith(currentContractId))) {
+                                parameter.dataType.subType = `${newContract.id}|${newClassName!}`
+                            }
+                            if (parameter.value) {
+                                if (parameter.value.variable) {
+                                    if (parameter.value.variable.valueType) {
+                                        if (parameter.value.variable.valueType.type) {
+                                            if (parameter.value.variable.valueType.type.subType) {
+                                                if (parameter.value.variable.valueType.type.subType.startsWith(currentContractId)) {
+                                                    parameter.value.variable.valueType.type.subType = `${newContract.id}|${newClassName!}`
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    for (const variable of workflow.definition.variables) {
+                        if ((variable.dataType.subType) && variable.dataType.subType.startsWith(currentContractId)) {
+                            variable.dataType.subType = `${newContract.id}|${newClassName!}`
+                        }
+                    }
+                }
+                if (action.className.startsWith('xtension')) {
+                    if (newClassName) {
+                        action.className = newClassName
+                        action.configuration.serverInfo.className = newClassName
+                    }
+                }
             }
             dependency.actions = {}
             if (Object.values(dependency.actions).length === 0 && Object.values(dependency.datasources).length === 0) {
-                delete workflow.dependencies.contracts[dependency.contractId].connections[dependency.connectionId]
+                if (dependency.needsResolution)
+                    delete workflow.dependencies.contracts[dependency.contractId].connections[dependency.connectionName]
+                else {
+                    delete workflow.dependencies.contracts[dependency.contractId].connections[dependency.connectionId]
+                }
+            }
+            if (Object.values(workflow.dependencies.contracts[dependency.contractId].connections).length === 0) {
+                delete workflow.dependencies.contracts[dependency.contractId]
+            }
+            if ((currentContractId) && currentContractId !== newContract.id) {
+                const existingInUseXtensionRecord = workflow.definition.inUseXtensions[currentContractId]
+                const newInUseXtensionUsage: xtensionUsage = {
+                    usedByActionIds: existingInUseXtensionRecord.usedByActionIds,
+                    usedByEventIds: existingInUseXtensionRecord.usedByEventIds,
+                    xtension: newContractSchema
+                }
+                workflow.definition.inUseXtensions[newContract.id] = newInUseXtensionUsage
+                delete workflow.definition.inUseXtensions[currentContractId]
             }
         }
     }
@@ -342,15 +462,16 @@ export class WorkflowHelper {
         if (dependency) {
             for (const formId of dependency.formIds) {
                 const form = (formId === 'startForm' ? workflow.forms.startForm : workflow.forms.taskForms![formId])!
-                const existingConnection = (FormHelper.getFormDatasourceConnection(datasourceId, form))!
                 const allControls = FormHelper.getFormDatasourceControls(datasourceId, form)
                 for (const control of allControls) {
                     const datasourceConfiguration = FormHelper.getFormDatasourceControlConfig(control)
                     datasourceConfiguration.dataSourceId = newDatasource.id
                     datasourceConfiguration.dataSourceLabel = newDatasource.name
                     const configNode = FormHelper.getDatasourceConnectionIdNode(datasourceConfiguration)
-                    configNode.literal = newConnection.id
-                    configNode.data = newConnection.nwcObject
+                    if (configNode) {
+                        configNode.literal = newConnection.id
+                        configNode.data = newConnection.nwcObject
+                    }
                     if (control.properties.items) {
                         control.properties.items.dataSourceId = newDatasource.id
                         for (const key of Object.keys(control.properties.items.config.value)) {
@@ -367,8 +488,10 @@ export class WorkflowHelper {
                     datasourceConfiguration.dataSourceId = newDatasource.id
                     datasourceConfiguration.dataSourceLabel = newDatasource.name
                     const configNode = FormHelper.getDatasourceConnectionIdNode(datasourceConfiguration)
-                    configNode.literal = newConnection.id
-                    configNode.data = newConnection.nwcObject
+                    if (configNode) {
+                        configNode.literal = newConnection.id
+                        configNode.data = newConnection.nwcObject
+                    }
                 }
                 form.dataSourceContext![newDatasource.id] = { id: newDatasource.id }
                 delete form.dataSourceContext![datasourceId]
@@ -410,6 +533,26 @@ export class WorkflowHelper {
         }
     }
 
+    static swapWorkflowDependency = (workflow: Workflow, existingWorkflowId: string, newWorkflowId: string): void => {
+        const dependency = WorkflowHelper.allWorkflowDependencies(workflow.dependencies).find(dep => dep.workflowId === existingWorkflowId)
+        if (dependency) {
+            for (const actionId of dependency.actionIds) {
+                const action = WorkflowHelper.actionsDictionary(workflow.definition)[actionId]
+                const parameter = ActionHelper.getComponentWorkflowIdParameter(action)
+                if (parameter) {
+                    parameter.value.primitiveValue.valueType.data.value = newWorkflowId
+                }
+            }
+
+            workflow.dependencies.workflows[newWorkflowId] = {
+                workflowId: newWorkflowId,
+                actionIds: dependency.actionIds
+            }
+
+            delete workflow.dependencies.workflows[existingWorkflowId]
+        }
+    }
+
     static findConnectionDependency = (workflow: Workflow, connectionId: string): ConnectionDependency | undefined => {
         for (const contractId in workflow.dependencies.contracts) {
             if (workflow.dependencies.contracts[contractId].connections[connectionId]) {
@@ -417,5 +560,7 @@ export class WorkflowHelper {
             }
         }
         return undefined
+
+
     }
 }

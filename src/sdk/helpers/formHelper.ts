@@ -58,14 +58,27 @@ export class FormHelper {
         return (config) ? this.getDatasourceConnectionIdNode(config)?.data : undefined
     }
 
-    static getFormDatasourceConnection = (datasourseId: string, form: Form): connection | undefined => {
+
+    static getFormDatasourceConfiguration = (datasourseId: string, form: Form): FormControlDatasourceConfig | undefined => {
         const controls = this.getFormDatasourceControls(datasourseId, form)
         if (controls.length > 0) {
-            return this.getDatasourceConnection(controls[0])
+            return this.getFormDatasourceControlConfig(controls[0])
+        }
+        const variables = this.getFormDatasourceVariables(datasourseId, form)
+        if (variables.length > 0) {
+            return this.getFormDatasourceVariableConfig(variables[0])
+        }
+        return undefined
+    }
+
+    static getFormDatasourceConnection = (datasourseId: string, form: Form): connection | undefined => {
+        const variables = this.getFormDatasourceVariables(datasourseId, form)
+        if (variables.length > 0) {
+            return this.getDatasourceConnection(variables[0])
         } else {
-            const variables = this.getFormDatasourceVariables(datasourseId, form)
-            if (variables.length > 0) {
-                return this.getDatasourceConnection(variables[0])
+            const controls = this.getFormDatasourceControls(datasourseId, form)
+            if (controls.length > 0) {
+                return this.getDatasourceConnection(controls[0])
             }
         }
     }

@@ -7,7 +7,6 @@
         "noLib": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "sourceMap": true,
         "lib": [
             "es6", "dom"
         ],
@@ -15,9 +14,10 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "outDir": "./dist",
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "sourceMap": true
     },
-    "exclude": ["node_modules", "**/*/lib", "**/*/dist", "__template__"],
+    "exclude": ["node_modules", "**/*/lib", "**/*/dist", "/sandbox/**/*"],
     "paths": {
         "@base/*": ["./*"]
     },
