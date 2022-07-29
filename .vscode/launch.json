@@ -16,18 +16,5 @@
         "skipFiles": [
             "<node_internals>/**"
         ]
-    }, {
-        "type": "node",
-        "request": "launch",
-        "name": "Debug client",
-        "runtimeExecutable": "npm",
-        "runtimeArgs": [
-            "run-script",
-            "test",
-            "--preserve-symlinks"
-        ],
-        "skipFiles": [
-            "<node_internals>/**"
-        ]
     }]
 }

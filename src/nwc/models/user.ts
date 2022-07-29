@@ -13,11 +13,11 @@ export type user = {
 	roles?: Array<string>;
 	permissions?: Array<string>;
 	tenantId?: string;
+	tenantName?: string;
 	name?: string;
 	firstName?: string;
 	lastName?: string;
 	email?: string;
 	nintexTenantId?: string;
 	displayName?: string;
-	tenantName?: string;
 };
