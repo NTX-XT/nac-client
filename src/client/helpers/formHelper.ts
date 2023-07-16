@@ -1,5 +1,5 @@
 import { isForm, isFormControl } from "../../typeGuards"
-import { connection } from "../../nwc"
+import { connection } from "../../nac"
 import { KnownStrings } from "../../utils/knownStrings"
 import { Form } from "../models/form"
 import { FormControl } from "../models/formControl"

@@ -1,5 +1,4 @@
-
-import { Nwc, ApiError, permissionItem, datasourcePayload } from '../nwc'
+import { NAC, ApiError, permissionItem, datasourcePayload } from '../nac'
 import { ClientCredentials } from "./models/clientCredentials"
 import { Tenant } from './models/tenant'
 import { Workflow } from './models/workflow'
@@ -7,17 +6,16 @@ import { Contract } from './models/contract'
 import { WorkflowDesign } from './models/workflowDesign'
 import { Connection } from './models/connection';
 import { Datasource } from './models/datasource';
-import { NwcToSdkModelHelper } from './helpers/nwcToSdkModelHelper'
+import { NACToClientModelHelper } from './helpers/NACToClientModelHelper'
 import { User } from './models/user'
-import { PermissionType, SdkToNwcModelHelper } from './helpers/sdkToNwcModelHelper'
-import { CacheClear, CacheUpdate, Cacheable } from '@type-cacheable/core'
+import { PermissionType, ClientToNACModelHelper } from './helpers/ClientToNACModelHelper'
+import { CacheClear, Cacheable } from '@type-cacheable/core'
 import { OpenAPIV2 } from 'openapi-types'
 import { ConnectionSchema } from './models/connectionSchema'
 import { ConnectionProperty } from './models/connectionProperty'
 import { Tag } from './models/tag'
 import { DatasourceHelper } from './helpers/datasourceHelper'
 import { Permission } from './models/permission'
-import { ThisExpression, ThisTypeNode } from 'ts-morph'
 import { WorkflowHelper } from './helpers/workflowHelper'
 
 export interface WorkflowsQueryOptions {
@@ -41,15 +39,15 @@ const invalidContract: Contract = {
     icon: ""
 }
 
-export class Sdk {
+export class Client {
     private _tenant: Tenant
-    private _nwc: Nwc
+    private _nac: NAC
     private _token: string
     private _datasourceToken: string
     private _user: User
 
-    public get nwc(): Nwc {
-        return this._nwc
+    public get nac(): NAC {
+        return this._nac
     }
 
     public get tenant(): Tenant {
@@ -65,7 +63,7 @@ export class Sdk {
         this._token = token
         this._datasourceToken = datasourceToken
         this._user = user
-        this._nwc = new Nwc({
+        this._nac = new NAC({
             CREDENTIALS: "include",
             BASE: tenant.apiManagerUrl,
             HEADERS: () => {
@@ -94,24 +92,24 @@ export class Sdk {
         return undefined
     }
 
-    public static connectWithClientCredentials(credentials: ClientCredentials): Promise<Sdk> {
-        return new Nwc({
+    public static connectWithClientCredentials(credentials: ClientCredentials): Promise<Client> {
+        return new NAC({
             CREDENTIALS: 'include',
             BASE: defaultBaseURL(credentials.isTestTenant)
         }).default.getToken({ client_id: credentials.clientId, client_secret: credentials.clientSecret, grant_type: "client_credentials" })
-            .then((response) => Promise.resolve(Sdk.connectWithToken(response.access_token!, credentials.isTestTenant)))
+            .then((response) => Promise.resolve(Client.connectWithToken(response.access_token!, credentials.isTestTenant)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
-    public static connectWithToken(token: string, isTestTenant: boolean = false): Promise<Sdk> {
-        let temporaryClient = new Nwc({
+    public static connectWithToken(token: string, isTestTenant: boolean = false): Promise<Client> {
+        let temporaryClient = new NAC({
             CREDENTIALS: 'include',
             TOKEN: token,
             BASE: defaultBaseURL(isTestTenant)
         })
         return temporaryClient.default.getTenantConfiguration()
             .then((tenantConfigurationRequestResult) => {
-                temporaryClient = new Nwc({
+                temporaryClient = new NAC({
                     CREDENTIALS: 'include',
                     TOKEN: token,
                     BASE: tenantConfigurationRequestResult.apiManagerUrl!
@@ -120,9 +118,9 @@ export class Sdk {
                     temporaryClient.default.getTenantInfo(tenantConfigurationRequestResult.user!.tenantId!),
                     temporaryClient.default.getDatasourceToken()])
                     .then((responses) => {
-                        const user = NwcToSdkModelHelper.User(tenantConfigurationRequestResult.user!)
-                        const client = new Sdk(
-                            NwcToSdkModelHelper.Tenant(responses[0], tenantConfigurationRequestResult), user, token, responses[1].token!)
+                        const user = NACToClientModelHelper.User(tenantConfigurationRequestResult.user!)
+                        const client = new Client(
+                            NACToClientModelHelper.Tenant(responses[0], tenantConfigurationRequestResult), user, token, responses[1].token!)
                         return client
                     })
                     .catch((error: ApiError) => Promise.reject(error))
@@ -132,15 +130,15 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "tags" })
     public getTags(): Promise<Tag[]> {
-        return this._nwc.default.getTenantTags()
-            .then((response) => response.resource!.map<Tag>((tag) => NwcToSdkModelHelper.Tag(tag)))
+        return this._nac.default.getTenantTags()
+            .then((response) => response.resource!.map<Tag>((tag) => NACToClientModelHelper.Tag(tag)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable({ cacheKey: "workflowDesigns" })
     public getWorkflowDesigns(options: WorkflowsQueryOptions = {}): Promise<WorkflowDesign[]> {
-        return this._nwc.default.getWorkflowDesigns(2000).then((response) => {
-            let workflowInfos = response.workflows!.map<WorkflowDesign>((wfl) => NwcToSdkModelHelper.WorkflowDesign(wfl))
+        return this._nac.default.getWorkflowDesigns(2000).then((response) => {
+            let workflowInfos = response.workflows!.map<WorkflowDesign>((wfl) => NACToClientModelHelper.WorkflowDesign(wfl))
             if (options.tag) {
                 workflowInfos = workflowInfos.filter((wfl) => {
                     const matchedTags = wfl.tags!.filter((tag) => (tag.name === options.tag))
@@ -164,7 +162,7 @@ export class Sdk {
             if (cn) {
                 dep.connectionName = cn.name
                 dep.needsResolution = false
-                workflow.dependencies.contracts[dep.contractId].contractName = cn.nwcObject.contractName
+                workflow.dependencies.contracts[dep.contractId].contractName = cn.NACObejct.contractName
             }
         }
         return workflow
@@ -172,9 +170,9 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "workflow" })
     public getWorkflow(workflowId: string): Promise<Workflow> {
-        return this._nwc.default.getWorkflow(workflowId)
+        return this._nac.default.getWorkflow(workflowId)
             .then((workflow) => this.getWorkflowDesign(workflowId)
-                .then((design) => this.resolveDependencies(NwcToSdkModelHelper.Workflow(workflow, design!))
+                .then((design) => this.resolveDependencies(NACToClientModelHelper.Workflow(workflow, design!))
                     .then((wfl) => wfl)
                     .catch((error) => Promise.reject(error)))
                 .catch((error) => Promise.reject(error))
@@ -206,14 +204,14 @@ export class Sdk {
     }
 
     public getWorkflowPermissions(workflowId: string): Promise<Permission[]> {
-        return Promise.all([this._nwc.default.getWorkflowOwners(workflowId), this._nwc.default.getWorkflowBusinessOwners(workflowId)])
-            .then((responses) => NwcToSdkModelHelper.WorkflowPermissions(responses[0].permissions, responses[1].businessOwners))
+        return Promise.all([this._nac.default.getWorkflowOwners(workflowId), this._nac.default.getWorkflowBusinessOwners(workflowId)])
+            .then((responses) => NACToClientModelHelper.WorkflowPermissions(responses[0].permissions, responses[1].businessOwners))
             .catch((error) => Promise.reject(error))
     }
 
     public updateWorkflowPermissions(workflowId: string, permissions: Permission[]): Promise<void> {
-        return this._nwc.default.updateWorkflowOwners(workflowId, { permissions: permissions.filter(p => p.isOwner).map<permissionItem>((item) => SdkToNwcModelHelper.workflowPermissionItem(item)) })
-            .then(() => this._nwc.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.filter(p => p.isUser).map<permissionItem>((item) => SdkToNwcModelHelper.workflowPermissionItem(item)) })
+        return this._nac.default.updateWorkflowOwners(workflowId, { permissions: permissions.filter(p => p.isOwner).map<permissionItem>((item) => ClientToNACModelHelper.workflowPermissionItem(item)) })
+            .then(() => this._nac.default.updateWorkflowBusinessOwners(workflowId, { businessOwners: permissions.filter(p => p.isUser).map<permissionItem>((item) => ClientToNACModelHelper.workflowPermissionItem(item)) })
                 .then(() => Promise.resolve())
                 .catch((error) => Promise.reject(error)))
             .catch((error) => Promise.reject(error))
@@ -221,14 +219,14 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "users" })
     public getUsers(): Promise<User[]> {
-        return this._nwc.default.getTenantUsers()
-            .then((response) => response.users!.map<User>((tenantUser) => NwcToSdkModelHelper.User(tenantUser)))
+        return this._nac.default.getTenantUsers()
+            .then((response) => response.users!.map<User>((tenantUser) => NACToClientModelHelper.User(tenantUser)))
             .catch((error) => Promise.reject(error))
     }
 
     public deleteWorkflow(workflowId: string): Promise<void> {
-        return this._nwc.default.deleteDraftWorkflow(workflowId)
-            .then(() => this._nwc.default.deletePublishedWorkflow(workflowId)
+        return this._nac.default.deleteDraftWorkflow(workflowId)
+            .then(() => this._nac.default.deletePublishedWorkflow(workflowId)
                 .then(() => Promise.resolve())
                 .catch((error: ApiError) => Promise.reject(error)))
             .catch((error: ApiError) => Promise.reject(error))
@@ -236,8 +234,8 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "connections" })
     public getConnections(): Promise<Connection[]> {
-        return this._nwc.default.getTenantConnections()
-            .then((response) => response.connections.map<Connection>(cn => NwcToSdkModelHelper.Connection(cn)))
+        return this._nac.default.getTenantConnections()
+            .then((response) => response.connections.map<Connection>(cn => NACToClientModelHelper.Connection(cn)))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -256,15 +254,15 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "connectionSchema" })
     public getConnectionSchema(connectionId: string): Promise<ConnectionSchema> {
-        return this._nwc.default.getTenantConnectionSchema(connectionId)
-            .then((schema) => NwcToSdkModelHelper.ConnectionSchema(schema))
+        return this._nac.default.getTenantConnectionSchema(connectionId)
+            .then((schema) => NACToClientModelHelper.ConnectionSchema(schema))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable({ cacheKey: "contracts" })
     public getContracts(): Promise<Contract[]> {
-        return Promise.all([this._nwc.default.getTenantContracts(true), this._nwc.default.getTenantConnectors()])
-            .then((responses) => responses[0].map<Contract>(cn => NwcToSdkModelHelper.Contract(cn, responses[1].connectors.find(c => c.id === cn.id))))
+        return Promise.all([this._nac.default.getTenantContracts(true), this._nac.default.getTenantConnectors()])
+            .then((responses) => responses[0].map<Contract>(cn => NACToClientModelHelper.Contract(cn, responses[1].connectors.find(c => c.id === cn.id))))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -282,7 +280,7 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "contractSchema" })
     public getContractSchema(contractId: string): Promise<OpenAPIV2.Document> {
-        return this._nwc.default.getTenantContractSchema(contractId)
+        return this._nac.default.getTenantContractSchema(contractId)
             .then((response) => response)
             .catch((error: ApiError) => Promise.reject(error))
     }
@@ -296,17 +294,17 @@ export class Sdk {
 
     @Cacheable({ cacheKey: "datasources" })
     public getDatasources(): Promise<Datasource[]> {
-        return this._nwc.default.getTenantDatasources()
+        return this._nac.default.getTenantDatasources()
             .then((response) => Promise.all(response.datasources.map<Promise<Datasource>>((datasource) =>
-                this._nwc.default.getDatasource(datasource.id)
-                    .then((ds) => NwcToSdkModelHelper.Datasource(ds)))))
+                this._nac.default.getDatasource(datasource.id)
+                    .then((ds) => NACToClientModelHelper.Datasource(ds)))))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
     @Cacheable({ cacheKey: "datasource" })
     public getDatasource(id: string): Promise<Datasource> {
-        return this._nwc.default.getDatasource(id)
-            .then((datasource) => NwcToSdkModelHelper.Datasource(datasource))
+        return this._nac.default.getDatasource(id)
+            .then((datasource) => NACToClientModelHelper.Datasource(datasource))
             .catch((error: ApiError) => Promise.reject(error))
     }
 
@@ -326,9 +324,9 @@ export class Sdk {
     @CacheClear({ cacheKey: "datasources" })
     public createDatasource(payload: datasourcePayload, permissions?: Permission[]): Promise<Datasource | undefined> {
         payload.definition = DatasourceHelper.ensureConnectionInDefinition(payload.definition, payload.connectionId)
-        return this._nwc.default.createDatasource(payload)
+        return this._nac.default.createDatasource(payload)
             .then((response) =>
-                this._nwc.default.updateDatasourcePermissions(response, { permissions: SdkToNwcModelHelper.permissionItems(permissions ?? this._defaultPermisssions(), PermissionType.DatasourcePost) })
+                this._nac.default.updateDatasourcePermissions(response, { permissions: ClientToNACModelHelper.permissionItems(permissions ?? this._defaultPermisssions(), PermissionType.DatasourcePost) })
                     .then(() => this.getDatasource(response))
                     .then((datasource) => datasource)
                     .catch((error) => Promise.reject(error)))
@@ -361,7 +359,7 @@ export class Sdk {
     // }
 
     public exportWorkflow = (id: string, withNonExpiringKey: boolean = true): Promise<string> =>
-        this._nwc.default.exportWorkflow(id, { isNonExpiring: withNonExpiringKey })
+        this._nac.default.exportWorkflow(id, { isNonExpiring: withNonExpiringKey })
             .then((response) => response.key!)
             .catch((error: ApiError) => Promise.reject(error))
 
@@ -375,7 +373,7 @@ export class Sdk {
                 if (!foundWorkflow) {
                     overwriteExisting = false
                 }
-                return this._nwc.default.importWorkflow({
+                return this._nac.default.importWorkflow({
                     name: name, key: key, overwriteExisting: overwriteExisting,
                     author: {
                         id: this._user.id,
@@ -394,9 +392,9 @@ export class Sdk {
 
     @CacheClear({ cacheKey: "connections" })
     public createConnection(contract: Contract, properties: Record<string, string>, permissions?: Permission[]): Promise<Connection | undefined> {
-        return this._nwc.default.createConnection(contract.appId, properties)
+        return this._nac.default.createConnection(contract.appId, properties)
             .then((response) =>
-                this._nwc.default.updateConnectionPermissions(response, { permissions: SdkToNwcModelHelper.permissionItems(permissions ?? this._defaultPermisssions(), PermissionType.ConnectionPost) })
+                this._nac.default.updateConnectionPermissions(response, { permissions: ClientToNACModelHelper.permissionItems(permissions ?? this._defaultPermisssions(), PermissionType.ConnectionPost) })
                     .then(() => this.getConnection(response))
                     .then((connection) => connection)
                     .catch((error) => Promise.reject(error)))
@@ -409,18 +407,18 @@ export class Sdk {
             workflow.permissions.push(everyonePermission(true, false))
         }
         this.ensureCorrectAuthorInDefinition(workflow)
-        return this._nwc.default.publishWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
+        return this._nac.default.publishWorkflow(workflow.id, ClientToNACModelHelper.updateWorkflowPayload(workflow))
             .then(() => {
                 if ((workflow.startEvents) && workflow.startEvents[0].eventType === 'nintex:scheduledstart') {
                     return this.getWorkflow(workflow.id)
                         .then((published) => {
-                            return this._nwc.default.getWorkflowEndpoints(published.id)
+                            return this._nac.default.getWorkflowEndpoints(published.id)
                                 .then((response) => {
                                     if (response.endpoints![0].url!.endsWith('published//instances')) {
                                         response.endpoints![0].url = response.endpoints![0].url!.replace('published//instances', `published/${published.id}/instances`)
                                     }
-                                    const payload = SdkToNwcModelHelper.scheduleWorkflowPayload(published, response)
-                                    return this._nwc.default.scheduleWorkflow(published.id, payload)
+                                    const payload = ClientToNACModelHelper.scheduleWorkflowPayload(published, response)
+                                    return this._nac.default.scheduleWorkflow(published.id, payload)
                                         .then((response) => {
                                             console.log(response)
                                             return this.getWorkflow(published.id)
@@ -443,7 +441,7 @@ export class Sdk {
             workflow.permissions.push(everyonePermission(true, false))
         }
         this.ensureCorrectAuthorInDefinition(workflow)
-        return this._nwc.default.saveWorkflow(workflow.id, SdkToNwcModelHelper.updateWorkflowPayload(workflow))
+        return this._nac.default.saveWorkflow(workflow.id, ClientToNACModelHelper.updateWorkflowPayload(workflow))
             .then((response) => this.getWorkflow(response.workflowId)
                 .then((workflow) => workflow))
             .catch((error: ApiError) => Promise.reject(error))

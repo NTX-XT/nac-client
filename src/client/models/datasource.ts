@@ -1,4 +1,4 @@
-import { datasource } from "../../nwc"
+import { datasource } from "../../nac"
 export interface Datasource {
     id: string
     name: string

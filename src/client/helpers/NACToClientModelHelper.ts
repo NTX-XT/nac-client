@@ -1,4 +1,4 @@
-import { connection, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, workflowDesign, permissionItem, connectionSchema, connectionSchemaProperty, user, connector } from "../../nwc";
+import { connection, contract, datasource, tenantInfo, tenantConfiguration, workflow, tag, workflowDesign, permissionItem, connectionSchema, connectionSchemaProperty, user, connector } from "../../nac";
 import { Connection } from "../models/connection";
 import { Contract } from "../models/contract";
 import { Datasource } from "../models/datasource";
@@ -12,13 +12,13 @@ import { ConnectionProperty } from "../models/connectionProperty";
 import { ConnectionSchema } from "../models/connectionSchema";
 import { WorkflowHelper } from "./workflowHelper";
 
-export class NwcToSdkModelHelper {
+export class NACToClientModelHelper {
     public static Connection = (connection: connection): Connection => ({
         id: connection.id,
         name: connection.displayName,
         isValid: !(connection.isInvalid ?? false),
         contractId: connection.contractId,
-        nwcObject: connection
+        NACObejct: connection
     })
 
     public static ConnectionSchema = (schema: connectionSchema): ConnectionSchema => ({
@@ -70,8 +70,8 @@ export class NwcToSdkModelHelper {
         id: workflowDesign.id!,
         name: workflowDesign.name!,
         engine: workflowDesign.engine,
-        tags: workflowDesign.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
-        businessOwners: workflowDesign.businessOwners.map<Permission>((item) => NwcToSdkModelHelper.Permission(item)),
+        tags: workflowDesign.tags!.map((tag) => NACToClientModelHelper.Tag(tag)),
+        businessOwners: workflowDesign.businessOwners.map<Permission>((item) => NACToClientModelHelper.Permission(item)),
         formUrl: workflowDesign.published?.urls?.formUrl ?? workflowDesign.draft?.urls?.formUrl
     });
 
@@ -96,11 +96,11 @@ export class NwcToSdkModelHelper {
     public static WorkflowPermissions = (workflowOwners: permissionItem[], businessOwners: permissionItem[]): Permission[] => {
         const owners = workflowOwners.map<Permission>((item) => {
             item.scope = { own: true, use: false }
-            return NwcToSdkModelHelper.Permission(item)
+            return NACToClientModelHelper.Permission(item)
         })
         const users = businessOwners.map<Permission>((item) => {
             item.scope = { own: false, use: true }
-            return NwcToSdkModelHelper.Permission(item)
+            return NACToClientModelHelper.Permission(item)
         })
 
         const permissions: Permission[] = [...owners]
@@ -134,7 +134,7 @@ export class NwcToSdkModelHelper {
             info: {
                 engine: workflow.engineName,
                 eventType: workflow.eventType,
-                tags: workflow.tags!.map((tag) => NwcToSdkModelHelper.Tag(tag)),
+                tags: workflow.tags!.map((tag) => NACToClientModelHelper.Tag(tag)),
                 isActive: workflow.isActive === undefined ? false : workflow.isActive,
                 isPublished: workflow.isPublished === undefined ? false : workflow.isPublished,
                 publishedId: workflow.publishedId,
@@ -144,10 +144,10 @@ export class NwcToSdkModelHelper {
                 designVersion: definition.settings.workflowMetaData?.workflowDesignVersion ?? workflow.workflowDesignVersion,
                 type: workflow.workflowType,
                 comments: workflow.workflowVersionComments,
-                author: NwcToSdkModelHelper.User(workflow.author!)
+                author: NACToClientModelHelper.User(workflow.author!)
             },
             startEvents: workflow.startEvents,
-            permissions: NwcToSdkModelHelper.WorkflowPermissions(workflow.permissions ?? [], design.businessOwners),
+            permissions: NACToClientModelHelper.WorkflowPermissions(workflow.permissions ?? [], design.businessOwners),
             dependencies: dependencies,
             forms: forms,
             definition: definition,

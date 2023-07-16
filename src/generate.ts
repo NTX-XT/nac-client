@@ -3,25 +3,26 @@ import { generate, Indent } from 'openapi-typescript-codegen'
 import * as path from 'path'
 import { Project, MethodDeclarationStructure, Scope, TypeAliasDeclarationStructure, OptionalKind, ImportDeclarationStructure, ExportDeclarationStructure, MethodDeclaration } from "ts-morph";
 
-const generatedClientNameClassName = 'Nwc'
-const projectPath = './src/nwc'
+const generatedClientClassName = 'NAC'
+const generatedClientFileName = 'nac'
+const projectPath = `./src/${generatedClientFileName}`
 const serviceClassName = 'DefaultService'
 
 generate({
-    input: './src/specifications/NintexWorkflowCloudeXtended.swagger.json',
+    input: './src/specifications/NintexAutomationCloudeXtended.swagger.json',
     output: projectPath,
     //    postfix: postfix,
     httpClient: 'axios',
-    clientName: generatedClientNameClassName,
+    clientName: generatedClientClassName,
     indent: Indent.TAB
 }).then(() => {
     const project = new Project()
     project.addSourceFilesAtPaths(path.join(projectPath, "**/*.ts"));
-    addCachingToNWCClient(project);
+    addCaching(project);
     project.saveSync()
 })
 
-function addCachingToNWCClient(project: Project) {
+function addCaching(project: Project) {
     const serviceClassFile = project.getSourceFileOrThrow(path.join(projectPath, `services/${serviceClassName}.ts`));
     const serviceClass = serviceClassFile.getClassOrThrow(serviceClassName);
     serviceClassFile.addImportDeclarations([{
@@ -98,18 +99,6 @@ function addCachingToNWCClient(project: Project) {
         const additionalTypesFile = project.createSourceFile(path.join(projectPath, 'models/additionalTypes.ts'), undefined, { overwrite: true })
         additionalTypesFile.addTypeAliases(additionalTypes)
         additionalTypesFile.fixMissingImports()
-        // const foundNamedImports = additionalTypesFile.getImportDeclarations()[0]
-
-        // const typeNames = foundNamedImports.getNamedImports().map((namedImport) => namedImport.getName())
-        // const importDeclarations = typeNames.map((typeName) => {
-        //     return {
-        //         moduleSpecifier: `./${typeName}`,
-        //         namedImports: [typeName]
-        //     } as OptionalKind<ImportDeclarationStructure>
-        // })
-        // additionalTypesFile.insertImportDeclarations(0, importDeclarations)
-        // foundNamedImports.remove()
-
         additionalTypesFile.insertStatements(0, ['/* istanbul ignore file */', '/* tslint:disable */', '/* eslint-disable */'])
         serviceClassFile.fixMissingImports()
         const indexFile = project.getSourceFileOrThrow(path.join(projectPath, 'index.ts'))
@@ -121,6 +110,7 @@ function addCachingToNWCClient(project: Project) {
             } as OptionalKind<ExportDeclarationStructure>
         })
         indexFile.addExportDeclarations(exportDeclarations)
+        indexFile.getExportDeclaration(`./${generatedClientClassName}`)?.setModuleSpecifier(`./${generatedClientFileName}`)
     }
 }
 

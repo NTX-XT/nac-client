@@ -1,7 +1,8 @@
 import { ActionConfigurationEntry } from "./actionConfigurationEntry";
 
 export interface ActionConfiguration {
-    actionId: string
+    actionId: string;
+    name: string;
     data: any;
     configuration: ActionConfigurationEntry[];
 }

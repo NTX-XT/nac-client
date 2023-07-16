@@ -9,7 +9,7 @@ import { DefaultService } from './services/DefaultService';
 
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 
-export class Nwc {
+export class NAC {
 
 	public readonly default: DefaultService;
 

@@ -1,7 +1,7 @@
 {
-    "name": "@nwc-sdk/client",
-    "version": "1.1.5",
-    "description": "Typescript client for the experimental nwc sdk",
+    "name": "@ntx-xt/nac-client",
+    "version": "1.0.0",
+    "description": "Unofficial typescript client for Nintex Automation Cloud",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "typings": "dist/index.d.ts",
@@ -21,14 +21,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/NTX-XT/nwc-sdk-client.git"
+        "url": "git+https://github.com/NTX-XT/nac-client.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/NTX-XT/nwc-sdk-client/issues"
+        "url": "https://github.com/NTX-XT/nac-client/issues"
     },
-    "homepage": "https://github.com/NTX-XT/nwc-sdk-client#readme",
+    "homepage": "https://github.com/NTX-XT/nac-client#readme",
     "dependencies": {
         "@type-cacheable/core": "^10.1.0",
         "@type-cacheable/node-cache-adapter": "^10.0.4",
@@ -55,9 +55,6 @@
         "eslint-plugin-import": "^2.25.3",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^6.0.0",
-        "lerna": "^4.0.0",
-        "lerna-templater": "^1.4.2",
-        "lerna-update-wizard": "^1.1.2",
         "openapi-typescript-codegen": "^0.23.0",
         "prettier": "^2.4.1",
         "ts-morph": "^14.0.0",

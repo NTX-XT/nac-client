@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "Nintex Workflow Cloud eXtended",
-        "description": "An extended set of Nintex Workflow Cloud APIs, included some non-supported ones",
+        "title": "Nintex Automation Cloud eXtended",
+        "description": "An extended set of Nintex Automation Cloud APIs, included some non-supported ones",
         "version": "1.0.0"
     },
     "host": "us.nintex.io",
@@ -24,33 +24,35 @@
                 "description": "Retrieve authentication token",
                 "operationId": "getToken",
                 "x-ntx-summary": "Retrieve authentication token",
-                "parameters": [{
-                    "name": "options",
-                    "in": "body",
-                    "required": true,
-                    "schema": {
-                        "type": "object",
-                        "required": [
-                            "client_id",
-                            "client_secret",
-                            "grant_type"
-                        ],
-                        "properties": {
-                            "client_id": {
-                                "type": "string"
-                            },
-                            "client_secret": {
-                                "type": "string"
-                            },
-                            "grant_type": {
-                                "type": "string",
-                                "enum": [
-                                    "client_credentials"
-                                ]
+                "parameters": [
+                    {
+                        "name": "options",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "client_id",
+                                "client_secret",
+                                "grant_type"
+                            ],
+                            "properties": {
+                                "client_id": {
+                                    "type": "string"
+                                },
+                                "client_secret": {
+                                    "type": "string"
+                                },
+                                "grant_type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "client_credentials"
+                                    ]
+                                }
                             }
                         }
                     }
-                }],
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -85,13 +87,15 @@
                 "description": "Get tenant info",
                 "operationId": "getTenantInfo",
                 "x-ntx-summary": "Get tenant info",
-                "parameters": [{
-                    "name": "tenantId",
-                    "in": "path",
-                    "description": "The tenant Id",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "tenantId",
+                        "in": "path",
+                        "description": "The tenant Id",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -135,7 +139,9 @@
                         "description": "Ok",
                         "schema": {
                             "type": "object",
-                            "required": ["connectors"],
+                            "required": [
+                                "connectors"
+                            ],
                             "properties": {
                                 "connectors": {
                                     "type": "array",
@@ -168,7 +174,9 @@
                                     }
                                 }
                             },
-                            "required": ["connections"]
+                            "required": [
+                                "connections"
+                            ]
                         }
                     }
                 }
@@ -179,13 +187,15 @@
                 "description": "Get tenant connection schema",
                 "operationId": "getTenantConnectionSchema",
                 "x-ntx-summary": "Get tenant connection schema",
-                "parameters": [{
-                    "name": "connectionId",
-                    "in": "path",
-                    "description": "The connection Id",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "connectionId",
+                        "in": "path",
+                        "description": "The connection Id",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -235,7 +245,9 @@
                                     }
                                 }
                             },
-                            "required": ["datasources"]
+                            "required": [
+                                "datasources"
+                            ]
                         }
                     }
                 }
@@ -246,16 +258,20 @@
                 "description": "Get datasource",
                 "operationId": "getDatasource",
                 "x-ntx-summary": "Get datasource",
-                "security": [{
-                    "datasources": []
-                }],
-                "parameters": [{
-                    "name": "datasourceId",
-                    "in": "path",
-                    "description": "Datasource Id",
-                    "type": "string",
-                    "required": true
-                }],
+                "security": [
+                    {
+                        "datasources": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "datasourceId",
+                        "in": "path",
+                        "description": "Datasource Id",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -271,18 +287,22 @@
                 "description": "Create datasource",
                 "operationId": "createDatasource",
                 "x-ntx-summary": "Create datasource",
-                "security": [{
-                    "datasources": []
-                }],
-                "parameters": [{
-                    "name": "payload",
-                    "in": "body",
-                    "description": "Datasource payload",
-                    "schema": {
-                        "$ref": "#/definitions/datasourcePayload"
-                    },
-                    "required": true
-                }],
+                "security": [
+                    {
+                        "datasources": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "in": "body",
+                        "description": "Datasource payload",
+                        "schema": {
+                            "$ref": "#/definitions/datasourcePayload"
+                        },
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -298,16 +318,20 @@
                 "description": "Get tenant contracts",
                 "operationId": "getTenantContracts",
                 "x-ntx-summary": "Get tenant contracts",
-                "security": [{
-                    "datasources": []
-                }],
-                "parameters": [{
-                    "name": "includePublic",
-                    "in": "query",
-                    "description": "Include public contracts",
-                    "type": "boolean",
-                    "default": true
-                }],
+                "security": [
+                    {
+                        "datasources": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "includePublic",
+                        "in": "query",
+                        "description": "Include public contracts",
+                        "type": "boolean",
+                        "default": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -329,16 +353,20 @@
                 "description": "Get tenant contract schema",
                 "operationId": "getTenantContractSchema",
                 "x-ntx-summary": "Get tenant contract schema",
-                "security": [{
-                    "datasources": []
-                }],
-                "parameters": [{
-                    "name": "contractId",
-                    "in": "path",
-                    "description": "The contract Id",
-                    "type": "string",
-                    "required": true
-                }],
+                "security": [
+                    {
+                        "datasources": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "contractId",
+                        "in": "path",
+                        "description": "The contract Id",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -358,23 +386,26 @@
                 "description": "Create connection",
                 "operationId": "createConnection",
                 "x-ntx-summary": "Create connection",
-                "parameters": [{
-                    "name": "appId",
-                    "in": "query",
-                    "description": "The app id of the contract the connection is using",
-                    "type": "string",
-                    "required": true
-                }, {
-                    "name": "properties",
-                    "in": "body",
-                    "required": true,
-                    "schema": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
+                "parameters": [
+                    {
+                        "name": "appId",
+                        "in": "query",
+                        "description": "The app id of the contract the connection is using",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "properties",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
-                }],
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -390,19 +421,23 @@
                 "description": "Get workflow designs",
                 "operationId": "getWorkflowDesigns",
                 "x-ntx-summary": "Get workflow designs",
-                "parameters": [{
-                    "name": "limit",
-                    "in": "query",
-                    "description": "Total number of workflow designs to retrieve",
-                    "type": "number",
-                    "default": 2000
-                }],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Total number of workflow designs to retrieve",
+                        "type": "number",
+                        "default": 2000
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
                         "schema": {
                             "type": "object",
-                            "required": ["workflows"],
+                            "required": [
+                                "workflows"
+                            ],
                             "properties": {
                                 "workflows": {
                                     "type": "array",
@@ -421,7 +456,8 @@
                 "description": "Export workflow",
                 "operationId": "exportWorkflow",
                 "x-ntx-summary": "Export workflow",
-                "parameters": [{
+                "parameters": [
+                    {
                         "name": "workflowId",
                         "in": "path",
                         "description": "Id of the workflow design",
@@ -461,46 +497,47 @@
                 "description": "Import workflow",
                 "operationId": "importWorkflow",
                 "x-ntx-summary": "Import workflow",
-                "parameters": [{
-                    "name": "options",
-                    "in": "body",
-                    "required": true,
-                    "schema": {
-                        "type": "object",
-                        "required": [
-                            "name",
-                            "key",
-                            "author"
-                        ],
-                        "properties": {
-                            "name": {
-                                "type": "string"
-                            },
-                            "key": {
-                                "type": "string"
-                            },
-                            "overwriteExisting": {
-                                "type": "boolean",
-                                "default": false
-                            },
-                            "author": {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "tenantId": {
-                                        "type": "string"
+                "parameters": [
+                    {
+                        "name": "options",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "key",
+                                "author"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "key": {
+                                    "type": "string"
+                                },
+                                "overwriteExisting": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "author": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "tenantId": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
-
                             }
                         }
                     }
-                }],
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -516,13 +553,15 @@
                 "description": "Get workflow",
                 "operationId": "getWorkflow",
                 "x-ntx-summary": "Get workflow",
-                "parameters": [{
-                    "name": "workflowId",
-                    "in": "path",
-                    "description": "Id of the workflow",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -536,13 +575,15 @@
                 "description": "Delete draft workflow",
                 "operationId": "deleteDraftWorkflow",
                 "x-ntx-summary": "Delete draft Wworkflow",
-                "parameters": [{
-                    "name": "workflowId",
-                    "in": "path",
-                    "description": "Id of the workflow",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok"
@@ -553,7 +594,8 @@
                 "description": "Save workflow",
                 "operationId": "saveWorkflow",
                 "x-ntx-summary": "Save workflow",
-                "parameters": [{
+                "parameters": [
+                    {
                         "name": "workflowId",
                         "in": "path",
                         "description": "Id of the workflow",
@@ -578,14 +620,14 @@
                     }
                 }
             }
-
         },
         "/designer_/api/workflows/{workflowId}/published": {
             "post": {
                 "description": "Publish workflow",
                 "operationId": "publishWorkflow",
                 "x-ntx-summary": "Publish workflow",
-                "parameters": [{
+                "parameters": [
+                    {
                         "name": "workflowId",
                         "in": "path",
                         "description": "Id of the workflow",
@@ -614,13 +656,15 @@
                 "description": "Delete published workflow",
                 "operationId": "deletePublishedWorkflow",
                 "x-ntx-summary": "Delete published workflow",
-                "parameters": [{
-                    "name": "workflowId",
-                    "in": "path",
-                    "description": "Id of the workflow",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok"
@@ -633,7 +677,8 @@
                 "description": "Schedule workflow",
                 "operationId": "scheduleWorkflow",
                 "x-ntx-summary": "Schedule workflow",
-                "parameters": [{
+                "parameters": [
+                    {
                         "name": "workflowId",
                         "in": "path",
                         "description": "Id of the workflow",
@@ -663,13 +708,15 @@
             "get": {
                 "description": "Get workflow endpoints",
                 "operationId": "getWorkflowEndpoints",
-                "parameters": [{
-                    "name": "workflowId",
-                    "in": "path",
-                    "description": "Id of the workflow",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -690,7 +737,9 @@
                         "description": "Ok",
                         "schema": {
                             "type": "object",
-                            "required": ["users"],
+                            "required": [
+                                "users"
+                            ],
                             "properties": {
                                 "users": {
                                     "type": "array",
@@ -709,19 +758,23 @@
                 "description": "Get workflow owners",
                 "operationId": "getWorkflowOwners",
                 "x-ntx-summary": "Get workflow owners",
-                "parameters": [{
-                    "name": "workflowId",
-                    "in": "path",
-                    "description": "Id of the workflow",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
                         "schema": {
                             "type": "object",
-                            "required": ["permissions"],
+                            "required": [
+                                "permissions"
+                            ],
                             "properties": {
                                 "permissions": {
                                     "type": "array",
@@ -738,7 +791,8 @@
                 "description": "Update workflow owners",
                 "operationId": "updateWorkflowOwners",
                 "x-ntx-summary": "Update workflow owners",
-                "parameters": [{
+                "parameters": [
+                    {
                         "name": "workflowId",
                         "in": "path",
                         "description": "Id of the workflow",
@@ -774,19 +828,23 @@
                 "description": "Get workflow business owners",
                 "operationId": "getWorkflowBusinessOwners",
                 "x-ntx-summary": "Get workflow business owners",
-                "parameters": [{
-                    "name": "workflowId",
-                    "in": "path",
-                    "description": "Id of the workflow",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "workflowId",
+                        "in": "path",
+                        "description": "Id of the workflow",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
                         "schema": {
                             "type": "object",
-                            "required": ["businessOwners"],
+                            "required": [
+                                "businessOwners"
+                            ],
                             "properties": {
                                 "businessOwners": {
                                     "type": "array",
@@ -803,7 +861,8 @@
                 "description": "Update workflow business owners",
                 "operationId": "updateWorkflowBusinessOwners",
                 "x-ntx-summary": "Update workflow business owners",
-                "parameters": [{
+                "parameters": [
+                    {
                         "name": "workflowId",
                         "in": "path",
                         "description": "Id of the workflow",
@@ -839,19 +898,23 @@
                 "description": "Get connection permissions",
                 "operationId": "getConnectionPermissions",
                 "x-ntx-summary": "Get connection permissions",
-                "parameters": [{
-                    "name": "connectionId",
-                    "in": "path",
-                    "description": "The connection Id",
-                    "type": "string",
-                    "required": true
-                }],
+                "parameters": [
+                    {
+                        "name": "connectionId",
+                        "in": "path",
+                        "description": "The connection Id",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
                         "schema": {
                             "type": "object",
-                            "required": ["permissions"],
+                            "required": [
+                                "permissions"
+                            ],
                             "properties": {
                                 "permissions": {
                                     "type": "array",
@@ -867,7 +930,8 @@
             "post": {
                 "description": "Update connection permissions",
                 "operationId": "updateConnectionPermissions",
-                "parameters": [{
+                "parameters": [
+                    {
                         "name": "connectionId",
                         "in": "path",
                         "description": "The connection Id",
@@ -902,16 +966,20 @@
             "get": {
                 "description": "Get datasource permissions",
                 "operationId": "getDatasourcePermissions",
-                "security": [{
-                    "datasources": []
-                }],
-                "parameters": [{
-                    "name": "datasourceId",
-                    "in": "path",
-                    "description": "The datasource Id",
-                    "type": "string",
-                    "required": true
-                }],
+                "security": [
+                    {
+                        "datasources": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "datasourceId",
+                        "in": "path",
+                        "description": "The datasource Id",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -932,7 +1000,8 @@
             "put": {
                 "description": "Update datasource permissions",
                 "operationId": "updateDatasourcePermissions",
-                "parameters": [{
+                "parameters": [
+                    {
                         "name": "datasourceId",
                         "in": "path",
                         "description": "The datasource Id",
@@ -964,7 +1033,6 @@
             }
         }
     },
-
     "parameters": {
         "datasourceToken": {
             "name": "Authorization",
@@ -1282,7 +1350,6 @@
                 "tenancy_url",
                 "region"
             ],
-
             "properties": {
                 "id": {
                     "type": "string"
@@ -1807,7 +1874,8 @@
             }
         },
         "draftWorkflowDetails": {
-            "allOf": [{
+            "allOf": [
+                {
                     "$ref": "#/definitions/workflowDetails"
                 },
                 {
@@ -1821,7 +1889,8 @@
             ]
         },
         "publishedWorkflowDetails": {
-            "allOf": [{
+            "allOf": [
+                {
                     "$ref": "#/definitions/workflowDetails"
                 },
                 {
@@ -2709,7 +2778,6 @@
                     "type": "object",
                     "properties": {
                         "primitiveValue": {
-
                             "type": "object",
                             "properties": {
                                 "valueType": {
@@ -2839,7 +2907,6 @@
                     "items": {
                         "type": "string"
                     }
-
                 },
                 "isInUse": {
                     "type": "boolean"
@@ -3166,7 +3233,9 @@
                                     "type": "string"
                                 }
                             },
-                            "required": ["id"]
+                            "required": [
+                                "id"
+                            ]
                         }
                     },
                     "type": {
@@ -3437,15 +3506,17 @@
             "name": "Authorization"
         }
     },
-    "security": [{
-        "oauth2": [
-            "execute:instance",
-            "read:task",
-            "read:workflow",
-            "read:instance",
-            "manage:instance",
-            "manage:workflow",
-            "manage:task"
-        ]
-    }]
+    "security": [
+        {
+            "oauth2": [
+                "execute:instance",
+                "read:task",
+                "read:workflow",
+                "read:instance",
+                "manage:instance",
+                "manage:workflow",
+                "manage:task"
+            ]
+        }
+    ]
 }

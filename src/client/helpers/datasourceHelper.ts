@@ -1,7 +1,7 @@
 import { Datasource } from "../models/datasource";
 import jsonSchemaTraverse from "json-schema-traverse";
 import { KnownStrings } from "../../utils/knownStrings";
-import { datasourcePayload } from "../../nwc";
+import { datasourcePayload } from "../../nac";
 
 export class DatasourceHelper {
     static ensureConnectionInDefinition = (definition: string, newConnectionId: string): string => {

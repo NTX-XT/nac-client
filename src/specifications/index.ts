@@ -2,8 +2,8 @@
 import { OpenAPIV2 } from 'openapi-types'
 import { Collection } from 'postman-collection'
 
-import swaggerSpec from './NintexWorkflowCloudeXtended.swagger.json';
-import postmanSpec from './NintexWorkflowCloudeXtended.postman_collection.json';
+import swaggerSpec from './NintexAutomationCloudeXtended.swagger.json';
+import postmanSpec from './NintexAutomationCloudeXtended.postman_collection.json';
 
 export namespace Specifications {
     export const swagger = (): OpenAPIV2.Document => JSON.parse(JSON.stringify(swaggerSpec));

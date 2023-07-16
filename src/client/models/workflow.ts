@@ -1,4 +1,4 @@
-import { workflowDefinition, workflowStartEvent } from "../../nwc";
+import { workflowDefinition, workflowStartEvent } from "../../nac";
 import { WorkflowDependencies } from "./workflowDependencies";
 import { WorkflowForms } from "./workflowForms";
 import { WorkflowInfo } from "./workflowInfo";

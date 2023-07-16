@@ -1,4 +1,4 @@
-import { permissionItem, tag, updateWorkflowPayload, workflowDatasources, workflowEndpoints } from "../../nwc";
+import { permissionItem, tag, updateWorkflowPayload, workflowDatasources, workflowEndpoints } from "../../nac";
 import { DatasourceDependency } from "../models/datasourceDependency";
 import { Tag } from "../models/tag";
 import { Workflow } from "../models/workflow";
@@ -13,7 +13,7 @@ export enum PermissionType {
     ConnectionPost,
     Workflow
 }
-export class SdkToNwcModelHelper {
+export class ClientToNACModelHelper {
     public static tag = (tag: Tag): tag => (
         {
             name: tag.name,
@@ -74,7 +74,7 @@ export class SdkToNwcModelHelper {
         workflowDefinition: JSON.stringify(workflow.definition),
         author: workflow.info.author,
         startEvents: workflow.startEvents,
-        datasources: JSON.stringify(SdkToNwcModelHelper.datasources(WorkflowHelper.allDatasourceDependencies(workflow.dependencies))),
+        datasources: JSON.stringify(ClientToNACModelHelper.datasources(WorkflowHelper.allDatasourceDependencies(workflow.dependencies))),
         permissions: workflow.permissions.filter(p => p.isOwner).map<permissionItem>((item) => this.workflowPermissionItem(item)),
         businessOwners: workflow.permissions.filter(p => p.isUser).map<permissionItem>((item) => this.workflowPermissionItem(item)),
         workflowVersionComments: workflow.info.comments,

@@ -1,11 +1,11 @@
-import { connection } from "../../nwc";
+import { connection } from "../../nac";
 
 export interface Connection {
     id: string;
     name: string;
     isValid: boolean;
     contractId: string
-    nwcObject: connection
+    NACObejct: connection
 }
 
 

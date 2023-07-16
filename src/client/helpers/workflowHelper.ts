@@ -1,6 +1,6 @@
 import { arrayToDictionary, findOperation, flattenTree } from "../../utils";
 import { OpenAPIV2 } from "openapi-types";
-import { action, connection, workflowDatasources, workflowDefinition, workflowStartEvent, xtensionUsage } from "../../nwc";
+import { action, connection, workflowDatasources, workflowDefinition, workflowStartEvent, xtensionUsage } from "../../nac";
 import { ActionConfigurationEntryValue } from "../models/actionConfigurationEntryValue";
 import { WorkflowDependency } from "../models/workflowDependency";
 import { ActionHelper } from "./actionHelper";
@@ -171,6 +171,7 @@ export class WorkflowHelper {
                 if (!dependencies[referencedWorkflowId]) {
                     dependencies[referencedWorkflowId] = {
                         workflowId: referencedWorkflowId,
+                        workflowName: referencedWorkflowId,
                         actionIds: []
                     }
                 }
@@ -251,6 +252,7 @@ export class WorkflowHelper {
                     }
                     const actionConfiguration: ActionConfiguration = {
                         actionId: actionId,
+                        name: action.configuration.name,
                         data: valuesDictionary,
                         configuration: []
                     }
@@ -358,7 +360,7 @@ export class WorkflowHelper {
                 // Use case: Swapping connections of custom contracts
                 workflow.dependencies.contracts[newConnection.contractId] = {
                     contractId: newConnection.contractId,
-                    contractName: newConnection.nwcObject.contractName,
+                    contractName: newConnection.NACObejct.contractName,
                     needsResolution: false,
                     connections: {}
                 }
@@ -381,7 +383,7 @@ export class WorkflowHelper {
                 const newClassName = newContract.actions.find(a => a.name === action.configuration.originalName)?.type
                 const value = ActionHelper.getXtensionInput(action)
                 if (value) {
-                    value.data = newConnection.nwcObject
+                    value.data = newConnection.NACObejct
                     value.literal = newConnection.id
                 } else {
                     const parameter = ActionHelper.getConnectionIdParameter(action)
@@ -470,14 +472,14 @@ export class WorkflowHelper {
                     const configNode = FormHelper.getDatasourceConnectionIdNode(datasourceConfiguration)
                     if (configNode) {
                         configNode.literal = newConnection.id
-                        configNode.data = newConnection.nwcObject
+                        configNode.data = newConnection.NACObejct
                     }
                     if (control.properties.items) {
                         control.properties.items.dataSourceId = newDatasource.id
                         for (const key of Object.keys(control.properties.items.config.value)) {
                             if (key.endsWith(KnownStrings.NTXConnectionId)) {
                                 control.properties.items.config.value[key].literal = newConnection.id
-                                control.properties.items.config.value[key].data = newConnection.nwcObject
+                                control.properties.items.config.value[key].data = newConnection.NACObejct
                             }
                         }
                     }
@@ -490,7 +492,7 @@ export class WorkflowHelper {
                     const configNode = FormHelper.getDatasourceConnectionIdNode(datasourceConfiguration)
                     if (configNode) {
                         configNode.literal = newConnection.id
-                        configNode.data = newConnection.nwcObject
+                        configNode.data = newConnection.NACObejct
                     }
                 }
                 form.dataSourceContext![newDatasource.id] = { id: newDatasource.id }
@@ -546,6 +548,7 @@ export class WorkflowHelper {
 
             workflow.dependencies.workflows[newWorkflowId] = {
                 workflowId: newWorkflowId,
+                workflowName: newWorkflowId,
                 actionIds: dependency.actionIds
             }
 
