@@ -10,4 +10,5 @@ export type connectionSchemaProperty = {
 	default: string;
 	format?: string;
 	description?: string;
+	value?: string;
 };

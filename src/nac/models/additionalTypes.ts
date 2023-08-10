@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { connection } from "./connection";
+import { connectionSchema } from "./connectionSchema";
 import { connector } from "./connector";
 import { datasource } from "./datasource";
 import { datasourcePayload } from "./datasourcePayload";
@@ -18,6 +19,8 @@ export type getTokenOptions = {
 export type getTenantConnectorsResponseType = {connectors: Array<connector>;
     };
 export type getTenantConnectionsResponseType = {connections: Array<connection>;
+    };
+export type getTenantConnectionSchemaResponseType = {value?: connectionSchema;
     };
 export type getDatasourceTokenResponseType = {token?: string;
     };

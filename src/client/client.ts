@@ -255,7 +255,7 @@ export class Client {
     @Cacheable({ cacheKey: "connectionSchema" })
     public getConnectionSchema(connectionId: string): Promise<ConnectionSchema> {
         return this._nac.default.getTenantConnectionSchema(connectionId)
-            .then((schema) => NACToClientModelHelper.ConnectionSchema(schema))
+            .then((schema) => NACToClientModelHelper.ConnectionSchema(schema.value!))
             .catch((error: ApiError) => Promise.reject(error))
     }
 

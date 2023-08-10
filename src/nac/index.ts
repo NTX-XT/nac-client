@@ -65,6 +65,7 @@ export { DefaultService } from './services/DefaultService';
 export type { getTokenOptions } from "./models/additionalTypes";
 export type { getTenantConnectorsResponseType } from "./models/additionalTypes";
 export type { getTenantConnectionsResponseType } from "./models/additionalTypes";
+export type { getTenantConnectionSchemaResponseType } from "./models/additionalTypes";
 export type { getDatasourceTokenResponseType } from "./models/additionalTypes";
 export type { getTenantDatasourcesResponseType } from "./models/additionalTypes";
 export type { createDatasourcePayload } from "./models/additionalTypes";

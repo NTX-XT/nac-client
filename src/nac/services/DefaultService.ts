@@ -25,7 +25,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 import { Cacheable } from "@type-cacheable/core";
 import { ApiError } from "../core/ApiError";
-import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createDatasourcePayload, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, scheduleWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners, getConnectionPermissionsResponseType, updateConnectionPermissionsPermissions, getDatasourcePermissionsResponseType, updateDatasourcePermissionsPermissions } from "../models/additionalTypes";
+import { getTokenOptions, getTenantConnectorsResponseType, getTenantConnectionsResponseType, getTenantConnectionSchemaResponseType, getDatasourceTokenResponseType, getTenantDatasourcesResponseType, createDatasourcePayload, createConnectionProperties, getWorkflowDesignsResponseType, exportWorkflowOptions, importWorkflowOptions, saveWorkflowPayload, publishWorkflowPayload, scheduleWorkflowPayload, getTenantUsersResponseType, getWorkflowOwnersResponseType, updateWorkflowOwnersPermissions, getWorkflowBusinessOwnersResponseType, updateWorkflowBusinessOwnersBusinessOwners, getConnectionPermissionsResponseType, updateConnectionPermissionsPermissions, getDatasourcePermissionsResponseType, updateDatasourcePermissionsPermissions } from "../models/additionalTypes";
 
 export class DefaultService {
 
@@ -92,10 +92,10 @@ tenantId: string,
 
 	private getTenantConnectionSchemaCancelable(
 connectionId: string,
-): CancelablePromise<connectionSchema> {
+): CancelablePromise<getTenantConnectionSchemaResponseType> {
 		return this.httpRequest.request({
 			method: 'GET',
-			url: '/designer_/api/connections/{connectionId}/schema',
+			url: '/connection/api/v2/connections/{connectionId}/schema',
 			path: {
 				'connectionId': connectionId,
 			},
@@ -484,11 +484,11 @@ permissions: updateDatasourcePermissionsPermissions,
     /**
      * Get tenant connection schema
      * @param connectionId The connection Id
-     * @returns connectionSchema Ok
+     * @returns any Ok
      * @throws ApiError
      */
     @Cacheable()
-    public getTenantConnectionSchema(connectionId: string): Promise<connectionSchema> {
+    public getTenantConnectionSchema(connectionId: string): Promise<getTenantConnectionSchemaResponseType> {
         return this.getTenantConnectionSchemaCancelable(connectionId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 

@@ -182,7 +182,7 @@
                 }
             }
         },
-        "/designer_/api/connections/{connectionId}/schema": {
+        "/connection/api/v2/connections/{connectionId}/schema": {
             "get": {
                 "description": "Get tenant connection schema",
                 "operationId": "getTenantConnectionSchema",
@@ -200,7 +200,12 @@
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "$ref": "#/definitions/connectionSchema"
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "$ref": "#/definitions/connectionSchema"
+                                }
+                            }
                         }
                     }
                 }
@@ -1512,6 +1517,9 @@
                     "type": "string"
                 },
                 "description": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             },
