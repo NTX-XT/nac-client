@@ -4,8 +4,8 @@
 
 export type tokenResponse = {
 	access_token: string;
-	scope?: string;
-	expires_in?: number;
-	expires_at?: string;
-	token_type?: string;
+	scope: string;
+	expires_in: number;
+	expires_at: string;
+	token_type: string;
 };

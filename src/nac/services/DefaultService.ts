@@ -11,6 +11,7 @@ import type { exportWorkflowResponse } from '../models/exportWorkflowResponse';
 import type { importWorkflowResponse } from '../models/importWorkflowResponse';
 import type { permissionItem } from '../models/permissionItem';
 import type { saveWorkflowResponse } from '../models/saveWorkflowResponse';
+import type { startWorkflowResponse } from '../models/startWorkflowResponse';
 import type { tagResponse } from '../models/tagResponse';
 import type { tenantConfiguration } from '../models/tenantConfiguration';
 import type { tenantInfo } from '../models/tenantInfo';
@@ -20,6 +21,7 @@ import type { user } from '../models/user';
 import type { workflow } from '../models/workflow';
 import type { workflowDesign } from '../models/workflowDesign';
 import type { workflowEndpoints } from '../models/workflowEndpoints';
+import type { workflowInstance } from '../models/workflowInstance';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -190,6 +192,32 @@ limit: number = 2000,
 			url: '/workflows/v1/designs',
 			query: {
 				'limit': limit,
+			},
+		});
+	}
+
+	private startWorkflowCancelable(
+workflowId: string,
+startData?: any,
+): CancelablePromise<startWorkflowResponse> {
+		return this.httpRequest.request({
+			method: 'POST',
+			url: '/workflows/v1/designs/{workflowId}/instances',
+			path: {
+				'workflowId': workflowId,
+			},
+			body: startData,
+		});
+	}
+
+	private getWorkflowInstanceCancelable(
+instanceId: string,
+): CancelablePromise<workflowInstance> {
+		return this.httpRequest.request({
+			method: 'GET',
+			url: '/workflows/v2/instances/{instanceId}',
+			path: {
+				'instanceId': instanceId,
 			},
 		});
 	}
@@ -577,6 +605,29 @@ permissions: updateDatasourcePermissionsPermissions,
     @Cacheable()
     public getWorkflowDesigns(limit: number = 2000): Promise<getWorkflowDesignsResponseType> {
         return this.getWorkflowDesignsCancelable(limit).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Start a workflow
+     * @param workflowId The workflow id
+     * @param startData Start Data
+     * @returns startWorkflowResponse Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public startWorkflow(workflowId: string, startData?: any): Promise<startWorkflowResponse> {
+        return this.startWorkflowCancelable(workflowId, startData).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
+    }
+
+    /**
+     * Get workflow instance
+     * @param instanceId The instance id
+     * @returns workflowInstance Ok
+     * @throws ApiError
+     */
+    @Cacheable()
+    public getWorkflowInstance(instanceId: string): Promise<workflowInstance> {
+        return this.getWorkflowInstanceCancelable(instanceId).then((response) => Promise.resolve(response)).catch((error: ApiError) => Promise.reject(error))
     }
 
     /**

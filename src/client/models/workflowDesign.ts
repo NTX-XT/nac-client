@@ -1,11 +1,16 @@
-import { Tag } from "./tag";
-import { Permission } from "./permission";
+import { Tag } from './tag';
+import { Permission } from './permission';
 
 export interface WorkflowDesign {
-    id: string;
-    name: string;
-    engine?: string;
-    tags: Tag[];
-    formUrl?: string
-    businessOwners: Permission[]
+  id: string;
+  name: string;
+  engine?: string;
+  tags: Tag[];
+  formUrl?: string;
+  businessOwners: Permission[];
+}
+
+export interface WorkflowInstance {
+  instanceId: string;
+  status?: string;
 }
